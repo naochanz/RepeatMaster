@@ -1,13 +1,40 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
 import React from 'react'
-import AppName from '../compornents/AppName';
+import AppName from '../compornents/Header';
 import { useNavigation } from '@react-navigation/native';
 import { AuthStackParamList } from '@/types/navigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { z } from 'zod';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
+const signupSchema = z.object({
+    email: z.string({
+        required_error: 'メールアドレスは必須です'
+    }).email('正しいメールアドレスを入力してください'),
+    password: z.string({
+        required_error: 'パスワードは必須です'
+    }).min(8, 'パスワードは8文字以上で入力してください'),
+});
+
+type SignupFormData = z.infer<typeof signupSchema>;
 type LoginScreenNavigaionProp = NativeStackNavigationProp<AuthStackParamList, 'login'>;
 const login = () => {
     const navigation = useNavigation<LoginScreenNavigaionProp>();
+
+    const {
+        control, //reactだとregisterで入力値参照
+        handleSubmit,
+        formState: { errors, isSubmitting }
+    } = useForm<SignupFormData>({
+        resolver: zodResolver(signupSchema)
+    });
+
+    const onSubmit = (data: SignupFormData) => {
+        console.log('サインアップデータ', data);
+        navigation.navigate('app');
+    };
+
 
     return (
         <>
@@ -20,15 +47,40 @@ const login = () => {
                 </View>
                 <View style={styles.formContainer}>
                     <View style={styles.mailContainer}>
-                        <Text style={styles.mailText}>メールアドレス：</Text>
-                        <TextInput placeholder='example@e-mail.com' style={styles.email} placeholderTextColor="rgba(100, 100, 100, 0.7)" />
+                        <Controller
+                            control={control}
+                            name='email'
+                            render={({ field: { onChange, value } }) => (
+                                <View>
+                                    <Text style={styles.mailText}>メールアドレス：</Text>
+                                    <TextInput value={value} onChangeText={onChange} placeholder='example@e-mail.com' style={styles.email} placeholderTextColor="rgba(100, 100, 100, 0.7)" />
+                                    {errors.email && <Text style={styles.error}>{errors.email.message}</Text>
+                                    }
+                                </View>
+                            )}
+                        />
                     </View>
-                    <View style={styles.passContainer}>
-                        <Text style={styles.passText}>パスワード：</Text>
-                        <TextInput placeholder='パスワードを入力してください' style={styles.password} placeholderTextColor="rgba(100, 100, 100, 0.7)" />
-                    </View>
+                    <Controller
+                        control={control}
+                        name='password'
+                        render={({ field: { onChange, value } }) => (
+                            <View style={styles.passContainer}>
+                                <Text style={styles.passText}>パスワード：</Text>
+                                <TextInput value={value}
+                                    onChangeText={onChange}
+                                    placeholder='パスワードを入力してください'
+                                    style={styles.password}
+                                    secureTextEntry={true}
+                                    placeholderTextColor="rgba(100, 100, 100, 0.7)"
+                                />
+                                {errors.password && <Text style={styles.error}>{errors.password.message}</Text>
+                                }
+                            </View>
+                        )}
+
+                    />
                     <TouchableOpacity style={styles.loginButton}>
-                        <Text style={styles.buttonText} onPress={() => navigation.navigate('app')}>ログイン</Text>
+                        <Text style={styles.buttonText} onPress={handleSubmit(onSubmit)}>ログイン</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.signupButton} onPress={() => navigation.navigate('signup')}
                     >
@@ -128,6 +180,9 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         fontWeight: 'bold'
+    },
+    error: {
+        color: 'red'
     },
 });
 export default login

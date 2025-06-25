@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
 import React from 'react'
-import AppName from '../compornents/AppName';
+import AppName from '../compornents/Header';
 import { useNavigation } from '@react-navigation/native';
 import { AuthStackParamList } from '@/types/navigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -9,9 +9,15 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 const signupSchema = z.object({
-    email: z.string().email('正しいメールアドレスを入力してください'),
-    password: z.string().min(8, 'パスワードは8文字以上で入力してください'),
-    confirmPassword: z.string()
+    email: z.string({
+        required_error: 'メールアドレスは必須です'
+    }).email('正しいメールアドレスを入力してください'),
+    password: z.string({
+        required_error: 'パスワードは必須です'
+    }).min(8, 'パスワードは8文字以上で入力してください'),
+    confirmPassword: z.string({
+        required_error: 'パスワード確認は必須です'
+    })
 }).refine((data) => data.password === data.confirmPassword, {
     message: 'パスワードが一致しません',
     path: ['confirmPassword'],
@@ -33,6 +39,7 @@ const signup = () => {
 
     const onSubmit = (data: SignupFormData) => {
         console.log('サインアップデータ', data);
+        navigation.navigate('app');
     };
 
     return (
@@ -42,7 +49,7 @@ const signup = () => {
             </View>
             <View style={styles.container}>
                 <View style={styles.loginContainer}>
-                    <Text style={styles.loginContainerText}>ログイン情報を入力してください</Text>
+                    <Text style={styles.loginContainerText}>ログイン情報を登録してください</Text>
                 </View>
                 <View style={styles.formContainer}>
                     <View style={styles.mailContainer}>
@@ -86,7 +93,7 @@ const signup = () => {
                                 <Text style={styles.passText}>パスワード(確認用)：</Text>
                                 <TextInput value={value}
                                     onChangeText={onChange}
-                                    placeholder='パスワードを入力してください'
+                                    placeholder='確認用パスワードを入力してください'
                                     style={styles.password}
                                     secureTextEntry={true}
                                     placeholderTextColor="rgba(100, 100, 100, 0.7)" />
