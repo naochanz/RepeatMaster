@@ -13,33 +13,39 @@ const QuizBookCard = ({ quizBook, onPress }: QuizBookCardProps) => {
     <View>
       <TouchableOpacity style={styles.card} onPress={onPress}>
         <View style={styles.cardTextContainer}>
-          <Text>
-            {quizBook.title}
-            <br/>
-            正答率：{quizBook.correctRate}
-            <br/>
-            周回回数：{quizBook.currentRound}
-            <br/>
-            最新の更新日：{quizBook.lastStudyDate.toString()}
-          </Text>
+          <Text style={styles.title}>{quizBook.title}</Text>
+          <Text style={styles.detail}>正答率：{quizBook.correctRate}%</Text>
+          <Text style={styles.detail}>周回回数：{quizBook.currentRound}</Text>
+          <Text style={styles.detail}>最終更新：今日</Text>
         </View>
       </TouchableOpacity>
-
     </View>
   )
 }
 const styles = StyleSheet.create({
+
   card: {
-    width: '48%',  // 2列なので48%（余白考慮）
-    aspectRatio: 1,  // 正方形
+    flex: 1,
     backgroundColor: '#e7eb8a',
-    borderRadius: 12,
     padding: 15,
+    justifyContent: 'center',
+    aspectRatio: 1,
   },
   cardTextContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  detail: {
+    fontSize: 12,
+    textAlign: 'center',
+    marginBottom: 4,
   },
 });
 export default QuizBookCard
