@@ -3,10 +3,15 @@ import React from 'react';
 import Header from '../compornents/Header';
 import QuizBookCard from '../compornents/QuizBookCard';
 import { Icon } from 'react-native-elements';
+import { router } from 'expo-router';
 
 export default function HomeScreen() {
 
-  {/* 後ほどAPI作成しGETで取得*/}
+  const handleAddQuiz = () => {
+    router.push('/quizBook/Add');
+  }
+
+  {/* 後ほどAPI作成しGETで取得*/ }
   const dummyQuizBook = [
     {
       id: '1',
@@ -29,7 +34,7 @@ export default function HomeScreen() {
       totalRounds: 5,
       correctRate: 85,
       lastStudyDate: new Date()
-    }, 
+    },
     {
       id: 'addButton',
       title: '+ 問題集を追加',
@@ -44,7 +49,10 @@ export default function HomeScreen() {
   const renderItem = ({ item }: { item: any }) => (
     <View style={styles.cardWrapper}>
       {item.isAddButton ? (
-        <TouchableOpacity style={styles.addButton} onPress={handleCardPress}>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={handleAddQuiz}
+        >
           <Text style={styles.addButtonText}>{item.title}</Text>
         </TouchableOpacity>
       ) : (

@@ -1,13 +1,10 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
 import React from 'react'
 import AppName from '../compornents/Header';
-import { useNavigation } from '@react-navigation/native';
-import { AuthStackParamList } from '@/types/navigation';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { z } from 'zod';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-
+import { router } from 'expo-router';
 const signupSchema = z.object({
     email: z.string({
         required_error: 'メールアドレスは必須です'
@@ -18,9 +15,7 @@ const signupSchema = z.object({
 });
 
 type SignupFormData = z.infer<typeof signupSchema>;
-type LoginScreenNavigaionProp = NativeStackNavigationProp<AuthStackParamList, 'login'>;
 const login = () => {
-    const navigation = useNavigation<LoginScreenNavigaionProp>();
 
     const {
         control, //reactだとregisterで入力値参照
@@ -31,8 +26,8 @@ const login = () => {
     });
 
     const onSubmit = (data: SignupFormData) => {
-        console.log('サインアップデータ', data);
-        navigation.navigate('app');
+        console.log('ログインデータ', data);
+        router.replace('/(tabs)');
     };
 
 
@@ -82,8 +77,7 @@ const login = () => {
                     <TouchableOpacity style={styles.loginButton}>
                         <Text style={styles.buttonText} onPress={handleSubmit(onSubmit)}>ログイン</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.signupButton} onPress={() => navigation.navigate('signup')}
-                    >
+                    <TouchableOpacity style={styles.signupButton} onPress={() => router.replace('/signup')}>
                         <Text style={styles.buttonText}>新規登録</Text>
                     </TouchableOpacity>
                     <View>

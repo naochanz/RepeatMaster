@@ -1,22 +1,38 @@
+// app/(auth)/_layout.tsx（既存）
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './login';
 import SignUpScreen from './signup';
 import HomeScreen from '../(tabs)/index';
+import Add from '../quizBook/Add';
+
+// ここにタブナビゲーターも追加
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
-export default function AuthLayout(){
-    return(
+// タブナビゲーター作成
+function MainTabs() {
+    return (
+        <Tab.Navigator>
+            <Tab.Screen name="Home" component={HomeScreen} />
+        </Tab.Navigator>
+    );
+}
+
+export default function AuthLayout() {
+    return (
         <Stack.Navigator
-        initialRouteName='login'
-        screenOptions={{
-            headerShown: false,
-        }}
+            initialRouteName='login'
+            screenOptions={{
+                headerShown: false,
+            }}
         >
             <Stack.Screen name='login' component={LoginScreen} />
-            <Stack.Screen name='signup' component={SignUpScreen}/>
-            <Stack.Screen name='app'    component={HomeScreen}/>
+            <Stack.Screen name='signup' component={SignUpScreen} />
+            <Stack.Screen name='app' component={MainTabs} />
+            <Stack.Screen name='Add' component={Add} />
         </Stack.Navigator>
     );
 }
