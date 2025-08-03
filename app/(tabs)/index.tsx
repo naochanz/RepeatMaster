@@ -8,7 +8,7 @@ import { router } from 'expo-router';
 export default function HomeScreen() {
 
   const handleAddQuiz = () => {
-    router.push('/quizBook/Add');
+    router.push('/quizBook/AddQuizBook');
   }
 
   {/* 後ほどAPI作成しGETで取得*/ }

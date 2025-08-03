@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './login';
 import SignUpScreen from './signup';
 import HomeScreen from '../(tabs)/index';
-import Add from '../quizBook/Add';
+import Add from '../quizBook/AddQuizBook';
 
 // ここにタブナビゲーターも追加
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
