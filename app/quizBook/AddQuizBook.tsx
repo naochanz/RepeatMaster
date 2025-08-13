@@ -8,17 +8,18 @@ import { router } from 'expo-router'
 import { useQuizBookStore } from './Input/stores/quizBookStore'
 
 const goToSectionInput = () => {
+    const currentState = useQuizBookStore.getState();
     router.push('/quizBook/AddSection')
 }
 
-const currentQuizBook = useQuizBookStore(state => state.currentQuizBook);
 
 const AddQuizBook = () => {
+
     return (
         <>
             <Header />
             <ScrollView style={styles.container}>
-                
+
                 <View style={styles.section} >
                     <Text style={styles.sectionTitle}>問題集名：</Text>
                     <View style={styles.placeholder}>
@@ -33,13 +34,12 @@ const AddQuizBook = () => {
                 </View>
                 <View style={styles.section} >
                     <View style={styles.buttonContainer}>
-                        <ConfirmButton 
-                        title="節の設定へ進む" 
-                        onPress={goToSectionInput} 
-                        backgroundColor="#007AFF" 
+                        <ConfirmButton
+                            title="節の設定へ進む"
+                            onPress={goToSectionInput}
+                            backgroundColor="#007AFF"
                         />
                     </View>
-                    <Text>現在の状態: {JSON.stringify(currentQuizBook, null, 2)}</Text>
                 </View>
             </ScrollView>
         </>

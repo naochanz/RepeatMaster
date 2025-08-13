@@ -4,6 +4,7 @@ import { create } from 'zustand';
 interface QuizBook {
   id: string;
   title: string;
+  chapterCount: number;
   chapters: Chapter[];
   createdAt: Date;
   updatedAt: Date;
@@ -57,7 +58,7 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
   
   addQuizBook: (quizBook) => set((state) => ({
     quizBooks: [...state.quizBooks, quizBook],
-    currentQuizBook: null // 追加後はクリア
+    currentQuizBook: null
   })),
   
   clearCurrentQuizBook: () => set({ currentQuizBook: null }),

@@ -33,7 +33,6 @@ const SectionCountInput = ({ chapterNumber, chapterIndex }: SectionCountInputPro
       <Text style={styles.label}>第{chapterNumber}章の節数：</Text>
       <TextInput
         style={styles.input}
-        placeholder="0"
         keyboardType="numeric"
         value={sectionCount}
         onChangeText={handleChangeText}
