@@ -10,11 +10,11 @@ interface QuestionCountInputprops {
   sectionIndex?: number;   // 配列のインデックス（0, 1, 2...）
 }
 
-const QuestionCountInput = ({ 
-  title, 
-  chapterNumber, 
-  chapterIndex, 
-  sectionNumber, 
+const QuestionCountInput = ({
+  title,
+  chapterNumber,
+  chapterIndex,
+  sectionNumber,
   sectionIndex = -1 }: QuestionCountInputprops) => {
   const [questionCount, setQuestionCount] = useState('');
   const setQuestionCountStore = useQuizBookStore(state => state.setQuestionCount);
@@ -24,21 +24,22 @@ const QuestionCountInput = ({
 
     const count = parseInt(text) || 0;
     setQuestionCountStore(chapterIndex, sectionIndex, count);
+  
   };
 
   const displayTitle = sectionNumber
-  ? `第${chapterNumber}章 第${sectionNumber}節 ${title}`
-  : `第${chapterNumber}章 ${title}`;
+    ? `第${chapterNumber}章 第${sectionNumber}節 ${title}`
+    : `第${chapterNumber}章 ${title}`;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{title}：</Text>
+      <Text style={styles.label}>{displayTitle}</Text>
       <TextInput
-      style={styles.input} 
-      keyboardType='numeric' 
-      value={questionCount} 
-      onChangeText={handleChangeText} 
-      placeholder="問題数を入力">
+        style={styles.input}
+        keyboardType='numeric'
+        value={questionCount}
+        onChangeText={handleChangeText}
+        placeholder="問題数を入力">
       </TextInput>
     </View>
   )

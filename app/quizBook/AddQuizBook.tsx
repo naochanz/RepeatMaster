@@ -8,7 +8,6 @@ import { router } from 'expo-router'
 import { useQuizBookStore } from './Input/stores/quizBookStore'
 
 const goToSectionInput = () => {
-    const currentState = useQuizBookStore.getState();
     router.push('/quizBook/AddSection')
 }
 

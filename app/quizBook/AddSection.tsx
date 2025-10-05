@@ -11,8 +11,11 @@ import { router } from 'expo-router';
 const AddSection = () => {
     const currentQuizBook = useQuizBookStore(state => state.currentQuizBook);
     const updateCurrentQuizBook = useQuizBookStore(state => state.updateCurrentQuizBook)
-    const exsistingChapter = currentQuizBook?.chapters || [];
     const chapterCount = currentQuizBook?.chapterCount || 0;
+
+    const hasSections = currentQuizBook?.chapters?.some(
+        chapter => chapter.sections && chapter.sections.length
+    )  || false;
 
     const handleNext = () => {
         router.push('/quizBook/AddQuestions');
@@ -26,7 +29,7 @@ const AddSection = () => {
         if (!currentQuizBook?.chapters || currentQuizBook.chapters.length === 0) {
             const chapters = Array.from({ length: chapterCount }, (_, index) => ({
                 id: `chapter-${index}`,
-                title: `第${index + 1}章`,
+                title: `${index + 1}章`,
                 chapterNumber: index + 1,
                 questionCount: 0
             }));
@@ -47,6 +50,7 @@ const AddSection = () => {
                         title="節をスキップ"
                         onPress={handleSkipSections}
                         backgroundColor="#007AFF"
+                        disabled={hasSections}
                     />
                 </View>
 
