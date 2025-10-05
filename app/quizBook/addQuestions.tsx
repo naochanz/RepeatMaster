@@ -4,7 +4,7 @@ import QuestionCountInput from './Input/QuestionCountInput'
 import { useQuizBookStore } from './Input/stores/quizBookStore'
 import Header from '../compornents/Header'
 
-const AddQuestions = () => {  // ← 大文字に変更
+const AddQuestions = () => {  
     const currentQuizBook = useQuizBookStore(state => state.currentQuizBook);
     const chapters = currentQuizBook?.chapters || [];
     
@@ -19,7 +19,7 @@ const AddQuestions = () => {  // ← 大文字に変更
                     問題数を入力
                 </Text>
                 
-                {chapters.length === 0 ? (
+                {currentQuizBook?.chapterCount === 0 ? (
                     <Text>章が設定されていません</Text>
                 ) : (
                     chapters.flatMap((chapter, chapterIndex) => {

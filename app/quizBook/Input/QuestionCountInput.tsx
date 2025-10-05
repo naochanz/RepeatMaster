@@ -26,6 +26,10 @@ const QuestionCountInput = ({
     setQuestionCountStore(chapterIndex, sectionIndex, count);
   };
 
+  const displayTitle = sectionNumber
+  ? `第${chapterNumber}章 第${sectionNumber}節 ${title}`
+  : `第${chapterNumber}章 ${title}`;
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{title}：</Text>
@@ -34,7 +38,7 @@ const QuestionCountInput = ({
       keyboardType='numeric' 
       value={questionCount} 
       onChangeText={handleChangeText} 
-      placeholder="問題集を入力">
+      placeholder="問題数を入力">
       </TextInput>
     </View>
   )

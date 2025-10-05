@@ -16,13 +16,25 @@ const SectionCountInput = ({ chapterNumber, chapterIndex }: SectionCountInputPro
     setSectionCount(text);
 
     // Zustandに保存
+    const count = parseInt(text) || 0;
     const currentQuizBook = useQuizBookStore.getState().currentQuizBook;
-    const chapters = currentQuizBook?.chapters || [];
+    const chapters = [...(currentQuizBook?.chapters || [])];
+
+    const exsistingChapter = chapters[chapterIndex]
 
     chapters[chapterIndex] = {
-      id: `chapter-${chapterIndex}`,
-      title: `第${chapterNumber}章`,
+      id: exsistingChapter?.id || `chapter-${chapterIndex}`,
+      title: exsistingChapter?.title || `第${chapterNumber}章`,
       chapterNumber,
+      sections: count > 0
+        ? Array.from({ length: count }, (_, i) => ({
+          id: `section-${chapterIndex}-${i}`,
+          title: `第${i + 1}節`,
+          sectionNumber: i + 1,
+          questionCount: 0
+        }))
+        : undefined,
+      questionCount: exsistingChapter?.questionCount //既存の問題数を保持
     };
 
     updateCurrentQuizBook({ chapters });

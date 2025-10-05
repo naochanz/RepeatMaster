@@ -1,5 +1,5 @@
 // app/quizBook/add-sections.tsx
-import React from 'react';
+import React, { use } from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import { useQuizBookStore } from './Input/stores/quizBookStore';
 import Header from '../compornents/Header';
@@ -10,6 +10,8 @@ import { router } from 'expo-router';
 
 const AddSection = () => {
     const currentQuizBook = useQuizBookStore(state => state.currentQuizBook);
+    const updateCurrentQuizBook = useQuizBookStore(state => state.updateCurrentQuizBook)
+    const exsistingChapter = currentQuizBook?.chapters || [];
     const chapterCount = currentQuizBook?.chapterCount || 0;
 
     const handleNext = () => {
@@ -17,7 +19,20 @@ const AddSection = () => {
     };
 
     const handleSkipSections = () => {
-        // 節をスキップして直接問題数設定へ
+        const currentQuizBook = useQuizBookStore.getState().currentQuizBook;
+        const chapterCount = currentQuizBook?.chapterCount || 0;
+
+        // chaptersが存在しない、または空の場合に作成
+        if (!currentQuizBook?.chapters || currentQuizBook.chapters.length === 0) {
+            const chapters = Array.from({ length: chapterCount }, (_, index) => ({
+                id: `chapter-${index}`,
+                title: `第${index + 1}章`,
+                chapterNumber: index + 1,
+                questionCount: 0
+            }));
+
+            updateCurrentQuizBook({ chapters });
+        };
         router.push('/quizBook/AddQuestions');
     };
 
@@ -30,7 +45,7 @@ const AddSection = () => {
                     <Text>※節がない場合</Text>
                     <ConfirmButton
                         title="節をスキップ"
-                        onPress={handleNext}
+                        onPress={handleSkipSections}
                         backgroundColor="#007AFF"
                     />
                 </View>
@@ -49,7 +64,7 @@ const AddSection = () => {
                 <View style={styles.buttonContainer}>
                     <ConfirmButton
                         title="問題数入力へ進む"
-                        onPress={handleSkipSections}
+                        onPress={handleNext}
                         backgroundColor="#6c757d"
                     />
                 </View>
