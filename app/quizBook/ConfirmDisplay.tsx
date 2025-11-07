@@ -21,11 +21,6 @@ const ConfirmDisplay = () => {
                     <Text style={styles.label}>問題集タイトル：</Text>
                     <Text style={styles.value}>{title}</Text>
                 </View>
-                {/*章数*/}
-                <View style={styles.section}>
-                    <Text style={styles.label}>問題集タイトル：</Text>
-                    <Text style={styles.value}>{chapterCount}</Text>
-                </View>
                 {/*各章の詳細*/}
                 {chapters.map((chapter, chapterIndex) => (
                     <View key={chapterIndex} style={styles.chapterContainer}>
