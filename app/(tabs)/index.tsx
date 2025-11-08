@@ -4,12 +4,20 @@ import Header from '../compornents/Header';
 import QuizBookCard from '../compornents/QuizBookCard';
 import { Icon } from 'react-native-elements';
 import { router } from 'expo-router';
+import { useQuizBookStore } from '../quizBook/Input/stores/quizBookStore'
 
 export default function HomeScreen() {
-
+  
   const handleAddQuiz = () => {
     router.push('/quizBook/AddQuizBook');
   }
+
+  const handleCardPress = (quizBookId: string) => {
+    router.push({
+      pathname: '/study/[id]',
+      params: { id: quizBookId },
+    });
+  };
 
   {/* 後ほどAPI作成しGETで取得*/ }
   const dummyQuizBook = [
@@ -42,10 +50,6 @@ export default function HomeScreen() {
     }
   ]
 
-  const handleCardPress = () => {
-    console.log('カードがタップされました');
-  };
-
   const renderItem = ({ item }: { item: any }) => (
     <View style={styles.cardWrapper}>
       {item.isAddButton ? (
@@ -58,7 +62,7 @@ export default function HomeScreen() {
       ) : (
         <QuizBookCard
           quizBook={item}
-          onPress={handleCardPress}
+          onPress={() => { handleCardPress(item.id) }}
         />
       )
       }
