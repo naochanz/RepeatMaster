@@ -1,7 +1,7 @@
-import { Text, View, ScrollView, StyleSheet } from 'react-native'
+import { Text, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native'
 import React, { Component } from 'react'
 import { mockQuizBooks } from '../mockData/mockQuizBooks'
-import { useLocalSearchParams } from 'expo-router'
+import { useLocalSearchParams, router } from 'expo-router'
 import Header from '../compornents/Header'
 
 const StudyHome = () => {
@@ -21,10 +21,29 @@ const StudyHome = () => {
     }
 
     const getChapterTotalQuestions = (chapter: typeof quizBook.chapters[0]) => {
-        return chapter.sections.reduce((sum, section) => {
-            return sum + section.questionCount;
-        }, 0);
-    };
+        if (chapter.sections && chapter.sections.length > 0) {
+            return chapter.sections.reduce((sum, section) => {
+                return sum + section.questionCount;
+            }, 0);
+        } else {
+            return chapter.questionCount || 0;
+        };
+    }
+
+    const handleChapterPress = (chapter: typeof quizBook.chapters[0]) => {
+        if (chapter.sections && chapter.sections.length > 0) {
+            router.push({
+                pathname: '/study/section/[chapterId]',
+                params: { chapterId: chapter.id }
+            })
+        } else {
+            router.push({
+                pathname: '/study/question/[Id]', // 節を設定していない場合
+                params: { secionId: chapter.id }
+
+            })
+        };
+    }
 
     return (
         <>
@@ -35,7 +54,11 @@ const StudyHome = () => {
                 </View>
 
                 {quizBook.chapters.map((chapter) =>
-                    <View key={chapter.id} style={styles.chapterContainer}>
+                    <TouchableOpacity
+                        key={chapter.id}
+                        style={styles.chapterContainer}
+                        onPress={() => handleChapterPress(chapter)}
+                    >
                         <View>
                             <Text style={styles.chapterTitle}>
                                 {chapter.chapterNumber}章：{chapter.title}
@@ -48,7 +71,7 @@ const StudyHome = () => {
                             <Text>（全{getChapterTotalQuestions(chapter)}問）</Text>
                         </View>
 
-                    </View>)}
+                    </TouchableOpacity>)}
             </ScrollView >
         </>
     )

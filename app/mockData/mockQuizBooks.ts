@@ -1,3 +1,5 @@
+import QuestionCountInput from "../quizBook/Input/QuestionCountInput";
+
 export const mockQuizBooks = [
     {
         id: '1',
@@ -10,6 +12,7 @@ export const mockQuizBooks = [
                 chapterNumber: 1,
                 title: 'ライフプランニング',
                 chapterRate: 70,
+                questionCount: 0,
                 sections: [{
                     id: '1-1',
                     sectionNumber: 1,
@@ -29,12 +32,8 @@ export const mockQuizBooks = [
                 chapterNumber: 2,
                 title: 'おっさんとサシ飲み',
                 chapterRate: 70,
-                sections: [{
-                    id: '1-1',
-                    sectionNumber: 1,
-                    title: 'FPと倫理',
-                    questionCount: 10,
-                }]
+                sections: [],
+                QuestionCountInput: 20
             }
         ]
     },
