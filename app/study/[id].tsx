@@ -1,13 +1,21 @@
 import { Text, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native'
-import React, { Component } from 'react'
-import { mockQuizBooks } from '../mockData/mockQuizBooks'
+import React, { useEffect } from 'react'
 import { useLocalSearchParams, router } from 'expo-router'
 import Header from '../compornents/Header'
+import { useQuizBookStore } from '../quizBook/Input/stores/quizBookStore';
 
 const StudyHome = () => {
     //モックデータをmockQuizBooks.tsから配列を取得
     const { id } = useLocalSearchParams();
-    const quizBook = mockQuizBooks.find(book => book.id === id)
+    const { quizBooks, fetchQuizBooks, getQuizBookById } = useQuizBookStore();
+
+    useEffect(() => {
+        if (quizBooks.length === 0) {
+            fetchQuizBooks();
+        }
+    }, []);
+
+    const quizBook = getQuizBookById(id as string);
 
     if (!quizBook) {
         return (
@@ -19,11 +27,12 @@ const StudyHome = () => {
             </>
         )
     }
-
+    //章のトータルの設問数を取得
     const getChapterTotalQuestions = (chapter: typeof quizBook.chapters[0]) => {
         if (chapter.sections && chapter.sections.length > 0) {
             return chapter.sections.reduce((sum, section) => {
                 return sum + section.questionCount;
+
             }, 0);
         } else {
             return chapter.questionCount || 0;
@@ -38,8 +47,8 @@ const StudyHome = () => {
             })
         } else {
             router.push({
-                pathname: '/study/question/[Id]', // 節を設定していない場合
-                params: { secionId: chapter.id }
+                pathname: '/study/question/[id]', // 節を設定していない場合
+                params: { id: chapter.id }
 
             })
         };

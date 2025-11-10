@@ -4,8 +4,10 @@ export const mockQuizBooks = [
     {
         id: '1',
         title: 'FP3級',
+        chapterCount: 2,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         currentRate: 85,
-        lastStudyDate: new Date(),
         chapters: [
             {
                 id: '1',
@@ -33,7 +35,7 @@ export const mockQuizBooks = [
                 title: 'おっさんとサシ飲み',
                 chapterRate: 70,
                 sections: [],
-                QuestionCountInput: 20
+                questionCount: 20
             }
         ]
     },

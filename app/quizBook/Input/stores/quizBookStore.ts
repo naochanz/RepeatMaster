@@ -1,11 +1,12 @@
 // stores/quizBookStore.ts
 import { create } from 'zustand';
-
+import { mockQuizBooks } from '../../../mockData/mockQuizBooks'; 
 interface QuizBook {
   id: string;
   title: string;
   chapterCount: number;
   chapters: Chapter[];
+  currentRate: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -14,6 +15,7 @@ interface Chapter {
   id: string;
   title: string;
   chapterNumber: number;
+  chapterRate: number;
   sections?: Section[];
   questionCount?: number;
 }
@@ -29,6 +31,7 @@ interface QuizBookStore {
   // 状態
   currentQuizBook: Partial<QuizBook> | null;
   quizBooks: QuizBook[];
+  isLoading: boolean;
   
   // アクション
   setCurrentQuizBook: (quizBook: Partial<QuizBook>) => void;
@@ -40,12 +43,17 @@ interface QuizBookStore {
   addSection: (chapterIndex: number, section: Section) => void;
   updateSection: (chapterIndex: number, sectionIndex: number, updates: Partial<Section>) => void;
   setQuestionCount: (chapterIndex: number, sectionIndex: number, count: number) => void;
+  fetchQuizBooks: () => void;
+  getQuizBookById: (id: string) => QuizBook | undefined;
+  getChapterById: (chapterId: string) => { book: QuizBook; chapter: Chapter  } | undefined;
+  getSectionById: (sectionId: string) => { book: QuizBook; chapter: Chapter; section: Section;} | undefined;
 }
 
 export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
   // 初期状態
   currentQuizBook: null,
   quizBooks: [],
+  isLoading: false,
   
   // アクション
   setCurrentQuizBook: (quizBook) => set({ currentQuizBook: quizBook }),
@@ -115,4 +123,39 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
       currentQuizBook: { ...state.currentQuizBook, chapters }
     };
   }),
+
+  fetchQuizBooks: () => {
+    set({ isLoading: true });
+    // Phase 1: mockQuizBooks から読み込み
+    // 将来ここを API に置き換え
+    // const response = await fetch('/api/quiz-books');
+    // const data = await response.json();
+    set({ quizBooks: mockQuizBooks as QuizBook[], isLoading: false });
+  },
+  
+  getQuizBookById: (id) => {
+    return get().quizBooks.find(book => book.id === id);
+  },
+  
+  getChapterById: (chapterId) => {
+    for (const book of get().quizBooks) {
+      const chapter = book.chapters.find(ch => ch.id === chapterId);
+      if (chapter) {
+        return { book, chapter };
+      }
+    }
+    return undefined;
+  },
+  
+  getSectionById: (sectionId) => {
+    for (const book of get().quizBooks) {
+      for (const chapter of book.chapters) {
+        const section = chapter.sections?.find(sec => sec.id === sectionId);
+        if (section) {
+          return { book, chapter, section };
+        }
+      }
+    }
+    return undefined;
+  },
 }));
