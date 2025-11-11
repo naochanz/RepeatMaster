@@ -94,10 +94,9 @@ const styles = StyleSheet.create({
     },
     titleContainer: {
         backgroundColor: '#fff',
-        fontWeight: 'bold',
-        padding: 12,
+        padding: 16, // paddingを調整
         borderBottomWidth: 1,
-        borderBottomColor: '#ddd',
+        borderBottomColor: '#e0e0e0', // 色を調整
     },
     title: {
         fontSize: 20,
@@ -107,9 +106,19 @@ const styles = StyleSheet.create({
     chapterContainer: {
         backgroundColor: '#fff',
         marginTop: 16,
-        padding: 16,
-        borderRadius: 8,
-        marginHorizontal: 8,
+        marginHorizontal: 16, // 左右の余白を統一
+        padding: 20,
+        borderRadius: 12, // より見やすい角丸に
+        // iOS用の影
+        shadowColor: '#000',
+        shadowOffset: { 
+            width: 0, 
+            height: 2 
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        // Android用の影
+        elevation: 3,
     },
     chapterTitle: {
         fontSize: 18,
@@ -119,7 +128,8 @@ const styles = StyleSheet.create({
     },
     chapterDetail: {
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        alignItems: 'center', // 縦方向の配置を揃える
     }
 })
 export default StudyHome
