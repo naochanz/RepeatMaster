@@ -1,22 +1,24 @@
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useQuizBookStore } from '@/app/quizBook/Input/stores/quizBookStore'
 import Header from '../../compornents/Header'
 import { useLocalSearchParams } from 'expo-router'
 
+type AnswerHistory = {
+    [questionNumber: number]: ('○' | '×')[]// 周回ごとの正誤を配列で管理
+}
+
 const QuestionList = () => {
     const { id } = useLocalSearchParams();
     const { quizBooks, fetchQuizBooks, getChapterById, getSectionById, isLoading } = useQuizBookStore();
-    const [answer, setAnswers] = useState<{ [key: number]: '○' | '×' | null }>({})
+    const [answerHistory, setAnswerHistory] = useState<AnswerHistory>({});
+    const lastTap = useRef<number>(0);
 
     useEffect(() => {
         if (quizBooks.length === 0) {
             fetchQuizBooks();
         }
     }, []);
-
-
-
 
     const chapterData = getChapterById(String(id));
     const sectionData = getSectionById(String(id));
@@ -50,18 +52,57 @@ const QuestionList = () => {
         );
     }
 
-    // 〇×をトグルする関数
+    const addAnswer = (questionNumber: number, answer: '○' | '×') => {
+        setAnswerHistory(prev => ({
+            ...prev,
+            [questionNumber]: [...(prev[questionNumber] || []), answer]
+        }));
+    };
+
+    const getCurrentAnswer = (questionNumber: number) => {
+        const history = answerHistory[questionNumber];
+        return history?.[history.length - 1] || null;
+    }
+
+    const getAttemptCount = (questionNumber: number) => {
+        return answerHistory[questionNumber]?.length || 0;
+    }
+
+    const handleDoubleTap = (questionNumber: number) => {
+        const now = Date.now();
+        const DOUBLE_PRESS_DELAY = 300;
+
+        if (now - lastTap.current < DOUBLE_PRESS_DELAY) {
+            toggleAnswer(questionNumber);
+        }
+        lastTap.current = now;
+    }
+
     const toggleAnswer = (questionNumber: number) => {
-        setAnswers(prev => {
-            const current = prev[questionNumber];
-            let next: '○' | '×' | null = null;
-
-            if (current === null) next = '○';
-            else if (current === '○') next = '×';
-            else next = null;
-
-            return { ...prev, [questionNumber]: next };
-        });
+        const history = answerHistory[questionNumber] || [];
+        const current = getCurrentAnswer(questionNumber);
+        
+        if (history.length === 0) {
+            // 初回は○から始める
+            addAnswer(questionNumber, '○');
+        } else if (current === '○') {
+            // ○を×に変更（最後の要素を置き換え）
+            setAnswerHistory(prev => ({
+                ...prev,
+                [questionNumber]: [...history.slice(0, -1), '×']
+            }));
+        } else if (current === '×') {
+            // ×を削除（最後の要素を削除）
+            setAnswerHistory(prev => ({
+                ...prev,
+                [questionNumber]: history.slice(0, -1)
+            }));
+        }
+    };
+    
+    // 新しい周回を開始する関数を別途用意
+    const startNewAttempt = (questionNumber: number) => {
+        addAnswer(questionNumber, '○');
     };
 
     return (
@@ -91,28 +132,52 @@ const QuestionList = () => {
                     </View>
                 )}
                 <View>
-                    {Array.from({ length: displayInfo.questionCount }, (_, i) => i + 1).map((num) => (
-                        <TouchableOpacity
-                            key={num}
-                            style={[
-                                styles.questionCard,
-                                answer[num] === '○' && styles.correctCard,
-                                answer[num] === '×' && styles.incorrectCard
-                            ]}
-                            onPress={() => toggleAnswer(num)}
-                        >
-                            <Text style={styles.questionNumber}>{num}</Text>
-                            {answer[num] && (
-                                <Text style={[
-                                    styles.answerMark,
-                                    answer[num] === '○' ? styles.correctMark : styles.incorrectMark
-                                ]}>
-                                    {answer[num]}
-                                </Text>
-                            )}
-                        </TouchableOpacity>
-                    ))};
-            </View>
+                    {Array.from({ length: displayInfo.questionCount }, (_, i) => i + 1).map((num) => {
+                        const currentAnswer = getCurrentAnswer(num);
+                        const attemptCount = getAttemptCount(num);
+                        const history = answerHistory[num] || [];
+                        
+                        return (
+                            <TouchableOpacity
+                                key={num}
+                                style={[
+                                    styles.questionCard,
+                                    currentAnswer === '○' && styles.correctCard,
+                                    currentAnswer === '×' && styles.incorrectCard,
+                                    attemptCount >= 3 && styles.masteredCard,
+                                    attemptCount === 0 && styles.unattemptedCard
+                                ]}
+                                onPress={() => handleDoubleTap(num)}
+                            >
+                                <Text style={styles.questionNumber}>{num}</Text>
+                                {currentAnswer && (
+                                    <Text style={[
+                                        styles.answerMark,
+                                        currentAnswer === '○' ? styles.correctMark : styles.incorrectMark
+                                    ]}>
+                                        {currentAnswer}
+                                    </Text>
+                                )}
+                                {attemptCount > 0 && (
+                                    <Text style={styles.attemptCount}>
+                                        {attemptCount}周目
+                                    </Text>
+                                )}
+                                {/* 履歴を小さく表示 */}
+                                <View style={styles.historyContainer}>
+                                    {history.map((answer, index) => (
+                                        <Text key={index} style={[
+                                            styles.historyIcon,
+                                            answer === '○' ? styles.correctMark : styles.incorrectMark
+                                        ]}>
+                                            {answer}
+                                        </Text>
+                                    ))}
+                                </View>
+                            </TouchableOpacity>
+                        );
+                    })}
+                </View>
             </ScrollView >
         </>
     )
@@ -164,6 +229,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 3,
         elevation: 3,
+        minHeight: 80, // 高さを確保
     },
     correctCard: {
         backgroundColor: '#e8f5e9',
@@ -174,6 +240,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffebee',
         borderColor: '#f44336',
         borderWidth: 2,
+    },
+    masteredCard: {
+        transform: [{ scale: 0.95 }], // 3周以上で少し小さく
+        opacity: 0.8,
+    },
+    unattemptedCard: {
+        backgroundColor: '#fff3e0', // 未着手はオレンジ系
     },
     questionNumber: {
         fontSize: 20,
@@ -192,6 +265,24 @@ const styles = StyleSheet.create({
     },
     incorrectMark: {
         color: '#f44336',
+    },
+    attemptCount: {
+        fontSize: 10,
+        color: '#666',
+        marginTop: 5,
+        position: 'absolute',
+        bottom: 5,
+        left: 8,
+    },
+    historyContainer: {
+        flexDirection: 'row',
+        position: 'absolute',
+        bottom: 5,
+        right: 8,
+    },
+    historyIcon: {
+        fontSize: 10,
+        marginLeft: 2,
     },
 });
 
