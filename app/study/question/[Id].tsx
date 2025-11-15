@@ -61,13 +61,6 @@ const QuestionList = () => {
         setAnswerHistory(prev => {
             const current = prev[questionNumber];
 
-            if (current?.answer) {
-                const lastAnswer = current.answer[current.answer.length - 1];
-                if (lastAnswer.resultConfirmFlg) {
-                    return prev;
-                }
-            }
-
             return {
                 ...prev,
                 [questionNumber]: {
@@ -99,13 +92,17 @@ const QuestionList = () => {
         if (now - lastTap.current < DOUBLE_PRESS_DELAY) {
             const history = answerHistory[questionNumber];
             const isLocked = history?.answer?.[history.answer.length - 1]?.resultConfirmFlg;
+
             if (isLocked) {
-                const hasNextUnlockedCard = history.answer.length > 1 && !history.answer[history.answer.length - 1].resultConfirmFlg;
+                // ロック済みの場合
+                const hasNextUnlockedCard = history.answer.length > 1 &&
+                    !history.answer[history.answer.length - 1].resultConfirmFlg;
 
                 if (hasNextUnlockedCard) {
+                    // 未ロックの新しいカードがある → 削除
                     setAnswerHistory(prev => {
                         const updated = [...prev[questionNumber].answer];
-                        updated.pop(); //最後の要素を削除
+                        updated.pop();
 
                         return {
                             ...prev,
@@ -113,17 +110,19 @@ const QuestionList = () => {
                                 answer: updated
                             }
                         };
-                    })
+                    });
+                } else {
+                    // 新しいカードがない → 追加
+                    addAnswer(questionNumber, '○');
+                    console.log(answerHistory[questionNumber].answer.length)
                 }
             } else {
-                //新しいカードがない場合　→　追加
-                addAnswer(questionNumber, `○`);
+                // 未ロック → 通常のトグル処理
+                toggleAnswer(questionNumber);
             }
-        } else {
-            toggleAnswer(questionNumber);
         }
         lastTap.current = now;
-    }
+    };
 
     const confirmAnswer = (questionNumber: number) => {
         setAnswerHistory(prev => {
