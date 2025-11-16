@@ -25,14 +25,14 @@ const ConfirmDisplay = () => {
                 {chapters.map((chapter, chapterIndex) => (
                     <View key={chapterIndex} style={styles.chapterContainer}>
                         <Text style={styles.chapterTitle}>
-                            第{chapter.chapterNumber}章: {chapter.title}
+                            {chapter.chapterNumber}章
                         </Text>
                         {/*節がある場合*/}
                         {chapter.sections && chapter.sections.length > 0 ? (
                             chapter.sections.map((section, sectionIndex) => (
                                 <View key={sectionIndex} style={styles.sectionContainer}>
                                     <Text style={styles.sectionText}>
-                                        第{section.sectionNumber}節： {section.title}
+                                        {section.sectionNumber}節
                                     </Text>
                                     <Text style={styles.questionCount}>
                                         問題数： {section.questionCount}
