@@ -5,10 +5,9 @@ import QuizBookNameInput from './Input/QuizBookNameInput'
 import ConfirmButton from './Input/ConfirmButton'
 import ChapterSectionInput from './Input/ChapterSectionInput'
 import { router } from 'expo-router'
-import { useQuizBookStore } from './Input/stores/quizBookStore'
 
 const goToSectionInput = () => {
-    router.push('./quizBook/AddSection')
+    router.push('./AddSection')
 }
 
 

@@ -18,7 +18,7 @@ const AddSection = () => {
     )  || false;
 
     const handleNext = () => {
-        router.push('./quizBook/AddQuestions');
+        router.push('./AddQuestions');
     };
 
     const handleSkipSections = () => {
@@ -31,12 +31,13 @@ const AddSection = () => {
                 id: `chapter-${index}`,
                 title: `${index + 1}章`,
                 chapterNumber: index + 1,
-                questionCount: 0
+                questionCount: 0,
+                chapterRate: 0
             }));
 
             updateCurrentQuizBook({ chapters });
         };
-        router.push('./quizBook/AddQuestions');
+        router.push('./AddQuestions');
     };
 
     return (

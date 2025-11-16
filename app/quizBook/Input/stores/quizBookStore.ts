@@ -1,6 +1,6 @@
 // stores/quizBookStore.ts
 import { create } from 'zustand';
-import { mockQuizBooks } from '../../../mockData/mockQuizBooks'; 
+import { mockQuizBooks } from '../../../mockData/mockQuizBooks';
 interface QuizBook {
   id: string;
   title: string;
@@ -32,7 +32,7 @@ interface QuizBookStore {
   currentQuizBook: Partial<QuizBook> | null;
   quizBooks: QuizBook[];
   isLoading: boolean;
-  
+
   // アクション
   setCurrentQuizBook: (quizBook: Partial<QuizBook>) => void;
   updateCurrentQuizBook: (updates: Partial<QuizBook>) => void;
@@ -45,8 +45,8 @@ interface QuizBookStore {
   setQuestionCount: (chapterIndex: number, sectionIndex: number, count: number) => void;
   fetchQuizBooks: () => void;
   getQuizBookById: (id: string) => QuizBook | undefined;
-  getChapterById: (chapterId: string) => { book: QuizBook; chapter: Chapter  } | undefined;
-  getSectionById: (sectionId: string) => { book: QuizBook; chapter: Chapter; section: Section;} | undefined;
+  getChapterById: (chapterId: string) => { book: QuizBook; chapter: Chapter } | undefined;
+  getSectionById: (sectionId: string) => { book: QuizBook; chapter: Chapter; section: Section; } | undefined;
 }
 
 export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
@@ -54,32 +54,32 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
   currentQuizBook: null,
   quizBooks: [],
   isLoading: false,
-  
+
   // アクション
   setCurrentQuizBook: (quizBook) => set({ currentQuizBook: quizBook }),
-  
+
   updateCurrentQuizBook: (updates) => set((state) => ({
-    currentQuizBook: state.currentQuizBook 
+    currentQuizBook: state.currentQuizBook
       ? { ...state.currentQuizBook, ...updates }
       : updates
   })),
-  
+
   addQuizBook: (quizBook) => set((state) => ({
     quizBooks: [...state.quizBooks, quizBook],
     currentQuizBook: null
   })),
-  
+
   clearCurrentQuizBook: () => set({ currentQuizBook: null }),
 
   addChapter: (chapter) => set((state) => ({
-    currentQuizBook: state.currentQuizBook 
-      ? { 
-          ...state.currentQuizBook, 
-          chapters: [...(state.currentQuizBook.chapters || []), chapter] 
-        }
+    currentQuizBook: state.currentQuizBook
+      ? {
+        ...state.currentQuizBook,
+        chapters: [...(state.currentQuizBook.chapters || []), chapter]
+      }
       : { chapters: [chapter] }
   })),
-  
+
   updateChapter: (chapterIndex, updates) => set((state) => {
     const chapters = [...(state.currentQuizBook?.chapters || [])];
     chapters[chapterIndex] = { ...chapters[chapterIndex], ...updates };
@@ -87,7 +87,7 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
       currentQuizBook: { ...state.currentQuizBook, chapters }
     };
   }),
-  
+
   addSection: (chapterIndex, section) => set((state) => {
     const chapters = [...(state.currentQuizBook?.chapters || [])];
     chapters[chapterIndex] = {
@@ -98,7 +98,7 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
       currentQuizBook: { ...state.currentQuizBook, chapters }
     };
   }),
-  
+
   updateSection: (chapterIndex, sectionIndex, updates) => set((state) => {
     const chapters = [...(state.currentQuizBook?.chapters || [])];
     chapters[chapterIndex].sections![sectionIndex] = {
@@ -109,7 +109,7 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
       currentQuizBook: { ...state.currentQuizBook, chapters }
     };
   }),
-  
+
   setQuestionCount: (chapterIndex, sectionIndex, count) => set((state) => {
     const chapters = [...(state.currentQuizBook?.chapters || [])];
     if (sectionIndex >= 0) {
@@ -132,11 +132,11 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
     // const data = await response.json();
     set({ quizBooks: mockQuizBooks as QuizBook[], isLoading: false });
   },
-  
+
   getQuizBookById: (id) => {
     return get().quizBooks.find(book => book.id === id);
   },
-  
+
   getChapterById: (chapterId) => {
     for (const book of get().quizBooks) {
       const chapter = book.chapters.find(ch => ch.id === chapterId);
@@ -146,7 +146,7 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
     }
     return undefined;
   },
-  
+
   getSectionById: (sectionId) => {
     for (const book of get().quizBooks) {
       for (const chapter of book.chapters) {

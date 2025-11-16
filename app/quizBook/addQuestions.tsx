@@ -11,7 +11,7 @@ const AddQuestions = () => {
     const chapters = currentQuizBook?.chapters || [];
 
     const handleNext = () => {
-        router.push('./quizBook/ConfirmDisplay');
+        router.push('./ConfirmDisplay');
     };
 
     return (
