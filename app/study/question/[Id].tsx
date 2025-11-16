@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useQuizBookStore } from '@/app/quizBook/Input/stores/quizBookStore'
 import Header from '../../compornents/Header'
 import { useLocalSearchParams } from 'expo-router'
+import MemoModal from './compornent/MemoModal'
 
 type AnswerHistory = {
     [questionNumber: number]: {
@@ -257,6 +258,10 @@ const QuestionList = () => {
                         const [modalVisible, setModalVisible] = useState(false);
                         const [selectedQuestion, setSelectedQuestion] = useState<number | null>(null)
                         const [memoText, setMemoText] = useState('');
+                        const handleSaveMemo = (text: string) => {
+                            // ここで保存処理を実装（後で）
+                            console.log(`問題${selectedQuestion}のメモ:`, text);
+                        };
 
                         // 周回数に応じた幅を計算
                         const getCardWidth = () => {
@@ -287,57 +292,14 @@ const QuestionList = () => {
                                 </View>
 
                                 {/* メモモーダル */}
-                                <Modal
-                                    animationType="slide"
-                                    transparent={true}
+                                <MemoModal
                                     visible={modalVisible}
-                                    onRequestClose={() => setModalVisible(false)}
-                                >
-                                    <View style={styles.modalOverlay}>
-                                        <View style={styles.modalContent}>
-                                            <View style={styles.modalHeader}>
-                                                <Text style={styles.modalTitle}>問題 {selectedQuestion} のメモ</Text>
-                                                <TouchableOpacity
-                                                    onPress={() => setModalVisible(false)}
-                                                    style={styles.closeIcon}
-                                                >
-                                                    <Text style={styles.closeIconText}>✕</Text>
-                                                </TouchableOpacity>
-                                            </View>
-
-                                            <TextInput
-                                                style={styles.memoInput}
-                                                multiline
-                                                placeholder="メモを入力してください..."
-                                                value={memoText}
-                                                onChangeText={setMemoText}
-                                                textAlignVertical="top"
-                                            />
-
-                                            <View style={styles.modalButtons}>
-                                                <TouchableOpacity
-                                                    style={[styles.modalButton, styles.cancelButton]}
-                                                    onPress={() => {
-                                                        setModalVisible(false);
-                                                        setMemoText('');
-                                                    }}
-                                                >
-                                                    <Text style={styles.cancelButtonText}>キャンセル</Text>
-                                                </TouchableOpacity>
-
-                                                <TouchableOpacity
-                                                    style={[styles.modalButton, styles.saveButton]}
-                                                    onPress={() => {
-                                                        // ここで保存処理を実装（後で）
-                                                        setModalVisible(false);
-                                                    }}
-                                                >
-                                                    <Text style={styles.saveButtonText}>保存</Text>
-                                                </TouchableOpacity>
-                                            </View>
-                                        </View>
-                                    </View>
-                                </Modal>
+                                    questionNumber={selectedQuestion}
+                                    memoText={memoText}
+                                    onClose={() => setModalVisible(false)}
+                                    onSave={handleSaveMemo}
+                                    onChangeText={setMemoText}
+                                />
                                 {needsScroll ? (
                                     <ScrollView
                                         horizontal={true}
@@ -598,7 +560,7 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         padding: 24,
         width: '90%',
-        height: '70%', 
+        height: '70%',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
