@@ -76,52 +76,50 @@ const QuestionList = () => {
         });
     };
 
+    //最新の回答履歴を取得
     const getCurrentAnswer = (questionNumber: number) => {
         const history = answerHistory[questionNumber]?.answer;
         return history?.[history.length - 1]?.result || null;
     }
 
-    const getAttemptCount = (questionNumber: number) => {
-        return answerHistory[questionNumber]?.answer.length || 0;
-    }
-
+    //ダブルタップ時の処理
     const handleDoubleTap = (questionNumber: number) => {
         const now = Date.now();
         const DOUBLE_PRESS_DELAY = 300;
 
         if (now - lastTap.current < DOUBLE_PRESS_DELAY) {
             const history = answerHistory[questionNumber];
+
+            // 未回答の場合は○から開始
+            if (!history || history.answer.length === 0) {
+                addAnswer(questionNumber, '○');
+                lastTap.current = now;
+                return;
+            }
+
             const isLocked = history?.answer?.[history.answer.length - 1]?.resultConfirmFlg;
 
             if (isLocked) {
-                // ロック済みの場合
-                const hasNextUnlockedCard = history.answer.length > 1 &&
-                    !history.answer[history.answer.length - 1].resultConfirmFlg;
-
-                if (hasNextUnlockedCard) {
-                    // 未ロックの新しいカードがある → 削除
-                    setAnswerHistory(prev => {
-                        const updated = [...prev[questionNumber].answer];
-                        updated.pop();
-
-                        return {
-                            ...prev,
-                            [questionNumber]: {
-                                answer: updated
-                            }
-                        };
-                    });
-                } else {
-                    // 新しいカードがない → 追加
-                    addAnswer(questionNumber, '○');
-                    console.log(answerHistory[questionNumber].answer.length)
-                }
+                // ロック済みの場合 → 新しいカードを追加
+                addAnswer(questionNumber, '○');
             } else {
                 // 未ロック → 通常のトグル処理
                 toggleAnswer(questionNumber);
             }
         }
         lastTap.current = now;
+    };
+
+    //長押し時の処理
+    const handleLongPress = (questionNumber: number) => {
+        const history = answerHistory[questionNumber];
+        const isLocked = history?.answer?.[history.answer.length - 1]?.resultConfirmFlg;
+
+        if (isLocked) {
+            unlockAnswer(questionNumber);
+        } else {
+            confirmAnswer(questionNumber);
+        }
     };
 
     const confirmAnswer = (questionNumber: number) => {
@@ -149,6 +147,7 @@ const QuestionList = () => {
         });
     };
 
+    //回答のロックを外す処理
     const unlockAnswer = (questionNumber: number) => {
         setAnswerHistory(prev => {
             const current = prev[questionNumber];
@@ -175,21 +174,11 @@ const QuestionList = () => {
         });
     };
 
-    const handleLongPress = (questionNumber: number) => {
-        const history = answerHistory[questionNumber];
-        const isLocked = history?.answer[answerHistory[questionNumber].answer.length - 1]?.resultConfirmFlg;
-
-        if (isLocked) {
-            unlockAnswer(questionNumber);
-        } else {
-            confirmAnswer(questionNumber);
-        }
-    };
-
+    //正誤の切り替え処理
     const toggleAnswer = (questionNumber: number) => {
         const current = getCurrentAnswer(questionNumber);
         const history = answerHistory[questionNumber];
-        const isLocked = history?.answer[history.answer.length - 1]?.resultConfirmFlg;
+        const isLocked = history?.answer?.[history.answer.length - 1]?.resultConfirmFlg;
 
         if (isLocked) {
             return;
@@ -257,61 +246,140 @@ const QuestionList = () => {
                         </Text>
                     </View>
                 )}
+
                 <View>
+                    {/*カードの表示*/}
                     {Array.from({ length: displayInfo.questionCount }, (_, i) => i + 1).map((num) => {
-                        const currentAnswer = getCurrentAnswer(num);
-                        const attemptCount = getAttemptCount(num);
-                        const isLocked = answerHistory[num]?.answer[answerHistory[num].answer.length - 1]?.resultConfirmFlg;
+                        const history = answerHistory[num];
+                        const actualCount = history?.answer?.length || 0;
+                        const lastIsLocked = history?.answer?.[history.answer.length - 1]?.resultConfirmFlg;
+                        const displayCount = lastIsLocked ? actualCount + 1 : actualCount;
+
+                        // 周回数に応じた幅を計算
+                        const getCardWidth = () => {
+                            if (displayCount === 0) return undefined;
+                            if (displayCount === 1) return undefined;
+                            if (displayCount === 2) return '48%';
+                            if (displayCount === 3) return '31%';
+                            return 150;
+                        };
+
+                        const cardWidth = getCardWidth();
+                        const needsScroll = displayCount >= 4;
 
                         return (
-                            <TouchableOpacity
-                                key={num}
-                                style={[
-                                    styles.questionCard,
-                                    currentAnswer === '○' && styles.correctCard,
-                                    currentAnswer === '×' && styles.incorrectCard,
-                                    attemptCount >= 3 && styles.masteredCard,
-                                    attemptCount === 0 && styles.unattemptedCard,
-                                    isLocked && styles.lockedCard,
-                                ]}
-                                onPress={() => handleDoubleTap(num)}
-                                onLongPress={() => handleLongPress(num)}
-                                delayLongPress={500}
-                            >
-                                {/* ロックアイコン */}
-                                {currentAnswer && isLocked && (
-                                    <Text style={styles.lockIcon}>🔒</Text>
-                                )}
-
-                                <Text style={styles.questionNumber}>{num}</Text>
-
-                                {currentAnswer && (
-                                    <Text style={[
-                                        styles.answerMark,
-                                        currentAnswer === '○' ? styles.correctMark : styles.incorrectMark
-                                    ]}>
-                                        {currentAnswer}
-                                    </Text>
-                                )}
-
-                                {attemptCount > 0 && (
-                                    <Text style={styles.attemptCount}>
-                                        {attemptCount}周目
-                                    </Text>
-                                )}
-
-                                {/* 履歴を小さく表示 */}
-                                <View style={styles.historyContainer}>
-                                    {answerHistory[num]?.answer.map((attempt, index) => (
-                                        <Text key={index} style={[
-                                            styles.historyIcon,
-                                            attempt.result === '○' ? styles.correctMark : styles.incorrectMark
-                                        ]}>
-                                            {attempt.result}
-                                        </Text>
-                                    ))}
+                            <View key={num} style={styles.questionGroup}>
+                                <View style={styles.labelContainer}>
+                                    <Text style={styles.questionNumberLabel}>問題 {num}</Text>
+                                    <TouchableOpacity style={styles.memoButton}>
+                                        <Text style={styles.memoText}>MEMO</Text>
+                                    </TouchableOpacity>
                                 </View>
-                            </TouchableOpacity>
+
+                                {needsScroll ? (
+                                    <ScrollView
+                                        horizontal={true}
+                                        showsHorizontalScrollIndicator={false}
+                                        contentContainerStyle={styles.cardRow}
+                                    >
+                                        {history?.answer.map((attempt, attemptIndex) => {
+                                            const isLocked = attempt.resultConfirmFlg;
+                                            const isLastAttempt = attemptIndex === history.answer.length - 1;
+
+                                            return (
+                                                <TouchableOpacity
+                                                    key={`${num}-${attemptIndex}`}
+                                                    style={[
+                                                        styles.questionCard,
+                                                        { width: 110 },
+                                                        attempt.result === '○' && styles.correctCard,
+                                                        attempt.result === '×' && styles.incorrectCard,
+                                                        isLocked && styles.lockedCard,
+                                                    ]}
+                                                    onPress={isLastAttempt ? () => handleDoubleTap(num) : undefined}
+                                                    onLongPress={isLastAttempt ? () => handleLongPress(num) : undefined}
+                                                    delayLongPress={500}
+                                                    disabled={!isLastAttempt}
+                                                >
+                                                    {isLocked && <Text style={styles.lockIcon}>🔒</Text>}
+                                                    <Text style={styles.attemptNumber}>{attemptIndex + 1}周目</Text>
+                                                    <Text style={[
+                                                        styles.answerMark,
+                                                        attempt.result === '○' ? styles.correctMark : styles.incorrectMark
+                                                    ]}>
+                                                        {attempt.result}
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            );
+                                        })}
+                                        {lastIsLocked && (
+                                            <TouchableOpacity
+                                                style={[styles.questionCard, styles.unattemptedCard, { width: 110 }]}
+                                                onPress={() => handleDoubleTap(num)}
+                                            >
+                                                <Text style={styles.attemptNumber}>{actualCount + 1}周目</Text>
+                                            </TouchableOpacity>
+                                        )}
+                                    </ScrollView>
+                                ) : (
+                                    <View style={styles.cardRowNonScroll}>
+                                        {history && history.answer && history.answer.length > 0 ? (
+                                            <>
+                                                {history.answer.map((attempt, attemptIndex) => {
+                                                    const isLocked = attempt.resultConfirmFlg;
+                                                    const isLastAttempt = attemptIndex === history.answer.length - 1;
+
+                                                    return (
+                                                        <TouchableOpacity
+                                                            key={`${num}-${attemptIndex}`}
+                                                            style={[
+                                                                styles.questionCard,
+                                                                cardWidth ? { width: cardWidth } : { flex: 1 },
+                                                                attempt.result === '○' && styles.correctCard,
+                                                                attempt.result === '×' && styles.incorrectCard,
+                                                                isLocked && styles.lockedCard,
+                                                            ]}
+                                                            onPress={isLastAttempt ? () => handleDoubleTap(num) : undefined}
+                                                            onLongPress={isLastAttempt ? () => handleLongPress(num) : undefined}
+                                                            delayLongPress={500}
+                                                            disabled={!isLastAttempt}
+                                                        >
+                                                            {isLocked && <Text style={styles.lockIcon}>🔒</Text>}
+                                                            <Text style={styles.attemptNumber}>{attemptIndex + 1}周目</Text>
+                                                            <Text style={[
+                                                                styles.answerMark,
+                                                                attempt.result === '○' ? styles.correctMark : styles.incorrectMark
+                                                            ]}>
+                                                                {attempt.result}
+                                                            </Text>
+                                                        </TouchableOpacity>
+                                                    );
+                                                })}
+
+                                                {lastIsLocked && (
+                                                    <TouchableOpacity
+                                                        style={[
+                                                            styles.questionCard,
+                                                            styles.unattemptedCard,
+                                                            cardWidth ? { width: cardWidth } : { flex: 1 }
+                                                        ]}
+                                                        onPress={() => handleDoubleTap(num)}
+                                                    >
+                                                        <Text style={styles.attemptNumber}>{actualCount + 1}周目</Text>
+                                                    </TouchableOpacity>
+                                                )}
+                                            </>
+                                        ) : (
+                                            <TouchableOpacity
+                                                style={[styles.questionCard, styles.unattemptedCard, { flex: 1 }]}
+                                                onPress={() => handleDoubleTap(num)}
+                                            >
+                                                <Text style={styles.questionNumber}>{num}</Text>
+                                            </TouchableOpacity>
+                                        )}
+                                    </View>
+                                )}
+                            </View>
                         );
                     })}
                 </View>
@@ -346,21 +414,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#666',
     },
-    questionCard: {
-        backgroundColor: '#fff',
-        padding: 16,
-        borderRadius: 8,
-        marginHorizontal: 12,
-        marginVertical: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-        elevation: 3,
-        minHeight: 80,
-    },
     correctCard: {
         backgroundColor: '#e8f5e9',
         borderColor: '#4caf50',
@@ -379,9 +432,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff3e0',
     },
     lockedCard: {
-        borderWidth: 4, // 枠線を太くして確定感を出す
-        opacity: 0.75, // 少し薄くして「終わった感」
-        transform: [{ scale: 0.97 }], // わずかに縮小
+        borderWidth: 4,
+        opacity: 0.75,
+        transform: [{ scale: 0.97 }],
     },
     questionNumber: {
         fontSize: 20,
@@ -401,30 +454,77 @@ const styles = StyleSheet.create({
     incorrectMark: {
         color: '#f44336',
     },
-    attemptCount: {
-        fontSize: 10,
-        color: '#666',
-        marginTop: 5,
-        position: 'absolute',
-        bottom: 5,
-        left: 8,
-    },
-    historyContainer: {
-        flexDirection: 'row',
-        position: 'absolute',
-        bottom: 5,
-        right: 8,
-    },
-    historyIcon: {
-        fontSize: 10,
-        marginLeft: 2,
-    },
     lockIcon: {
         position: 'absolute',
-        top: 8,
+        bottom: 8,
         left: 8,
         fontSize: 16,
     },
+    questionGroup: {
+        marginBottom: 20,
+    },
+    questionNumberLabel: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    cardRow: {
+        paddingHorizontal: 12,
+        gap: 8,
+    },
+    questionCard: {
+        backgroundColor: '#fff',
+        padding: 16,
+        borderRadius: 8,
+        marginVertical: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 3,
+        minHeight: 80,
+    },
+    attemptNumber: {
+        position: 'absolute',
+        top: 8,
+        left: 8,
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: '#666',
+    },
+    cardRowNonScroll: {
+        flexDirection: 'row',
+        paddingHorizontal: 12,
+        gap: 8,
+    },
+    labelContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        marginVertical: 5,
+    },
+    memoButton: {
+        backgroundColor: '#fff',
+        borderColor: '#4caf50',
+        borderWidth: 1.5,
+        borderRadius: 6,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
+    },
+    memoText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#4caf50',
+    },
+
 });
 
 export default QuestionList;
