@@ -23,7 +23,7 @@ const ConfirmDisplay = () => {
             >
                 <View style={styles.header}>
                     <View style={styles.headerIconContainer}>
-                        <CheckCircle2 size={32} color={theme.colors.success[600]} />
+                        <CheckCircle2 size={24} color={theme.colors.success[600]} />
                     </View>
                     <Text style={styles.title}>確認画面</Text>
                     <Text style={styles.description}>入力内容を確認してください</Text>
@@ -103,18 +103,18 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     headerIconContainer: {
-        width: 64,
-        height: 64,
-        borderRadius: 32,
+        width: 48,
+        height: 48,
+        borderRadius: 24,
         backgroundColor: theme.colors.success[50],
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: theme.spacing.md,
+        marginBottom: theme.spacing.sm,
     },
     title: {
-        fontSize: theme.typography.fontSizes['3xl'],
+        fontSize: theme.typography.fontSizes.xl,
         fontWeight: theme.typography.fontWeights.bold,
-        marginBottom: theme.spacing.sm,
+        marginBottom: theme.spacing.xs,
         fontFamily: theme.typography.fontFamilies.bold,
         color: theme.colors.secondary[900],
         textAlign: 'center',

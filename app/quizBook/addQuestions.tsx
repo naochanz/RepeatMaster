@@ -26,7 +26,7 @@ const AddQuestions = () => {
             >
                 <View style={styles.header}>
                     <View style={styles.headerIconContainer}>
-                        <ListChecks size={32} color={theme.colors.primary[600]} />
+                        <ListChecks size={24} color={theme.colors.primary[600]} />
                     </View>
                     <Text style={styles.title}>問題数を入力</Text>
                     <Text style={styles.description}>各章または節ごとの問題数を入力してください</Text>
@@ -90,19 +90,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     headerIconContainer: {
-        width: 64,
-        height: 64,
-        borderRadius: 32,
+        width: 48,
+        height: 48,
+        borderRadius: 24,
         backgroundColor: theme.colors.primary[50],
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: theme.spacing.md,
+        marginBottom: theme.spacing.sm,
     },
     title: {
-        fontSize: theme.typography.fontSizes['3xl'],
+        fontSize: theme.typography.fontSizes.xl,
         fontWeight: theme.typography.fontWeights.bold,
         color: theme.colors.secondary[900],
-        marginBottom: theme.spacing.sm,
+        marginBottom: theme.spacing.xs,
         fontFamily: 'ZenKaku-Bold',
         textAlign: 'center',
     },
