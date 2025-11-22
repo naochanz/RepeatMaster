@@ -6,7 +6,7 @@ import SectionCountInput from './Input/SectionCountInput';
 import Button from '@/components/ui/Button';
 import { router } from 'expo-router';
 import { theme } from '@/constants/Theme';
-import { AlertCircle } from 'lucide-react-native';
+import { AlertCircle, Layers } from 'lucide-react-native';
 
 
 const AddSection = () => {
@@ -50,16 +50,24 @@ const AddSection = () => {
                 showsVerticalScrollIndicator={false}
             >
                 <View style={styles.header}>
+                    <View style={styles.headerIconContainer}>
+                        <Layers size={32} color={theme.colors.primary[600]} />
+                    </View>
                     <Text style={styles.title}>各章の節数を設定</Text>
                     <Text style={styles.description}>
                         各章に含まれる節の数を入力してください
                     </Text>
                 </View>
 
-                <View style={styles.skipSection}>
-                    <View style={styles.skipInfo}>
-                        <AlertCircle size={16} color={theme.colors.secondary[600]} />
-                        <Text style={styles.skipText}>節がない場合はスキップできます</Text>
+                <View style={styles.skipCard}>
+                    <View style={styles.skipHeader}>
+                        <View style={styles.skipIconWrapper}>
+                            <AlertCircle size={20} color={theme.colors.warning[600]} />
+                        </View>
+                        <View style={styles.skipTextContainer}>
+                            <Text style={styles.skipTitle}>節の設定をスキップ</Text>
+                            <Text style={styles.skipText}>節がない場合はスキップできます</Text>
+                        </View>
                     </View>
                     <Button
                         title="節をスキップ"
@@ -110,6 +118,16 @@ const styles = StyleSheet.create({
     },
     header: {
         marginBottom: theme.spacing.xl,
+        alignItems: 'center',
+    },
+    headerIconContainer: {
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        backgroundColor: theme.colors.primary[50],
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: theme.spacing.md,
     },
     title: {
         fontSize: theme.typography.fontSizes['3xl'],
@@ -117,25 +135,46 @@ const styles = StyleSheet.create({
         color: theme.colors.secondary[900],
         marginBottom: theme.spacing.sm,
         fontFamily: 'ZenKaku-Bold',
+        textAlign: 'center',
     },
     description: {
         fontSize: theme.typography.fontSizes.base,
         color: theme.colors.secondary[600],
         fontFamily: 'ZenKaku-Regular',
+        textAlign: 'center',
     },
-    skipSection: {
+    skipCard: {
         marginBottom: theme.spacing.xl,
-        padding: theme.spacing.md,
-        backgroundColor: theme.colors.neutral.white,
-        borderRadius: theme.borderRadius.lg,
-        borderWidth: 1,
-        borderColor: theme.colors.secondary[200],
+        padding: theme.spacing.lg,
+        backgroundColor: theme.colors.warning[50],
+        borderRadius: theme.borderRadius.xl,
+        borderWidth: 2,
+        borderColor: theme.colors.warning[200],
+        ...theme.shadows.sm,
     },
-    skipInfo: {
+    skipHeader: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         marginBottom: theme.spacing.md,
-        gap: theme.spacing.xs,
+        gap: theme.spacing.sm,
+    },
+    skipIconWrapper: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: theme.colors.warning[100],
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    skipTextContainer: {
+        flex: 1,
+    },
+    skipTitle: {
+        fontSize: theme.typography.fontSizes.base,
+        fontWeight: theme.typography.fontWeights.bold,
+        color: theme.colors.secondary[900],
+        marginBottom: 4,
+        fontFamily: 'ZenKaku-Bold',
     },
     skipText: {
         fontSize: theme.typography.fontSizes.sm,
