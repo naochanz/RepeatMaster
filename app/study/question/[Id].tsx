@@ -29,7 +29,7 @@ const QuestionList = () => {
 
     const chapterData = getChapterById(String(id));
     const sectionData = getSectionById(String(id));
-    
+
 
     const displayInfo = chapterData
         ? {
