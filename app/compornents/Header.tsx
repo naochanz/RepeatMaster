@@ -1,5 +1,7 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar } from 'react-native'
 import React from 'react'
+import { theme } from '@/constants/Theme'
+import { Settings } from 'lucide-react-native'
 
 const Header = () => {
   return (
@@ -7,7 +9,7 @@ const Header = () => {
       <View style={styles.header}>
         <Text style={styles.appTitle}>RepeatMaster</Text>
         <TouchableOpacity style={styles.settingsButton}>
-          <Text style={styles.settingsButtonText}>⚙️</Text>
+          <Settings size={24} color={theme.colors.secondary[700]} />
         </TouchableOpacity>
       </View>
     </View>
@@ -16,28 +18,30 @@ const Header = () => {
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.neutral.white,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 10,
-    backgroundColor: '#8f8f8f',
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+    backgroundColor: theme.colors.neutral.white,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: theme.colors.secondary[200],
+    ...theme.shadows.sm,
   },
   appTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: theme.typography.fontSizes['3xl'],
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.secondary[900],
+    fontFamily: 'NotoSansJP-Bold',
+    letterSpacing: 0.5,
   },
   settingsButton: {
-    padding: 10,
-  },
-  settingsButtonText: {
-    fontSize: 20,
+    padding: theme.spacing.sm,
+    borderRadius: theme.borderRadius.md,
   },
 });
 
