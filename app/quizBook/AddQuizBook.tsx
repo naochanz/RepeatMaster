@@ -73,10 +73,12 @@ const styles = StyleSheet.create({
         fontWeight: theme.typography.fontWeights.bold,
         color: theme.colors.secondary[900],
         marginBottom: theme.spacing.sm,
+        fontFamily: 'NotoSansJP-Bold',
     },
     description: {
         fontSize: theme.typography.fontSizes.base,
         color: theme.colors.secondary[600],
+        fontFamily: 'NotoSansJP-Regular',
     },
     section: {
         marginBottom: theme.spacing.xl,
