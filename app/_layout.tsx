@@ -5,6 +5,11 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import {
+  NotoSansJP_400Regular,
+  NotoSansJP_500Medium,
+  NotoSansJP_700Bold,
+} from '@expo-google-fonts/noto-sans-jp';
 
 import { useColorScheme } from '@/components/useColorScheme';
 
@@ -24,6 +29,9 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    'NotoSansJP-Regular': NotoSansJP_400Regular,
+    'NotoSansJP-Medium': NotoSansJP_500Medium,
+    'NotoSansJP-Bold': NotoSansJP_700Bold,
     ...FontAwesome.font,
   });
 

@@ -2,9 +2,10 @@ import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList } from '
 import React from 'react';
 import Header from '../compornents/Header';
 import QuizBookCard from '../compornents/QuizBookCard';
-import { Icon } from 'react-native-elements';
 import { router } from 'expo-router';
-import { useQuizBookStore } from '../quizBook/Input/stores/quizBookStore'
+import { useQuizBookStore } from '../quizBook/Input/stores/quizBookStore';
+import { theme } from '@/constants/Theme';
+import { Plus, AlertCircle } from 'lucide-react-native';
 
 export default function HomeScreen() {
   
@@ -56,8 +57,10 @@ export default function HomeScreen() {
         <TouchableOpacity
           style={styles.addButton}
           onPress={handleAddQuiz}
+          activeOpacity={0.7}
         >
-          <Text style={styles.addButtonText}>{item.title}</Text>
+          <Plus size={32} color={theme.colors.primary[600]} strokeWidth={2.5} />
+          <Text style={styles.addButtonText}>問題集を追加</Text>
         </TouchableOpacity>
       ) : (
         <QuizBookCard
@@ -84,7 +87,7 @@ export default function HomeScreen() {
             <View>
               <View style={styles.emptyState}>
                 <View style={styles.emptyContent}>
-                  <Icon name="warning" color='red' size={20} />
+                  <AlertCircle size={20} color={theme.colors.warning[600]} />
                   <Text style={styles.emptyText}>まだ問題集が登録されていません</Text>
                 </View>
               </View>
@@ -116,62 +119,72 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.neutral[50],
   },
   sectionContainer: {
-    padding: 10,
-    backgroundColor: '#9bbdbf',
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+    backgroundColor: theme.colors.neutral.white,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.secondary[200],
   },
   sectionTitle: {
-    fontWeight: 'bold',
+    fontSize: theme.typography.fontSizes.xl,
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.secondary[900],
+    fontFamily: 'NotoSansJP-Bold',
   },
   flatListContainer: {
-    padding: 10,
+    padding: theme.spacing.md,
   },
   row: {
     justifyContent: 'space-between',
-    marginBottom: 15,           // 行間の調整
+    marginBottom: theme.spacing.md,
   },
   cardWrapper: {
     width: '48%',
     aspectRatio: 1,
   },
   emptyState: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: theme.spacing.xl,
   },
   emptyContent: {
-    flexDirection: 'row',     // 横並び
-    alignItems: 'center',     // 縦方向の中央揃え
-    justifyContent: 'center', // 横方向の中央揃え
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emptyText: {
-    marginLeft: 8,           // アイコンとテキストの間隔
-    fontSize: 16,
-    color: '#666',
+    marginLeft: theme.spacing.sm,
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.secondary[600],
+    fontFamily: 'NotoSansJP-Regular',
   },
   cardContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    padding: 10,
+    padding: theme.spacing.md,
     minHeight: 200,
   },
   addButton: {
-    width: '100%',           // cardWrapper内で100%
-    height: '100%',          // cardWrapper内で100%
-    backgroundColor: '#f0f0f0',  // 薄いグレー
+    width: '100%',
+    height: '100%',
+    backgroundColor: theme.colors.neutral.white,
     borderWidth: 2,
-    borderColor: '#ddd',
-    borderStyle: 'dashed',   // 点線（追加ボタンらしく）
+    borderColor: theme.colors.primary[300],
+    borderStyle: 'dashed',
+    borderRadius: theme.borderRadius.lg,
     justifyContent: 'center',
     alignItems: 'center',
+    gap: theme.spacing.sm,
   },
   addButtonText: {
-    fontSize: 16,
-    color: '#666',
-    fontWeight: 'bold',
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.primary[600],
+    fontWeight: theme.typography.fontWeights.bold,
+    fontFamily: 'NotoSansJP-Bold',
   },
 });
