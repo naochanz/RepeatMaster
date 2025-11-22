@@ -16,10 +16,10 @@ const AddSection = () => {
 
     const hasSections = currentQuizBook?.chapters?.some(
         chapter => chapter.sections && chapter.sections.length
-    )  || false;
+    ) || false;
 
     const handleNext = () => {
-        router.push('./AddQuestions');
+        router.push('./addQuestions');
     };
 
     const handleSkipSections = () => {
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colors.warning[50],
         borderRadius: theme.borderRadius.xl,
         borderWidth: 2,
-        borderColor: theme.colors.warning[200],
+        borderColor: theme.colors.warning[100],
         ...theme.shadows.sm,
     },
     skipHeader: {
