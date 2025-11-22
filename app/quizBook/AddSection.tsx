@@ -73,7 +73,7 @@ const AddSection = () => {
                         title="節をスキップ"
                         onPress={handleSkipSections}
                         variant="outline"
-                        size="lg"
+                        size="md"
                         fullWidth
                         disabled={hasSections}
                     />
@@ -144,10 +144,10 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     skipCard: {
-        marginBottom: theme.spacing.xl,
-        padding: theme.spacing.lg,
+        marginBottom: theme.spacing.md,
+        padding: theme.spacing.md,
         backgroundColor: theme.colors.warning[50],
-        borderRadius: theme.borderRadius.xl,
+        borderRadius: theme.borderRadius.lg,
         borderWidth: 2,
         borderColor: theme.colors.warning[100],
         ...theme.shadows.sm,
@@ -159,9 +159,9 @@ const styles = StyleSheet.create({
         gap: theme.spacing.sm,
     },
     skipIconWrapper: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 30,
+        height: 30,
+        borderRadius: 15,
         backgroundColor: theme.colors.warning[100],
         justifyContent: 'center',
         alignItems: 'center',
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     skipTitle: {
-        fontSize: theme.typography.fontSizes.base,
+        fontSize: theme.typography.fontSizes.sm,
         fontWeight: theme.typography.fontWeights.bold,
         color: theme.colors.secondary[900],
         marginBottom: 4,
