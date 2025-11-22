@@ -94,6 +94,12 @@ export const theme = {
       semibold: '600' as const,
       bold: '700' as const,
     },
+    fontFamilies: {
+      regular: 'ZenKaku-Regular',
+      medium: 'ZenKaku-Medium',
+      bold: 'ZenKaku-Bold',
+      black: 'ZenKaku-Black',
+    },
     lineHeights: {
       tight: 1.2,
       normal: 1.5,

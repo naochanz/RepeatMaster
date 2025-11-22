@@ -421,7 +421,8 @@ const styles = StyleSheet.create({
     },
     titleContainer: {
         backgroundColor: theme.colors.neutral.white,
-        padding: theme.spacing.lg,
+        paddingHorizontal: theme.spacing.lg,
+        paddingVertical: theme.spacing.md,
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.secondary[200],
     },
@@ -429,16 +430,18 @@ const styles = StyleSheet.create({
         fontSize: theme.typography.fontSizes.sm,
         color: theme.colors.secondary[600],
         marginBottom: theme.spacing.xs,
+        fontFamily: theme.typography.fontFamilies.regular,
     },
     title: {
         fontSize: theme.typography.fontSizes.xl,
         fontWeight: theme.typography.fontWeights.bold,
         color: theme.colors.secondary[900],
-        marginBottom: theme.spacing.sm,
+        fontFamily: theme.typography.fontFamilies.bold,
     },
     questionCount: {
         fontSize: theme.typography.fontSizes.sm,
         color: theme.colors.secondary[600],
+        fontFamily: theme.typography.fontFamilies.regular,
     },
     correctCard: {
         backgroundColor: theme.colors.success[50],
@@ -469,6 +472,7 @@ const styles = StyleSheet.create({
         fontSize: theme.typography.fontSizes.xl,
         fontWeight: theme.typography.fontWeights.bold,
         color: theme.colors.secondary[900],
+        fontFamily: theme.typography.fontFamilies.bold,
     },
     answerMark: {
         position: 'absolute',
@@ -496,6 +500,7 @@ const styles = StyleSheet.create({
         fontSize: theme.typography.fontSizes.base,
         fontWeight: theme.typography.fontWeights.bold,
         color: theme.colors.secondary[900],
+        fontFamily: theme.typography.fontFamilies.bold,
     },
     cardRow: {
         paddingHorizontal: theme.spacing.md,
@@ -518,6 +523,7 @@ const styles = StyleSheet.create({
         fontSize: theme.typography.fontSizes.xs,
         fontWeight: theme.typography.fontWeights.semibold,
         color: theme.colors.secondary[600],
+        fontFamily: theme.typography.fontFamilies.medium,
     },
     cardRowNonScroll: {
         flexDirection: 'row',
@@ -544,6 +550,7 @@ const styles = StyleSheet.create({
         fontSize: theme.typography.fontSizes.xs,
         fontWeight: theme.typography.fontWeights.semibold,
         color: theme.colors.primary[600],
+        fontFamily: theme.typography.fontFamilies.bold,
     },
     // モーダル関連のスタイル
     modalOverlay: {

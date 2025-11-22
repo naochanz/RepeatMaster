@@ -1,9 +1,10 @@
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Touchable } from 'react-native'
-import React from 'react'
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native'
+import React, { useEffect } from 'react'
 import { useQuizBookStore } from '@/app/quizBook/Input/stores/quizBookStore'
 import { useLocalSearchParams, router } from 'expo-router'
 import Header from '@/app/compornents/Header'
-import { useEffect } from 'react'
+import { theme } from '@/constants/Theme'
+import Card from '@/components/ui/Card'
 
 const sectionList = () => {
   const { chapterId } = useLocalSearchParams();
@@ -89,73 +90,79 @@ const sectionList = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.neutral[50],
   },
   titleContainer: {
-    backgroundColor: '#fff',
-    padding: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: theme.colors.neutral.white,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: theme.colors.secondary[200],
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
+    fontSize: theme.typography.fontSizes.xl,
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.secondary[900],
+    fontFamily: theme.typography.fontFamilies.bold,
   },
   sectionCount: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.secondary[600],
+    fontFamily: theme.typography.fontFamilies.regular,
   },
   sectionList: {
-    padding: 16,
+    padding: theme.spacing.md,
   },
   sectionCard: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    backgroundColor: theme.colors.neutral.white,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.lg,
+    marginBottom: theme.spacing.sm,
+    ...theme.shadows.md,
   },
   sectionNumber: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#4caf50',
+    fontSize: theme.typography.fontSizes.sm,
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.primary[600],
     marginBottom: 4,
+    fontFamily: theme.typography.fontFamilies.bold,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
+    fontSize: theme.typography.fontSizes.lg,
+    fontWeight: theme.typography.fontWeights.bold,
+    color: theme.colors.secondary[900],
+    marginBottom: theme.spacing.xs,
+    fontFamily: theme.typography.fontFamilies.bold,
   },
   questionCount: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: theme.typography.fontSizes.sm,
+    color: theme.colors.secondary[600],
+    fontFamily: theme.typography.fontFamilies.regular,
   },
   noSectionContainer: {
     alignItems: 'center',
-    padding: 32,
+    padding: theme.spacing.xxl,
   },
   noSectionText: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 16,
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.secondary[600],
+    marginBottom: theme.spacing.lg,
+    fontFamily: theme.typography.fontFamilies.regular,
   },
   startButton: {
-    backgroundColor: '#4caf50',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
+    backgroundColor: theme.colors.primary[600],
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
   },
   startButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    color: theme.colors.neutral.white,
+    fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.bold,
+    fontFamily: theme.typography.fontFamilies.bold,
   },
 })
 export default sectionList

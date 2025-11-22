@@ -3,8 +3,9 @@ import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import { useQuizBookStore } from './Input/stores/quizBookStore';
 import Header from '../compornents/Header';
 import QuestionCountInput from './Input/QuestionCountInput';
-import ConfirmButton from './Input/ConfirmButton';
+import Button from '@/components/ui/Button';
 import { router } from 'expo-router';
+import { theme } from '@/constants/Theme';
 
 const AddQuestions = () => {
     const currentQuizBook = useQuizBookStore(state => state.currentQuizBook);
@@ -49,10 +50,12 @@ const AddQuestions = () => {
                 )}
                 
                 <View style={styles.buttonContainer}>
-                    <ConfirmButton
+                    <Button
                         title="確認画面へ"
                         onPress={handleNext}
-                        backgroundColor="#6c757d"
+                        variant="primary"
+                        size="lg"
+                        fullWidth
                     />
                 </View>
             </ScrollView>
@@ -63,25 +66,29 @@ const AddQuestions = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
+        padding: theme.spacing.lg,
+        backgroundColor: theme.colors.neutral[50],
     },
     title: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 16,
+        fontSize: theme.typography.fontSizes['3xl'],
+        fontWeight: theme.typography.fontWeights.bold,
+        marginBottom: theme.spacing.lg,
+        fontFamily: theme.typography.fontFamilies.bold,
+        color: theme.colors.secondary[900],
     },
     emptyMessage: {
-        fontSize: 16,
-        color: '#666',
+        fontSize: theme.typography.fontSizes.base,
+        color: theme.colors.secondary[600],
         textAlign: 'center',
-        marginTop: 20,
+        marginTop: theme.spacing.xl,
+        fontFamily: theme.typography.fontFamilies.regular,
     },
     inputContainer: {
-        marginBottom: 20,
+        marginBottom: theme.spacing.lg,
     },
     buttonContainer: {
-        marginTop: 20,
-        marginBottom: 40,
+        marginTop: theme.spacing.lg,
+        marginBottom: theme.spacing.xxl,
     },
 });
 

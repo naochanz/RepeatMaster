@@ -2,6 +2,7 @@ import { ScrollView, Text, StyleSheet, View } from 'react-native'
 import React from 'react'
 import Header from '../compornents/Header'
 import { useQuizBookStore } from './Input/stores/quizBookStore'
+import { theme } from '@/constants/Theme'
 
 const ConfirmDisplay = () => {
     //zustandからデータ取得
@@ -55,59 +56,69 @@ const ConfirmDisplay = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
+        padding: theme.spacing.lg,
+        backgroundColor: theme.colors.neutral[50],
     },
     title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
+        fontSize: theme.typography.fontSizes['3xl'],
+        fontWeight: theme.typography.fontWeights.bold,
+        marginBottom: theme.spacing.xl,
+        fontFamily: theme.typography.fontFamilies.bold,
+        color: theme.colors.secondary[900],
     },
     section: {
-        marginBottom: 16,
-        padding: 12,
-        backgroundColor: '#f5f5f5',
-        borderRadius: 8,
+        marginBottom: theme.spacing.md,
+        padding: theme.spacing.md,
+        backgroundColor: theme.colors.neutral.white,
+        borderRadius: theme.borderRadius.lg,
+        ...theme.shadows.sm,
     },
     label: {
-        fontSize: 14,
-        color: '#666',
+        fontSize: theme.typography.fontSizes.sm,
+        color: theme.colors.secondary[600],
         marginBottom: 4,
+        fontFamily: theme.typography.fontFamilies.regular,
     },
     value: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#333',
+        fontSize: theme.typography.fontSizes.lg,
+        fontWeight: theme.typography.fontWeights.semibold,
+        color: theme.colors.secondary[900],
+        fontFamily: theme.typography.fontFamilies.bold,
     },
     chapterContainer: {
-        marginBottom: 20,
-        padding: 16,
-        backgroundColor: '#fff',
-        borderRadius: 8,
+        marginBottom: theme.spacing.lg,
+        padding: theme.spacing.md,
+        backgroundColor: theme.colors.neutral.white,
+        borderRadius: theme.borderRadius.lg,
         borderWidth: 1,
-        borderColor: '#ddd',
+        borderColor: theme.colors.secondary[200],
+        ...theme.shadows.sm,
     },
     chapterTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 12,
-        color: '#333',
+        fontSize: theme.typography.fontSizes.lg,
+        fontWeight: theme.typography.fontWeights.bold,
+        marginBottom: theme.spacing.md,
+        color: theme.colors.secondary[900],
+        fontFamily: theme.typography.fontFamilies.bold,
     },
     sectionContainer: {
-        marginLeft: 16,
-        marginBottom: 8,
-        paddingLeft: 12,
+        marginLeft: theme.spacing.md,
+        marginBottom: theme.spacing.sm,
+        paddingLeft: theme.spacing.md,
         borderLeftWidth: 2,
-        borderLeftColor: '#007AFF',
+        borderLeftColor: theme.colors.primary[600],
     },
     sectionText: {
-        fontSize: 16,
+        fontSize: theme.typography.fontSizes.base,
         marginBottom: 4,
-        color: '#555',
+        color: theme.colors.secondary[700],
+        fontFamily: theme.typography.fontFamilies.medium,
     },
     questionCount: {
-        fontSize: 14,
-        color: '#007AFF',
-        fontWeight: '500',
+        fontSize: theme.typography.fontSizes.sm,
+        color: theme.colors.primary[600],
+        fontWeight: theme.typography.fontWeights.medium,
+        fontFamily: theme.typography.fontFamilies.medium,
     },
 });
 

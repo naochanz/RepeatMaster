@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import React from 'react'
+import { theme } from '@/constants/Theme'
 
 interface ConfirmButtonProps {
   onPress: () => void
@@ -40,6 +41,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: theme.typography.fontFamilies.bold,
   },
   disabledButton: {
     opacity: 0.5,
