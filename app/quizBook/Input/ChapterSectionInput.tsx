@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import Input from '@/components/ui/Input'
 import { useQuizBookStore } from './stores/quizBookStore'
+import { BookType } from 'lucide-react-native'
+import { theme } from '@/constants/Theme'
 
 const ChapterSectionInput = () => {
   const [value, setValue] = useState("");
@@ -17,6 +19,7 @@ const ChapterSectionInput = () => {
       onChangeText={handleChangeText}
       value={value}
       keyboardType="numeric"
+      leftIcon={<BookType size={20} color={theme.colors.primary[600]} />}
     />
   )
 }

@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import Input from '@/components/ui/Input'
 import { useQuizBookStore } from './stores/quizBookStore'
+import { BookMarked } from 'lucide-react-native'
+import { theme } from '@/constants/Theme'
 
 const QuizBookNameInput = () => {
   const [value, setValue] = useState('');
@@ -16,6 +18,7 @@ const QuizBookNameInput = () => {
       placeholder="例：FP3級、英語検定2級"
       onChangeText={handleChangeText}
       value={value}
+      leftIcon={<BookMarked size={20} color={theme.colors.primary[600]} />}
     />
   )
 }

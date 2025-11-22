@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { useQuizBookStore } from './stores/quizBookStore';
+import { theme } from '@/constants/Theme';
+import { Layers, Hash } from 'lucide-react-native';
 
 interface SectionCountInputProps {
   chapterNumber: number;  // 第1章、第2章...
@@ -42,32 +44,65 @@ const SectionCountInput = ({ chapterNumber, chapterIndex }: SectionCountInputPro
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>第{chapterNumber}章の節数：</Text>
-      <TextInput
-        style={styles.input}
-        keyboardType="numeric"
-        value={sectionCount}
-        onChangeText={handleChangeText}
-      />
+      <View style={styles.labelContainer}>
+        <Layers size={18} color={theme.colors.primary[600]} />
+        <Text style={styles.label}>第{chapterNumber}章の節数</Text>
+      </View>
+      <View style={styles.inputWrapper}>
+        <Hash size={20} color={theme.colors.secondary[400]} style={styles.icon} />
+        <TextInput
+          style={styles.input}
+          keyboardType="numeric"
+          value={sectionCount}
+          onChangeText={handleChangeText}
+          placeholder="節の数を入力"
+          placeholderTextColor={theme.colors.secondary[400]}
+        />
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    marginBottom: theme.spacing.md,
+    backgroundColor: theme.colors.neutral.white,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.md,
+    borderWidth: 1,
+    borderColor: theme.colors.secondary[200],
+    ...theme.shadows.sm,
+  },
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: theme.spacing.sm,
+    gap: theme.spacing.xs,
   },
   label: {
-    fontSize: 16,
-    marginBottom: 8,
-    fontFamily: 'ZenKaku-Medium',
+    fontSize: theme.typography.fontSizes.base,
+    fontWeight: theme.typography.fontWeights.semibold,
+    color: theme.colors.secondary[900],
+    fontFamily: theme.typography.fontFamilies.bold,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.neutral[50],
+    borderWidth: 1.5,
+    borderColor: theme.colors.secondary[200],
+    borderRadius: theme.borderRadius.md,
+    paddingHorizontal: theme.spacing.sm,
+  },
+  icon: {
+    marginRight: theme.spacing.xs,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 4,
-    fontFamily: 'ZenKaku-Regular',
+    flex: 1,
+    padding: theme.spacing.sm,
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.secondary[900],
+    fontFamily: theme.typography.fontFamilies.regular,
   },
 });
 
