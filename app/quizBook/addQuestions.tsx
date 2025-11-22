@@ -101,15 +101,15 @@ const styles = StyleSheet.create({
     title: {
         fontSize: theme.typography.fontSizes['3xl'],
         fontWeight: theme.typography.fontWeights.bold,
-        marginBottom: theme.spacing.sm,
-        fontFamily: theme.typography.fontFamilies.bold,
         color: theme.colors.secondary[900],
+        marginBottom: theme.spacing.sm,
+        fontFamily: 'ZenKaku-Bold',
         textAlign: 'center',
     },
     description: {
         fontSize: theme.typography.fontSizes.base,
         color: theme.colors.secondary[600],
-        fontFamily: theme.typography.fontFamilies.regular,
+        fontFamily: 'ZenKaku-Regular',
         textAlign: 'center',
     },
     emptyMessage: {
