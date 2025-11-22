@@ -10,6 +10,7 @@ interface QuizBookCardProps {
 }
 
 const QuizBookCard = ({ quizBook, onPress }: QuizBookCardProps) => {
+  const correctRate = quizBook.correctRate || 0;
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
       <View style={styles.iconContainer}>
@@ -22,9 +23,9 @@ const QuizBookCard = ({ quizBook, onPress }: QuizBookCardProps) => {
             <TrendingUp size={14} color={theme.colors.secondary[600]} />
             <Text style={styles.statLabel}>正答率</Text>
             <Text style={[styles.statValue, {
-              color: quizBook.correctRate >= 80
+              color: correctRate >= 80
                 ? theme.colors.success[600]
-                : quizBook.correctRate >= 60
+                : correctRate >= 60
                 ? theme.colors.warning[600]
                 : theme.colors.error[600]
             }]}>{quizBook.correctRate}%</Text>
@@ -71,13 +72,13 @@ const styles = StyleSheet.create({
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingTop: theme.spacing.md,
+    //paddingTop: theme.spacing.md,
     borderTopWidth: 1,
     borderTopColor: theme.colors.secondary[200],
   },
   statItem: {
     alignItems: 'center',
-    gap: 2,
+    //gap: 2,
   },
   statLabel: {
     fontSize: theme.typography.fontSizes.xs,
