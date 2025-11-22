@@ -60,12 +60,14 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginBottom: 8,
+    fontFamily: 'ZenKaku-Medium',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 10,
     borderRadius: 4,
+    fontFamily: 'ZenKaku-Regular',
   },
 });
 

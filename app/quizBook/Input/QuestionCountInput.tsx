@@ -56,6 +56,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginBottom: 8,
     color: '#333',
+    fontFamily: 'ZenKaku-Medium',
   },
   input: {
     borderWidth: 1,
@@ -63,6 +64,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 4,
     backgroundColor: '#fff',
+    fontFamily: 'ZenKaku-Regular',
   },
 });
 export default QuestionCountInput

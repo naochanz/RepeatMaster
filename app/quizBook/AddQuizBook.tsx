@@ -73,12 +73,12 @@ const styles = StyleSheet.create({
         fontWeight: theme.typography.fontWeights.bold,
         color: theme.colors.secondary[900],
         marginBottom: theme.spacing.sm,
-        fontFamily: 'NotoSansJP-Bold',
+        fontFamily: 'ZenKaku-Bold',
     },
     description: {
         fontSize: theme.typography.fontSizes.base,
         color: theme.colors.secondary[600],
-        fontFamily: 'NotoSansJP-Regular',
+        fontFamily: 'ZenKaku-Regular',
     },
     section: {
         marginBottom: theme.spacing.xl,
@@ -88,6 +88,7 @@ const styles = StyleSheet.create({
         fontWeight: theme.typography.fontWeights.semibold,
         color: theme.colors.secondary[900],
         marginBottom: theme.spacing.md,
+        fontFamily: 'ZenKaku-Medium',
     },
     buttonContainer: {
         marginTop: theme.spacing.lg,

@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     color: theme.colors.secondary[900],
     textAlign: 'center',
     marginBottom: theme.spacing.sm,
-    fontFamily: 'NotoSansJP-Bold',
+    fontFamily: 'ZenKaku-Bold',
   },
   statsContainer: {
     flexDirection: 'row',
@@ -83,12 +83,12 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: theme.typography.fontSizes.xs,
     color: theme.colors.secondary[600],
-    fontFamily: 'NotoSansJP-Regular',
+    fontFamily: 'ZenKaku-Regular',
   },
   statValue: {
     fontSize: theme.typography.fontSizes.base,
     fontWeight: theme.typography.fontWeights.bold,
-    fontFamily: 'NotoSansJP-Bold',
+    fontFamily: 'ZenKaku-Bold',
   },
   divider: {
     width: 1,

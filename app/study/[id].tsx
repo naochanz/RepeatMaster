@@ -133,12 +133,12 @@ const styles = StyleSheet.create({
         fontSize: theme.typography.fontSizes.xl,
         fontWeight: theme.typography.fontWeights.bold,
         color: theme.colors.secondary[900],
-        fontFamily: 'NotoSansJP-Bold',
+        fontFamily: 'ZenKaku-Bold',
     },
     subtitle: {
         fontSize: theme.typography.fontSizes.sm,
         color: theme.colors.secondary[600],
-        fontFamily: 'NotoSansJP-Regular',
+        fontFamily: 'ZenKaku-Regular',
     },
     container: {
         flex: 1,
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
         fontSize: theme.typography.fontSizes.base,
         fontWeight: theme.typography.fontWeights.bold,
         color: theme.colors.secondary[900],
-        fontFamily: 'NotoSansJP-Bold',
+        fontFamily: 'ZenKaku-Bold',
     },
     chapterStats: {
         flexDirection: 'row',
@@ -176,13 +176,13 @@ const styles = StyleSheet.create({
         fontSize: theme.typography.fontSizes.xs,
         color: theme.colors.secondary[600],
         marginBottom: 2,
-        fontFamily: 'NotoSansJP-Regular',
+        fontFamily: 'ZenKaku-Regular',
     },
     statValue: {
         fontSize: theme.typography.fontSizes.lg,
         fontWeight: theme.typography.fontWeights.bold,
         color: theme.colors.secondary[900],
-        fontFamily: 'NotoSansJP-Bold',
+        fontFamily: 'ZenKaku-Bold',
     },
     divider: {
         width: 1,

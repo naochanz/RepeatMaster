@@ -48,6 +48,7 @@ const styles = StyleSheet.create({
     fontWeight: theme.typography.fontWeights.medium,
     color: theme.colors.secondary[700],
     marginBottom: theme.spacing.xs,
+    fontFamily: 'ZenKaku-Medium',
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -68,6 +69,7 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSizes.base,
     color: theme.colors.secondary[900],
     minHeight: 48,
+    fontFamily: 'ZenKaku-Regular',
   },
   inputWithLeftIcon: {
     paddingLeft: theme.spacing.sm,
@@ -86,6 +88,7 @@ const styles = StyleSheet.create({
     color: theme.colors.error[600],
     marginTop: theme.spacing.xs,
     marginLeft: theme.spacing.xs,
+    fontFamily: 'ZenKaku-Regular',
   },
 });
 

@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSizes.xl,
     fontWeight: theme.typography.fontWeights.bold,
     color: theme.colors.secondary[900],
-    fontFamily: 'NotoSansJP-Bold',
+    fontFamily: 'ZenKaku-Bold',
     letterSpacing: 0.5,
   },
   settingsButton: {

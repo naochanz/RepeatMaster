@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSizes.xl,
     fontWeight: theme.typography.fontWeights.bold,
     color: theme.colors.secondary[900],
-    fontFamily: 'NotoSansJP-Bold',
+    fontFamily: 'ZenKaku-Bold',
   },
   flatListContainer: {
     padding: theme.spacing.md,
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     marginLeft: theme.spacing.sm,
     fontSize: theme.typography.fontSizes.base,
     color: theme.colors.secondary[600],
-    fontFamily: 'NotoSansJP-Regular',
+    fontFamily: 'ZenKaku-Regular',
   },
   cardContainer: {
     flexDirection: 'row',
@@ -185,6 +185,6 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSizes.base,
     color: theme.colors.primary[600],
     fontWeight: theme.typography.fontWeights.bold,
-    fontFamily: 'NotoSansJP-Bold',
+    fontFamily: 'ZenKaku-Bold',
   },
 });
