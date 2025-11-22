@@ -33,41 +33,29 @@ const AddQuestions = () => {
                 </View>
 
                 {currentQuizBook?.chapterCount === 0 ? (
-                    <View style={styles.emptyCard}>
-                        <Text style={styles.emptyMessage}>章が設定されていません</Text>
-                    </View>
+                    <Text style={styles.emptyMessage}>章が設定されていません</Text>
                 ) : (
-                    <View style={styles.questionsSection}>
-                        {chapters.map((chapter, chapterIndex) => {
+                    <View style={styles.inputContainer}>
+                        {chapters.flatMap((chapter, chapterIndex) => {
                             const hasSections = chapter.sections && chapter.sections.length > 0;
 
-                            return (
-                                <View key={chapterIndex} style={styles.chapterCard}>
-                                    <View style={styles.chapterHeader}>
-                                        <View style={styles.chapterBadge}>
-                                            <Text style={styles.chapterBadgeText}>第{chapter.chapterNumber}章</Text>
-                                        </View>
-                                    </View>
-                                    {hasSections
-                                        ? chapter.sections?.map((section, sectionIndex) => (
-                                            <QuestionCountInput
-                                                key={`${chapterIndex}-${sectionIndex}`}
-                                                title={''}
-                                                chapterNumber={chapter.chapterNumber}
-                                                chapterIndex={chapterIndex}
-                                                sectionNumber={section.sectionNumber}
-                                                sectionIndex={sectionIndex}
-                                            />
-                                        ))
-                                        : <QuestionCountInput
-                                            key={chapterIndex}
-                                            title={`第${chapter.chapterNumber}章問題数`}
-                                            chapterNumber={chapter.chapterNumber}
-                                            chapterIndex={chapterIndex}
-                                        />
-                                    }
-                                </View>
-                            );
+                            return hasSections
+                                ? chapter.sections?.map((section, sectionIndex) => (
+                                    <QuestionCountInput
+                                        key={`${chapterIndex}-${sectionIndex}`}
+                                        title={''}
+                                        chapterNumber={chapter.chapterNumber}
+                                        chapterIndex={chapterIndex}
+                                        sectionNumber={section.sectionNumber}
+                                        sectionIndex={sectionIndex}
+                                    />
+                                )) || []
+                                : [<QuestionCountInput
+                                    key={chapterIndex}
+                                    title={`第${chapter.chapterNumber}章問題数`}
+                                    chapterNumber={chapter.chapterNumber}
+                                    chapterIndex={chapterIndex}
+                                />];
                         })}
                     </View>
                 )}
@@ -124,50 +112,15 @@ const styles = StyleSheet.create({
         fontFamily: theme.typography.fontFamilies.regular,
         textAlign: 'center',
     },
-    emptyCard: {
-        backgroundColor: theme.colors.neutral.white,
-        borderRadius: theme.borderRadius.xl,
-        padding: theme.spacing.xxl,
-        marginBottom: theme.spacing.lg,
-        borderWidth: 1,
-        borderColor: theme.colors.secondary[200],
-        ...theme.shadows.sm,
-    },
     emptyMessage: {
         fontSize: theme.typography.fontSizes.base,
         color: theme.colors.secondary[600],
         textAlign: 'center',
+        marginTop: theme.spacing.xl,
         fontFamily: theme.typography.fontFamilies.regular,
     },
-    questionsSection: {
+    inputContainer: {
         marginBottom: theme.spacing.lg,
-    },
-    chapterCard: {
-        backgroundColor: theme.colors.neutral.white,
-        borderRadius: theme.borderRadius.xl,
-        padding: theme.spacing.lg,
-        marginBottom: theme.spacing.lg,
-        borderWidth: 1,
-        borderColor: theme.colors.secondary[200],
-        ...theme.shadows.md,
-    },
-    chapterHeader: {
-        marginBottom: theme.spacing.md,
-    },
-    chapterBadge: {
-        alignSelf: 'flex-start',
-        backgroundColor: theme.colors.primary[50],
-        paddingHorizontal: theme.spacing.md,
-        paddingVertical: theme.spacing.xs,
-        borderRadius: theme.borderRadius.full,
-        borderWidth: 1,
-        borderColor: theme.colors.primary[200],
-    },
-    chapterBadgeText: {
-        fontSize: theme.typography.fontSizes.sm,
-        fontWeight: theme.typography.fontWeights.bold,
-        color: theme.colors.primary[700],
-        fontFamily: theme.typography.fontFamilies.bold,
     },
     buttonContainer: {
         marginTop: theme.spacing.lg,

@@ -57,6 +57,12 @@ const QuestionCountInput = ({
 const styles = StyleSheet.create({
   container: {
     marginBottom: theme.spacing.md,
+    backgroundColor: theme.colors.neutral.white,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.md,
+    borderWidth: 1,
+    borderColor: theme.colors.secondary[200],
+    ...theme.shadows.sm,
   },
   labelContainer: {
     flexDirection: 'row',
