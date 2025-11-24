@@ -1,6 +1,7 @@
 .problem {
-  padding: 80px 20px;
-  background: #fafafa;
+  padding: 140px 20px;
+  background: #0d1117;
+  position: relative;
 }
 
 .container {
@@ -9,11 +10,20 @@
 }
 
 .title {
-  font-size: 36px;
-  font-weight: 700;
+  font-size: 48px;
+  font-weight: 600;
   text-align: center;
-  margin-bottom: 60px;
-  color: #171717;
+  margin-bottom: 80px;
+  color: #d1d5db;
+  letter-spacing: -0.02em;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.title.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .problems {
@@ -23,49 +33,91 @@
 }
 
 .problemCard {
-  background: white;
-  padding: 40px 32px;
-  border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  text-align: center;
-  transition: transform 0.2s, box-shadow 0.2s;
+  background: #161b22;
+  padding: 56px 40px;
+  border-radius: 8px;
+  border: 1px solid #21262d;
+  text-align: left;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.problemCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 0;
+  background: #2563eb;
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.problemCard.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.card1.visible {
+  transition-delay: 0.1s;
+}
+
+.card2.visible {
+  transition-delay: 0.2s;
+}
+
+.card3.visible {
+  transition-delay: 0.3s;
 }
 
 .problemCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: #30363d;
+  background: #1c2128;
+}
+
+.problemCard:hover::before {
+  height: 100%;
 }
 
 .emoji {
-  font-size: 48px;
-  margin-bottom: 20px;
+  font-size: 32px;
+  margin-bottom: 28px;
+  display: block;
+  opacity: 0.5;
 }
 
 .problemCard h3 {
   font-size: 20px;
   font-weight: 600;
-  margin-bottom: 12px;
-  color: #171717;
+  margin-bottom: 14px;
+  color: #c9d1d9;
+  letter-spacing: -0.01em;
 }
 
 .problemCard p {
-  font-size: 16px;
-  line-height: 1.6;
-  color: #525252;
+  font-size: 15px;
+  line-height: 1.65;
+  color: #8b949e;
 }
 
 @media (max-width: 768px) {
   .problem {
-    padding: 60px 20px;
+    padding: 70px 20px;
   }
 
   .title {
-    font-size: 28px;
-    margin-bottom: 40px;
+    font-size: 32px;
+    margin-bottom: 50px;
   }
 
   .problems {
     grid-template-columns: 1fr;
     gap: 24px;
+  }
+
+  .problemCard {
+    padding: 40px 28px;
   }
 }

@@ -1,10 +1,23 @@
+'use client'
+
 import styles from './Hero.module.css'
+import { useEffect, useState } from 'react'
 
 export default function Hero() {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   return (
     <section className={styles.hero}>
+      <div className={styles.background}>
+        <div className={styles.gradient1}></div>
+        <div className={styles.gradient2}></div>
+      </div>
       <div className={styles.container}>
-        <div className={styles.content}>
+        <div className={`${styles.content} ${mounted ? styles.visible : ''}`}>
           <h1 className={styles.title}>
             問題集、何周したか<br />
             覚えてますか？
@@ -16,14 +29,15 @@ export default function Hero() {
           </p>
           <div className={styles.ctaButtons}>
             <a href="#pricing" className={styles.primaryButton}>
-              無料で始める
+              <span>無料で始める</span>
+              <span className={styles.arrow}>→</span>
             </a>
             <a href="#features" className={styles.secondaryButton}>
               機能を見る
             </a>
           </div>
           <p className={styles.notice}>
-            ※ 3冊まで完全無料。クレジットカード不要。
+            3冊まで完全無料 ・ クレジットカード不要
           </p>
         </div>
       </div>

@@ -1,8 +1,13 @@
+'use client'
+
 import styles from './Features.module.css'
+import { useScrollAnimation } from '@/hooks/useScrollAnimation'
 
 export default function Features() {
+  const { ref, isVisible } = useScrollAnimation()
+
   return (
-    <section className={styles.features} id="features">
+    <section className={styles.features} id="features" ref={ref as React.RefObject<HTMLElement>}>
       <div className={styles.container}>
         <div className={styles.header}>
           <h2 className={styles.title}>RepeatMasterの特徴</h2>
@@ -12,7 +17,7 @@ export default function Features() {
         </div>
 
         <div className={styles.featureList}>
-          <div className={styles.feature}>
+          <div className={`${styles.feature} ${isVisible ? styles.visible : ''}`}>
             <div className={styles.featureIcon}>✓</div>
             <div className={styles.featureContent}>
               <h3>タップだけで周回記録</h3>
@@ -23,7 +28,7 @@ export default function Features() {
             </div>
           </div>
 
-          <div className={styles.feature}>
+          <div className={`${styles.feature} ${isVisible ? styles.visible : ''}`}>
             <div className={styles.featureIcon}>📊</div>
             <div className={styles.featureContent}>
               <h3>過去の正誤が見える</h3>
@@ -34,7 +39,7 @@ export default function Features() {
             </div>
           </div>
 
-          <div className={styles.feature}>
+          <div className={`${styles.feature} ${isVisible ? styles.visible : ''}`}>
             <div className={styles.featureIcon}>🎯</div>
             <div className={styles.featureContent}>
               <h3>3冊制限が逆に良い</h3>
@@ -45,7 +50,7 @@ export default function Features() {
             </div>
           </div>
 
-          <div className={styles.feature}>
+          <div className={`${styles.feature} ${isVisible ? styles.visible : ''}`}>
             <div className={styles.featureIcon}>💪</div>
             <div className={styles.featureContent}>
               <h3>続けられる仕組み</h3>
@@ -56,7 +61,7 @@ export default function Features() {
             </div>
           </div>
 
-          <div className={styles.feature}>
+          <div className={`${styles.feature} ${isVisible ? styles.visible : ''}`}>
             <div className={styles.featureIcon}>🚀</div>
             <div className={styles.featureContent}>
               <h3>資格試験に特化</h3>
@@ -67,7 +72,7 @@ export default function Features() {
             </div>
           </div>
 
-          <div className={styles.feature}>
+          <div className={`${styles.feature} ${isVisible ? styles.visible : ''}`}>
             <div className={styles.featureIcon}>📱</div>
             <div className={styles.featureContent}>
               <h3>スマホで完結</h3>
