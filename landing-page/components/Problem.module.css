@@ -1,0 +1,71 @@
+.problem {
+  padding: 80px 20px;
+  background: #fafafa;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 36px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 60px;
+  color: #171717;
+}
+
+.problems {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+}
+
+.problemCard {
+  background: white;
+  padding: 40px 32px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.problemCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.emoji {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.problemCard h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #171717;
+}
+
+.problemCard p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #525252;
+}
+
+@media (max-width: 768px) {
+  .problem {
+    padding: 60px 20px;
+  }
+
+  .title {
+    font-size: 28px;
+    margin-bottom: 40px;
+  }
+
+  .problems {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
