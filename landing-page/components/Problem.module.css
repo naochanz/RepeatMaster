@@ -33,10 +33,10 @@
 }
 
 .problemCard {
-  background: #161b22;
+  background: #1c2128;
   padding: 56px 40px;
   border-radius: 8px;
-  border: 1px solid #21262d;
+  border: 1px solid #30363d;
   text-align: left;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;

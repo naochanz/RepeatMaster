@@ -35,8 +35,8 @@
 }
 
 .plan {
-  background: #161b22;
-  border: 1px solid #21262d;
+  background: #1c2128;
+  border: 1px solid #30363d;
   border-radius: 8px;
   padding: 48px 40px;
   position: relative;
@@ -44,8 +44,8 @@
 }
 
 .plan:hover {
-  border-color: #30363d;
-  background: #1c2128;
+  border-color: #3d444d;
+  background: #22272e;
 }
 
 .planPremium {
@@ -69,7 +69,7 @@
   text-align: center;
   margin-bottom: 36px;
   padding-bottom: 32px;
-  border-bottom: 1px solid #21262d;
+  border-bottom: 1px solid #30363d;
 }
 
 .planName {
@@ -120,7 +120,7 @@
 
 .recommended {
   background: transparent;
-  border: 1px solid #21262d;
+  border: 1px solid #30363d;
   padding: 14px;
   border-radius: 6px;
   margin-bottom: 24px;
@@ -149,7 +149,7 @@
 
 .planButton:hover {
   border-color: #4b5563;
-  background: #161b22;
+  background: #1c2128;
   color: #d1d5db;
 }
 

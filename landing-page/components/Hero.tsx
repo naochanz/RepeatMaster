@@ -15,6 +15,16 @@ export default function Hero() {
       <div className={styles.background}>
         <div className={styles.gradient1}></div>
         <div className={styles.gradient2}></div>
+        <div className={styles.grid}></div>
+        <div className={styles.particles}>
+          {[...Array(20)].map((_, i) => (
+            <div key={i} className={styles.particle} style={{
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 10}s`,
+              animationDuration: `${15 + Math.random() * 10}s`
+            }}></div>
+          ))}
+        </div>
       </div>
       <div className={styles.container}>
         <div className={`${styles.content} ${mounted ? styles.visible : ''}`}>
