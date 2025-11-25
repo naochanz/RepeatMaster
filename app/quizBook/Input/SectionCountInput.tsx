@@ -28,6 +28,7 @@ const SectionCountInput = ({ chapterNumber, chapterIndex }: SectionCountInputPro
       id: exsistingChapter?.id || `chapter-${chapterIndex}`,
       title: exsistingChapter?.title || `第${chapterNumber}章`,
       chapterNumber,
+      chapterRate: 0,
       sections: count > 0
         ? Array.from({ length: count }, (_, i) => ({
           id: `section-${chapterIndex}-${i}`,
