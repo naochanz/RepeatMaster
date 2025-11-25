@@ -3,6 +3,8 @@ import React, { useEffect } from 'react'
 import { useLocalSearchParams, router } from 'expo-router'
 import Header from '../compornents/Header'
 import { useQuizBookStore } from '../quizBook/Input/stores/quizBookStore';
+import { theme } from '@/constants/Theme';
+import Card from '@/components/ui/Card';
 
 
 const StudyHome = () => {
@@ -56,81 +58,128 @@ const StudyHome = () => {
     }
 
     return (
-        <>
+        <View style={styles.wrapper}>
             <Header />
-            <ScrollView style={styles.container}>
-                <View style={styles.titleContainer}>
-                    <Text style={styles.title}>{quizBook.title}</Text>
-                </View>
-
+            <View style={styles.titleContainer}>
+                <Text style={styles.title}>{quizBook.title}</Text>
+                <Text style={styles.subtitle}>
+                    {quizBook.chapters.length}個の章
+                </Text>
+            </View>
+            <ScrollView
+                style={styles.container}
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+            >
                 {quizBook.chapters.map((chapter) =>
                     <TouchableOpacity
                         key={chapter.id}
-                        style={styles.chapterContainer}
                         onPress={() => handleChapterPress(chapter)}
+                        activeOpacity={0.7}
+                        style={styles.cardWrapper}
                     >
-                        <View>
-                            <Text style={styles.chapterTitle}>
-                                {chapter.chapterNumber}章：{chapter.title}
-                            </Text>
-                        </View>
-                        <View style={styles.chapterDetail}>
-                            <Text>
-                                正答率： {chapter.chapterRate}％
-                            </Text>
-                            <Text>（全{getChapterTotalQuestions(chapter)}問）</Text>
-                        </View>
-
-                    </TouchableOpacity>)}
-            </ScrollView >
-        </>
+                        <Card style={styles.chapterCard}>
+                            <View style={styles.chapterHeader}>
+                                <Text style={styles.chapterTitle}>
+                                    {chapter.chapterNumber}章：{chapter.title}
+                                </Text>
+                            </View>
+                            <View style={styles.chapterStats}>
+                                <View style={styles.statItem}>
+                                    <Text style={styles.statLabel}>正答率</Text>
+                                    <Text style={[styles.statValue, {
+                                        color: chapter.chapterRate >= 80
+                                            ? theme.colors.success[600]
+                                            : chapter.chapterRate >= 60
+                                                ? theme.colors.warning[600]
+                                                : theme.colors.error[600]
+                                    }]}>
+                                        {chapter.chapterRate}%
+                                    </Text>
+                                </View>
+                                <View style={styles.divider} />
+                                <View style={styles.statItem}>
+                                    <Text style={styles.statLabel}>問題数</Text>
+                                    <Text style={styles.statValue}>
+                                        {getChapterTotalQuestions(chapter)}問
+                                    </Text>
+                                </View>
+                            </View>
+                        </Card>
+                    </TouchableOpacity>
+                )}
+            </ScrollView>
+        </View>
     )
 }
 
 
 const styles = StyleSheet.create({
-    container: {
+    wrapper: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: theme.colors.neutral[50],
     },
     titleContainer: {
-        backgroundColor: '#fff',
-        padding: 16, // paddingを調整
+        backgroundColor: theme.colors.neutral.white,
+        padding: theme.spacing.lg,
         borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0', // 色を調整
+        borderBottomColor: theme.colors.secondary[200],
     },
     title: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#333',
+        fontSize: theme.typography.fontSizes['2xl'],
+        fontWeight: theme.typography.fontWeights.bold,
+        color: theme.colors.secondary[900],
+        marginBottom: theme.spacing.xs,
     },
-    chapterContainer: {
-        backgroundColor: '#fff',
-        marginTop: 16,
-        marginHorizontal: 16, // 左右の余白を統一
-        padding: 20,
-        borderRadius: 12, // より見やすい角丸に
-        // iOS用の影
-        shadowColor: '#000',
-        shadowOffset: { 
-            width: 0, 
-            height: 2 
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-        // Android用の影
-        elevation: 3,
+    subtitle: {
+        fontSize: theme.typography.fontSizes.sm,
+        color: theme.colors.secondary[600],
+    },
+    container: {
+        flex: 1,
+    },
+    scrollContent: {
+        padding: theme.spacing.md,
+    },
+    cardWrapper: {
+        marginBottom: theme.spacing.md,
+    },
+    chapterCard: {
+        padding: theme.spacing.lg,
+    },
+    chapterHeader: {
+        marginBottom: theme.spacing.md,
     },
     chapterTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 12,
+        fontSize: theme.typography.fontSizes.lg,
+        fontWeight: theme.typography.fontWeights.bold,
+        color: theme.colors.secondary[900],
     },
-    chapterDetail: {
+    chapterStats: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center', // 縦方向の配置を揃える
-    }
+        alignItems: 'center',
+        justifyContent: 'space-around',
+        paddingTop: theme.spacing.md,
+        borderTopWidth: 1,
+        borderTopColor: theme.colors.secondary[200],
+    },
+    statItem: {
+        alignItems: 'center',
+    },
+    statLabel: {
+        fontSize: theme.typography.fontSizes.xs,
+        color: theme.colors.secondary[600],
+        marginBottom: theme.spacing.xs,
+    },
+    statValue: {
+        fontSize: theme.typography.fontSizes.xl,
+        fontWeight: theme.typography.fontWeights.bold,
+        color: theme.colors.secondary[900],
+    },
+    divider: {
+        width: 1,
+        height: 32,
+        backgroundColor: theme.colors.secondary[200],
+    },
 })
 export default StudyHome

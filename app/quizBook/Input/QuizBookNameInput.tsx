@@ -1,5 +1,5 @@
-import { View, TextInput, StyleSheet } from 'react-native'
 import React, { useState } from 'react'
+import Input from '@/components/ui/Input'
 import { useQuizBookStore } from './stores/quizBookStore'
 
 const QuizBookNameInput = () => {
@@ -8,29 +8,16 @@ const QuizBookNameInput = () => {
 
   const handleChangeText = (text: string) => {
     setValue(text);
-    // リアルタイムでZustandに保存
     updateCurrentQuizBook({ title: text });
   }
 
   return (
-      <View>
-        <TextInput
-          style={styles.input}
-          placeholder="問題集名を入力してください"
-          onChangeText={handleChangeText}
-          value={value}
-        />
-      </View>
-    )
-  }
-
-const styles = StyleSheet.create({
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    color: '#333'
-  },
-})
+    <Input
+      placeholder="例：FP3級、英語検定2級"
+      onChangeText={handleChangeText}
+      value={value}
+    />
+  )
+}
 
 export default QuizBookNameInput
