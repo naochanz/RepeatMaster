@@ -100,6 +100,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontWeight: theme.typography.fontWeights.semibold,
+    fontFamily: 'ZenKaku-Medium',
   },
   text_primary: {
     color: theme.colors.neutral.white,

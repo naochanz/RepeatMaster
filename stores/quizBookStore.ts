@@ -1,6 +1,6 @@
 // stores/quizBookStore.ts
 import { create } from 'zustand';
-import { mockQuizBooks } from '../../../mockData/mockQuizBooks';
+import { mockQuizBooks } from '@/mockData/mockQuizBooks'
 interface QuizBook {
   id: string;
   title: string;

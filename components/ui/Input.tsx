@@ -41,22 +41,24 @@ const Input: React.FC<InputProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: theme.spacing.md,
+    marginBottom: 0,
   },
   label: {
     fontSize: theme.typography.fontSizes.sm,
     fontWeight: theme.typography.fontWeights.medium,
     color: theme.colors.secondary[700],
     marginBottom: theme.spacing.xs,
+    fontFamily: 'ZenKaku-Medium',
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.neutral.white,
+    backgroundColor: theme.colors.neutral[50],
     borderWidth: 1.5,
     borderColor: theme.colors.secondary[200],
     borderRadius: theme.borderRadius.md,
     overflow: 'hidden',
+    ...theme.shadows.sm,
   },
   inputWrapperError: {
     borderColor: theme.colors.error[500],
@@ -68,6 +70,7 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSizes.base,
     color: theme.colors.secondary[900],
     minHeight: 48,
+    fontFamily: 'ZenKaku-Regular',
   },
   inputWithLeftIcon: {
     paddingLeft: theme.spacing.sm,
@@ -86,6 +89,7 @@ const styles = StyleSheet.create({
     color: theme.colors.error[600],
     marginTop: theme.spacing.xs,
     marginLeft: theme.spacing.xs,
+    fontFamily: 'ZenKaku-Regular',
   },
 });
 

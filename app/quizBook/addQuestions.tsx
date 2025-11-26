@@ -1,10 +1,12 @@
 import React from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
-import { useQuizBookStore } from './Input/stores/quizBookStore';
+import { useQuizBookStore } from '@/stores/quizBookStore';
 import Header from '../compornents/Header';
 import QuestionCountInput from './Input/QuestionCountInput';
-import ConfirmButton from './Input/ConfirmButton';
+import Button from '@/components/ui/Button';
 import { router } from 'expo-router';
+import { theme } from '@/constants/Theme';
+import { ListChecks } from 'lucide-react-native';
 
 const AddQuestions = () => {
     const currentQuizBook = useQuizBookStore(state => state.currentQuizBook);
@@ -15,10 +17,20 @@ const AddQuestions = () => {
     };
 
     return (
-        <>
+        <View style={styles.wrapper}>
             <Header />
-            <ScrollView style={styles.container}>
-                <Text style={styles.title}>問題数を入力</Text>
+            <ScrollView
+                style={styles.container}
+                contentContainerStyle={styles.contentContainer}
+                showsVerticalScrollIndicator={false}
+            >
+                <View style={styles.header}>
+                    <View style={styles.headerIconContainer}>
+                        <ListChecks size={24} color={theme.colors.primary[600]} />
+                    </View>
+                    <Text style={styles.title}>問題数を入力</Text>
+                    <Text style={styles.description}>各章または節ごとの問題数を入力してください</Text>
+                </View>
 
                 {currentQuizBook?.chapterCount === 0 ? (
                     <Text style={styles.emptyMessage}>章が設定されていません</Text>
@@ -49,39 +61,70 @@ const AddQuestions = () => {
                 )}
                 
                 <View style={styles.buttonContainer}>
-                    <ConfirmButton
+                    <Button
                         title="確認画面へ"
                         onPress={handleNext}
-                        backgroundColor="#6c757d"
+                        variant="primary"
+                        size="lg"
+                        fullWidth
                     />
                 </View>
             </ScrollView>
-        </>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
+    wrapper: {
+        flex: 1,
+        backgroundColor: theme.colors.neutral[50],
+    },
     container: {
         flex: 1,
-        padding: 16,
+    },
+    contentContainer: {
+        padding: theme.spacing.lg,
+    },
+    header: {
+        marginBottom: theme.spacing.xl,
+        alignItems: 'center',
+    },
+    headerIconContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: theme.colors.primary[50],
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: theme.spacing.sm,
     },
     title: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 16,
+        fontSize: theme.typography.fontSizes.xl,
+        fontWeight: theme.typography.fontWeights.bold,
+        color: theme.colors.secondary[900],
+        marginBottom: theme.spacing.xs,
+        fontFamily: 'ZenKaku-Bold',
+        textAlign: 'center',
+    },
+    description: {
+        fontSize: theme.typography.fontSizes.base,
+        color: theme.colors.secondary[600],
+        fontFamily: 'ZenKaku-Regular',
+        textAlign: 'center',
     },
     emptyMessage: {
-        fontSize: 16,
-        color: '#666',
+        fontSize: theme.typography.fontSizes.base,
+        color: theme.colors.secondary[600],
         textAlign: 'center',
-        marginTop: 20,
+        marginTop: theme.spacing.xl,
+        fontFamily: theme.typography.fontFamilies.regular,
     },
     inputContainer: {
-        marginBottom: 20,
+        marginBottom: theme.spacing.lg,
     },
     buttonContainer: {
-        marginTop: 20,
-        marginBottom: 40,
+        marginTop: theme.spacing.lg,
+        marginBottom: theme.spacing.xxl,
     },
 });
 

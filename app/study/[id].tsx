@@ -2,7 +2,7 @@ import { Text, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-nati
 import React, { useEffect } from 'react'
 import { useLocalSearchParams, router } from 'expo-router'
 import Header from '../compornents/Header'
-import { useQuizBookStore } from '../quizBook/Input/stores/quizBookStore';
+import { useQuizBookStore } from '@/stores/quizBookStore';
 import { theme } from '@/constants/Theme';
 import Card from '@/components/ui/Card';
 
@@ -120,20 +120,25 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colors.neutral[50],
     },
     titleContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         backgroundColor: theme.colors.neutral.white,
-        padding: theme.spacing.lg,
+        paddingHorizontal: theme.spacing.lg,
+        paddingVertical: theme.spacing.md,
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.secondary[200],
     },
     title: {
-        fontSize: theme.typography.fontSizes['2xl'],
+        fontSize: theme.typography.fontSizes.xl,
         fontWeight: theme.typography.fontWeights.bold,
         color: theme.colors.secondary[900],
-        marginBottom: theme.spacing.xs,
+        fontFamily: 'ZenKaku-Bold',
     },
     subtitle: {
         fontSize: theme.typography.fontSizes.sm,
         color: theme.colors.secondary[600],
+        fontFamily: 'ZenKaku-Regular',
     },
     container: {
         flex: 1,
@@ -142,24 +147,25 @@ const styles = StyleSheet.create({
         padding: theme.spacing.md,
     },
     cardWrapper: {
-        marginBottom: theme.spacing.md,
+        marginBottom: theme.spacing.sm,
     },
     chapterCard: {
-        padding: theme.spacing.lg,
+        padding: theme.spacing.md,
     },
     chapterHeader: {
-        marginBottom: theme.spacing.md,
+        marginBottom: theme.spacing.sm,
     },
     chapterTitle: {
-        fontSize: theme.typography.fontSizes.lg,
+        fontSize: theme.typography.fontSizes.base,
         fontWeight: theme.typography.fontWeights.bold,
         color: theme.colors.secondary[900],
+        fontFamily: 'ZenKaku-Bold',
     },
     chapterStats: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-around',
-        paddingTop: theme.spacing.md,
+        paddingTop: theme.spacing.sm,
         borderTopWidth: 1,
         borderTopColor: theme.colors.secondary[200],
     },
@@ -169,16 +175,18 @@ const styles = StyleSheet.create({
     statLabel: {
         fontSize: theme.typography.fontSizes.xs,
         color: theme.colors.secondary[600],
-        marginBottom: theme.spacing.xs,
+        marginBottom: 2,
+        fontFamily: 'ZenKaku-Regular',
     },
     statValue: {
-        fontSize: theme.typography.fontSizes.xl,
+        fontSize: theme.typography.fontSizes.lg,
         fontWeight: theme.typography.fontWeights.bold,
         color: theme.colors.secondary[900],
+        fontFamily: 'ZenKaku-Bold',
     },
     divider: {
         width: 1,
-        height: 32,
+        height: 24,
         backgroundColor: theme.colors.secondary[200],
     },
 })

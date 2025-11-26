@@ -5,6 +5,12 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
+import {
+  ZenKakuGothicNew_400Regular,
+  ZenKakuGothicNew_500Medium,
+  ZenKakuGothicNew_700Bold,
+  ZenKakuGothicNew_900Black,
+} from '@expo-google-fonts/zen-kaku-gothic-new';
 
 import { useColorScheme } from '@/components/useColorScheme';
 
@@ -24,6 +30,10 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    'ZenKaku-Regular': ZenKakuGothicNew_400Regular,
+    'ZenKaku-Medium': ZenKakuGothicNew_500Medium,
+    'ZenKaku-Bold': ZenKakuGothicNew_700Bold,
+    'ZenKaku-Black': ZenKakuGothicNew_900Black,
     ...FontAwesome.font,
   });
 

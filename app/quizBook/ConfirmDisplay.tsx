@@ -1,7 +1,9 @@
 import { ScrollView, Text, StyleSheet, View } from 'react-native'
 import React from 'react'
 import Header from '../compornents/Header'
-import { useQuizBookStore } from './Input/stores/quizBookStore'
+import { useQuizBookStore } from '@/stores/quizBookStore';
+import { theme } from '@/constants/Theme'
+import { CheckCircle2, BookMarked, Layers, FileQuestion } from 'lucide-react-native'
 
 const ConfirmDisplay = () => {
     //zustandからデータ取得
@@ -12,102 +14,241 @@ const ConfirmDisplay = () => {
     const chapters = currentQuizBook?.chapters || [];
 
     return (
-        <>
+        <View style={styles.wrapper}>
             <Header />
-            <ScrollView style={styles.container}>
-                <Text style={styles.title}>確認画面</Text>
+            <ScrollView
+                style={styles.container}
+                contentContainerStyle={styles.contentContainer}
+                showsVerticalScrollIndicator={false}
+            >
+                <View style={styles.header}>
+                    <View style={styles.headerIconContainer}>
+                        <CheckCircle2 size={24} color={theme.colors.success[600]} />
+                    </View>
+                    <Text style={styles.title}>確認画面</Text>
+                    <Text style={styles.description}>入力内容を確認してください</Text>
+                </View>
+
                 {/*問題集タイトル*/}
-                <View style={styles.section}>
-                    <Text style={styles.label}>問題集タイトル：</Text>
-                    <Text style={styles.value}>{title}</Text>
+                <View style={styles.titleCard}>
+                    <View style={styles.cardHeader}>
+                        <View style={styles.iconWrapper}>
+                            <BookMarked size={20} color={theme.colors.primary[600]} />
+                        </View>
+                        <Text style={styles.cardTitle}>問題集情報</Text>
+                    </View>
+                    <View style={styles.infoRow}>
+                        <Text style={styles.label}>タイトル</Text>
+                        <Text style={styles.value}>{title}</Text>
+                    </View>
                 </View>
                 {/*各章の詳細*/}
-                {chapters.map((chapter, chapterIndex) => (
-                    <View key={chapterIndex} style={styles.chapterContainer}>
-                        <Text style={styles.chapterTitle}>
-                            {chapter.chapterNumber}章
-                        </Text>
-                        {/*節がある場合*/}
-                        {chapter.sections && chapter.sections.length > 0 ? (
-                            chapter.sections.map((section, sectionIndex) => (
-                                <View key={sectionIndex} style={styles.sectionContainer}>
-                                    <Text style={styles.sectionText}>
-                                        {section.sectionNumber}節
-                                    </Text>
-                                    <Text style={styles.questionCount}>
-                                        問題数： {section.questionCount}
-                                    </Text>
-                                </View>
-                            ))
-                        ) : (
-                            /*節がない場合は章の問題数を表示*/
-                            <Text style={styles.questionCount}>
-                                問題数： {chapter.questionCount || 0}
-                            </Text>
-                        )}
+                <View style={styles.chaptersSection}>
+                    <View style={styles.sectionHeaderContainer}>
+                        <Layers size={20} color={theme.colors.primary[600]} />
+                        <Text style={styles.sectionHeaderText}>章・節の構成</Text>
                     </View>
-                ))}
+                    {chapters.map((chapter, chapterIndex) => (
+                        <View key={chapterIndex} style={styles.chapterCard}>
+                            <View style={styles.chapterHeader}>
+                                <View style={styles.chapterBadge}>
+                                    <Text style={styles.chapterBadgeText}>第{chapter.chapterNumber}章</Text>
+                                </View>
+                            </View>
+                            {/*節がある場合*/}
+                            {chapter.sections && chapter.sections.length > 0 ? (
+                                chapter.sections.map((section, sectionIndex) => (
+                                    <View key={sectionIndex} style={styles.sectionRow}>
+                                        <View style={styles.sectionInfo}>
+                                            <FileQuestion size={16} color={theme.colors.secondary[500]} />
+                                            <Text style={styles.sectionText}>
+                                                第{section.sectionNumber}節
+                                            </Text>
+                                        </View>
+                                        <View style={styles.questionBadge}>
+                                            <Text style={styles.questionBadgeText}>{section.questionCount}問</Text>
+                                        </View>
+                                    </View>
+                                ))
+                            ) : (
+                                /*節がない場合は章の問題数を表示*/
+                                <View style={styles.sectionRow}>
+                                    <Text style={styles.noSectionText}>節なし</Text>
+                                    <View style={styles.questionBadge}>
+                                        <Text style={styles.questionBadgeText}>{chapter.questionCount || 0}問</Text>
+                                    </View>
+                                </View>
+                            )}
+                        </View>
+                    ))}
+                </View>
             </ScrollView>
-        </>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
+    wrapper: {
+        flex: 1,
+        backgroundColor: theme.colors.neutral[50],
+    },
     container: {
         flex: 1,
-        padding: 16,
+    },
+    contentContainer: {
+        padding: theme.spacing.lg,
+    },
+    header: {
+        marginBottom: theme.spacing.xl,
+        alignItems: 'center',
+    },
+    headerIconContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: theme.colors.success[50],
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: theme.spacing.sm,
     },
     title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
+        fontSize: theme.typography.fontSizes.xl,
+        fontWeight: theme.typography.fontWeights.bold,
+        marginBottom: theme.spacing.xs,
+        fontFamily: theme.typography.fontFamilies.bold,
+        color: theme.colors.secondary[900],
+        textAlign: 'center',
     },
-    section: {
-        marginBottom: 16,
-        padding: 12,
-        backgroundColor: '#f5f5f5',
+    description: {
+        fontSize: theme.typography.fontSizes.base,
+        color: theme.colors.secondary[600],
+        fontFamily: theme.typography.fontFamilies.regular,
+        textAlign: 'center',
+    },
+    titleCard: {
+        backgroundColor: theme.colors.neutral.white,
+        borderRadius: theme.borderRadius.xl,
+        padding: theme.spacing.lg,
+        marginBottom: theme.spacing.lg,
+        borderWidth: 1,
+        borderColor: theme.colors.primary[200],
+        ...theme.shadows.md,
+    },
+    cardHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: theme.spacing.md,
+        gap: theme.spacing.sm,
+    },
+    iconWrapper: {
+        width: 36,
+        height: 36,
         borderRadius: 8,
+        backgroundColor: theme.colors.primary[50],
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    cardTitle: {
+        fontSize: theme.typography.fontSizes.lg,
+        fontWeight: theme.typography.fontWeights.bold,
+        color: theme.colors.secondary[900],
+        fontFamily: theme.typography.fontFamilies.bold,
+    },
+    infoRow: {
+        paddingVertical: theme.spacing.sm,
     },
     label: {
-        fontSize: 14,
-        color: '#666',
+        fontSize: theme.typography.fontSizes.xs,
+        color: theme.colors.secondary[500],
         marginBottom: 4,
+        fontFamily: theme.typography.fontFamilies.regular,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
     value: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#333',
+        fontSize: theme.typography.fontSizes.xl,
+        fontWeight: theme.typography.fontWeights.bold,
+        color: theme.colors.secondary[900],
+        fontFamily: theme.typography.fontFamilies.bold,
     },
-    chapterContainer: {
-        marginBottom: 20,
-        padding: 16,
-        backgroundColor: '#fff',
-        borderRadius: 8,
+    chaptersSection: {
+        marginBottom: theme.spacing.xxl,
+    },
+    sectionHeaderContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.spacing.sm,
+        marginBottom: theme.spacing.md,
+    },
+    sectionHeaderText: {
+        fontSize: theme.typography.fontSizes.lg,
+        fontWeight: theme.typography.fontWeights.bold,
+        color: theme.colors.secondary[900],
+        fontFamily: theme.typography.fontFamilies.bold,
+    },
+    chapterCard: {
+        backgroundColor: theme.colors.neutral.white,
+        borderRadius: theme.borderRadius.xl,
+        padding: theme.spacing.md,
+        marginBottom: theme.spacing.md,
         borderWidth: 1,
-        borderColor: '#ddd',
+        borderColor: theme.colors.secondary[200],
+        ...theme.shadows.sm,
     },
-    chapterTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 12,
-        color: '#333',
+    chapterHeader: {
+        marginBottom: theme.spacing.sm,
     },
-    sectionContainer: {
-        marginLeft: 16,
-        marginBottom: 8,
-        paddingLeft: 12,
-        borderLeftWidth: 2,
-        borderLeftColor: '#007AFF',
+    chapterBadge: {
+        alignSelf: 'flex-start',
+        backgroundColor: theme.colors.primary[50],
+        paddingHorizontal: theme.spacing.md,
+        paddingVertical: theme.spacing.xs,
+        borderRadius: theme.borderRadius.full,
+        borderWidth: 1,
+        borderColor: theme.colors.primary[200],
+    },
+    chapterBadgeText: {
+        fontSize: theme.typography.fontSizes.sm,
+        fontWeight: theme.typography.fontWeights.bold,
+        color: theme.colors.primary[700],
+        fontFamily: theme.typography.fontFamilies.bold,
+    },
+    sectionRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: theme.spacing.sm,
+        paddingHorizontal: theme.spacing.sm,
+        borderTopWidth: 1,
+        borderTopColor: theme.colors.secondary[100],
+    },
+    sectionInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.spacing.xs,
     },
     sectionText: {
-        fontSize: 16,
-        marginBottom: 4,
-        color: '#555',
+        fontSize: theme.typography.fontSizes.base,
+        color: theme.colors.secondary[700],
+        fontFamily: theme.typography.fontFamilies.medium,
     },
-    questionCount: {
-        fontSize: 14,
-        color: '#007AFF',
-        fontWeight: '500',
+    noSectionText: {
+        fontSize: theme.typography.fontSizes.base,
+        color: theme.colors.secondary[500],
+        fontFamily: theme.typography.fontFamilies.regular,
+        fontStyle: 'italic',
+    },
+    questionBadge: {
+        backgroundColor: theme.colors.primary[100],
+        paddingHorizontal: theme.spacing.sm,
+        paddingVertical: 4,
+        borderRadius: theme.borderRadius.md,
+    },
+    questionBadgeText: {
+        fontSize: theme.typography.fontSizes.sm,
+        fontWeight: theme.typography.fontWeights.semibold,
+        color: theme.colors.primary[700],
+        fontFamily: theme.typography.fontFamilies.bold,
     },
 });
 
