@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Modal, TextInput, } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import { useQuizBookStore } from '@/app/quizBook/Input/stores/quizBookStore'
+import { useQuizBookStore } from '@/stores/quizBookStore';
 import Header from '../../compornents/Header'
 import { useLocalSearchParams } from 'expo-router'
 import MemoModal from './compornent/MemoModal'

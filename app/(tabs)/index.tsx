@@ -1,9 +1,10 @@
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList } from 'react-native';
+// app/(tabs)/index.tsx
+import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
 import React from 'react';
 import Header from '../compornents/Header';
 import QuizBookCard from '../compornents/QuizBookCard';
 import { router } from 'expo-router';
-import { useQuizBookStore } from '../quizBook/Input/stores/quizBookStore';
+import { useQuizBookStore } from '@/stores/quizBookStore';
 import { theme } from '@/constants/Theme';
 import { Plus, AlertCircle } from 'lucide-react-native';
 
@@ -20,7 +21,6 @@ export default function HomeScreen() {
     });
   };
 
-  {/* 後ほどAPI作成しGETで取得*/ }
   const dummyQuizBook = [
     {
       id: '1',
@@ -29,20 +29,6 @@ export default function HomeScreen() {
       totalRounds: 5,
       correctRate: 85,
       lastStudyDate: new Date(),
-    }, {
-      id: '2',
-      title: 'FP3級',
-      currentRound: 3,
-      totalRounds: 5,
-      correctRate: 85,
-      lastStudyDate: new Date()
-    }, {
-      id: '3',
-      title: 'FP3級',
-      currentRound: 3,
-      totalRounds: 5,
-      correctRate: 85,
-      lastStudyDate: new Date()
     },
     {
       id: 'addButton',
@@ -67,55 +53,28 @@ export default function HomeScreen() {
           quizBook={item}
           onPress={() => { handleCardPress(item.id) }}
         />
-      )
-      }
+      )}
     </View>
   )
 
-
   return (
-    <>
-      <View>
-        <Header />
+    <View style={styles.container}>
+      <Header />
+      <View style={styles.sectionContainer}>
+        <Text style={styles.sectionTitle}>登録済み問題集</Text>
       </View>
-      <View>
-        <View style={styles.container}>
-          <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>登録済み問題集</Text>
-          </View>
-          {dummyQuizBook.length === 1 ? (
-            <View>
-              <View style={styles.emptyState}>
-                <View style={styles.emptyContent}>
-                  <AlertCircle size={20} color={theme.colors.warning[600]} />
-                  <Text style={styles.emptyText}>まだ問題集が登録されていません</Text>
-                </View>
-              </View>
-              <FlatList
-                data={dummyQuizBook}
-                numColumns={2}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id}
-                columnWrapperStyle={styles.row}
-                contentContainerStyle={styles.flatListContainer}
-              />
-            </View>
-
-          ) : (
-            <FlatList
-              data={dummyQuizBook}
-              numColumns={2}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id}
-              columnWrapperStyle={styles.row}
-              contentContainerStyle={styles.flatListContainer}
-            />
-          )}
-        </View>
-      </View>
-    </>
+      <FlatList
+        data={dummyQuizBook}
+        numColumns={2}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={styles.flatListContainer}
+      />
+    </View>
   )
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -130,9 +89,9 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: theme.typography.fontSizes.xl,
-    fontWeight: theme.typography.fontWeights.bold,
+    fontWeight: theme.typography.fontWeights.bold as any,
     color: theme.colors.secondary[900],
-    fontFamily: 'ZenKaku-Bold',
+    // fontFamily: 'ZenKaku-Bold', // 一旦コメントアウト
   },
   flatListContainer: {
     padding: theme.spacing.md,
@@ -144,30 +103,6 @@ const styles = StyleSheet.create({
   cardWrapper: {
     width: '48%',
     aspectRatio: 1,
-  },
-  emptyState: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: theme.spacing.xl,
-  },
-  emptyContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyText: {
-    marginLeft: theme.spacing.sm,
-    fontSize: theme.typography.fontSizes.base,
-    color: theme.colors.secondary[600],
-    fontFamily: 'ZenKaku-Regular',
-  },
-  cardContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    padding: theme.spacing.md,
-    minHeight: 200,
   },
   addButton: {
     width: '100%',
@@ -184,7 +119,7 @@ const styles = StyleSheet.create({
   addButtonText: {
     fontSize: theme.typography.fontSizes.base,
     color: theme.colors.primary[600],
-    fontWeight: theme.typography.fontWeights.bold,
-    fontFamily: 'ZenKaku-Bold',
+    fontWeight: theme.typography.fontWeights.bold as any,
+    // fontFamily: 'ZenKaku-Bold', // 一旦コメントアウト
   },
 });

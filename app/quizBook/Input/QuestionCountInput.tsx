@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
-import { useQuizBookStore } from './stores/quizBookStore';
+import { useQuizBookStore } from '@/stores/quizBookStore';
 import { theme } from '@/constants/Theme';
 import { BookOpen, Hash } from 'lucide-react-native';
 

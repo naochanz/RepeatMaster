@@ -1,7 +1,7 @@
 // app/quizBook/Input/SectionCountInput.tsx
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
-import { useQuizBookStore } from './stores/quizBookStore';
+import { useQuizBookStore } from '@/stores/quizBookStore';
 import { theme } from '@/constants/Theme';
 import { Layers, Hash } from 'lucide-react-native';
 

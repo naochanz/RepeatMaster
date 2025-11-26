@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native'
 import React, { useEffect } from 'react'
-import { useQuizBookStore } from '@/app/quizBook/Input/stores/quizBookStore'
+import { useQuizBookStore } from '@/stores/quizBookStore';
 import { useLocalSearchParams, router } from 'expo-router'
 import Header from '@/app/compornents/Header'
 import { theme } from '@/constants/Theme'

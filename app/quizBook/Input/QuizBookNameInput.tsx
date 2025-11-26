@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Input from '@/components/ui/Input'
-import { useQuizBookStore } from './stores/quizBookStore'
+import { useQuizBookStore } from '@/stores/quizBookStore';
 import { BookMarked } from 'lucide-react-native'
 import { theme } from '@/constants/Theme'
 

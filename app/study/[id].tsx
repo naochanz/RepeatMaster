@@ -2,7 +2,7 @@ import { Text, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-nati
 import React, { useEffect } from 'react'
 import { useLocalSearchParams, router } from 'expo-router'
 import Header from '../compornents/Header'
-import { useQuizBookStore } from '../quizBook/Input/stores/quizBookStore';
+import { useQuizBookStore } from '@/stores/quizBookStore';
 import { theme } from '@/constants/Theme';
 import Card from '@/components/ui/Card';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
-import { useQuizBookStore } from './Input/stores/quizBookStore';
+import { useQuizBookStore } from '@/stores/quizBookStore';
 import Header from '../compornents/Header';
 import SectionCountInput from './Input/SectionCountInput';
 import Button from '@/components/ui/Button';

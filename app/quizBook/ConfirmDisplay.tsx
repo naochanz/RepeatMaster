@@ -1,7 +1,7 @@
 import { ScrollView, Text, StyleSheet, View } from 'react-native'
 import React from 'react'
 import Header from '../compornents/Header'
-import { useQuizBookStore } from './Input/stores/quizBookStore'
+import { useQuizBookStore } from '@/stores/quizBookStore';
 import { theme } from '@/constants/Theme'
 import { CheckCircle2, BookMarked, Layers, FileQuestion } from 'lucide-react-native'
 
