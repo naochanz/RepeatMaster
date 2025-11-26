@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, StyleSheet } from 'react-native'
+import { View, Text, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'
 import React from 'react'
 import Header from '../compornents/Header'
 import QuizBookNameInput from './Input/QuizBookNameInput'
@@ -7,64 +7,78 @@ import Button from '@/components/ui/Button'
 import { router } from 'expo-router'
 import { theme } from '@/constants/Theme'
 import { BookPlus, Layers } from 'lucide-react-native'
+import { useQuizBookStore } from '@/stores/quizBookStore'
 
 const goToSectionInput = () => {
     router.push('./AddSection')
 }
 
-
 const AddQuizBook = () => {
+    const currentQuizBook = useQuizBookStore(state => state.currentQuizBook);
+
+    const isFormValid =
+        currentQuizBook?.title &&
+        currentQuizBook?.title.length > 0 &&
+        currentQuizBook?.chapterCount &&
+        currentQuizBook?.chapterCount > 0;
 
     return (
         <View style={styles.wrapper}>
             <Header />
-            <ScrollView
-                style={styles.container}
-                contentContainerStyle={styles.contentContainer}
-                showsVerticalScrollIndicator={false}
+            <KeyboardAvoidingView
+                style={styles.keyboardAvoidingView}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
             >
-                <View style={styles.header}>
-                    <View style={styles.headerIconContainer}>
-                        <BookPlus size={24} color={theme.colors.primary[600]} />
-                    </View>
-                    <Text style={styles.title}>問題集を作成</Text>
-                    <Text style={styles.description}>
-                        問題集の基本情報を入力してください
-                    </Text>
-                </View>
-
-                <View style={styles.card}>
-                    <View style={styles.sectionHeader}>
-                        <View style={styles.sectionIconWrapper}>
-                            <BookPlus size={20} color={theme.colors.primary[600]} />
+                <ScrollView
+                    style={styles.container}
+                    contentContainerStyle={styles.contentContainer}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <View style={styles.header}>
+                        <View style={styles.headerIconContainer}>
+                            <BookPlus size={24} color={theme.colors.primary[600]} />
                         </View>
-                        <Text style={styles.sectionTitle}>問題集名</Text>
+                        <Text style={styles.title}>問題集を作成</Text>
+                        <Text style={styles.description}>
+                            問題集の基本情報を入力してください
+                        </Text>
                     </View>
-                    <QuizBookNameInput />
-                </View>
 
-                <View style={styles.card}>
-                    <View style={styles.sectionHeader}>
-                        <View style={styles.sectionIconWrapper}>
-                            <Layers size={20} color={theme.colors.primary[600]} />
+                    <View style={styles.card}>
+                        <View style={styles.sectionHeader}>
+                            <View style={styles.sectionIconWrapper}>
+                                <BookPlus size={20} color={theme.colors.primary[600]} />
+                            </View>
+                            <Text style={styles.sectionTitle}>問題集名</Text>
                         </View>
-                        <Text style={styles.sectionTitle}>章の設定</Text>
+                        <QuizBookNameInput />
                     </View>
-                    <ChapterSectionInput />
-                </View>
 
-                <View style={styles.buttonContainer}>
+                    <View style={styles.card}>
+                        <View style={styles.sectionHeader}>
+                            <View style={styles.sectionIconWrapper}>
+                                <Layers size={20} color={theme.colors.primary[600]} />
+                            </View>
+                            <Text style={styles.sectionTitle}>章の設定</Text>
+                        </View>
+                        <ChapterSectionInput />
+                    </View>
+                </ScrollView>
+                <View style={styles.fixedButtonContainer}>
                     <Button
                         title="次へ：節の設定"
                         onPress={goToSectionInput}
                         variant="primary"
                         size="lg"
                         fullWidth
+                        disabled={!isFormValid}
                     />
                 </View>
-            </ScrollView>
-        </View>
+            </KeyboardAvoidingView>
 
+        </View>
     )
 }
 
@@ -72,6 +86,9 @@ const styles = StyleSheet.create({
     wrapper: {
         flex: 1,
         backgroundColor: theme.colors.neutral[50],
+    },
+    keyboardAvoidingView: {
+        flex: 1,
     },
     container: {
         flex: 1,
@@ -94,16 +111,14 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: theme.typography.fontSizes.xl,
-        fontWeight: theme.typography.fontWeights.bold,
+        fontWeight: theme.typography.fontWeights.bold as any,
         color: theme.colors.secondary[900],
         marginBottom: theme.spacing.xs,
-        fontFamily: 'ZenKaku-Bold',
         textAlign: 'center',
     },
     description: {
         fontSize: theme.typography.fontSizes.base,
         color: theme.colors.secondary[600],
-        fontFamily: 'ZenKaku-Regular',
         textAlign: 'center',
     },
     card: {
@@ -131,13 +146,16 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: theme.typography.fontSizes.lg,
-        fontWeight: theme.typography.fontWeights.bold,
+        fontWeight: theme.typography.fontWeights.bold as any,
         color: theme.colors.secondary[900],
-        fontFamily: 'ZenKaku-Bold',
     },
-    buttonContainer: {
-        marginTop: theme.spacing.lg,
-        marginBottom: theme.spacing.xxl,
+    fixedButtonContainer: {
+        padding: theme.spacing.lg,
+        paddingBottom: theme.spacing.xl,
+        backgroundColor: theme.colors.neutral.white,
+        borderTopWidth: 1,
+        borderTopColor: theme.colors.secondary[200],
+        ...theme.shadows.md,
     },
 });
 
