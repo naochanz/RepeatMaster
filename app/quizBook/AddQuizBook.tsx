@@ -16,6 +16,7 @@ const goToSectionInput = () => {
 const AddQuizBook = () => {
     const currentQuizBook = useQuizBookStore(state => state.currentQuizBook);
 
+    //ボタンdisable用（問題集タイトル＆章入力確認）
     const isFormValid =
         currentQuizBook?.title &&
         currentQuizBook?.title.length > 0 &&
@@ -65,17 +66,18 @@ const AddQuizBook = () => {
                         </View>
                         <ChapterSectionInput />
                     </View>
+                    <View style={styles.buttonContainer}>
+                        <Button
+                            title="次へ：節の設定"
+                            onPress={goToSectionInput}
+                            variant="primary"
+                            size="lg"
+                            fullWidth
+                            disabled={!isFormValid}
+                        />
+                    </View>
                 </ScrollView>
-                <View style={styles.fixedButtonContainer}>
-                    <Button
-                        title="次へ：節の設定"
-                        onPress={goToSectionInput}
-                        variant="primary"
-                        size="lg"
-                        fullWidth
-                        disabled={!isFormValid}
-                    />
-                </View>
+
             </KeyboardAvoidingView>
 
         </View>
@@ -149,13 +151,8 @@ const styles = StyleSheet.create({
         fontWeight: theme.typography.fontWeights.bold as any,
         color: theme.colors.secondary[900],
     },
-    fixedButtonContainer: {
-        padding: theme.spacing.lg,
-        paddingBottom: theme.spacing.xl,
-        backgroundColor: theme.colors.neutral.white,
-        borderTopWidth: 1,
-        borderTopColor: theme.colors.secondary[200],
-        ...theme.shadows.md,
+    buttonContainer: {
+        marginBottom: theme.spacing.xxl,
     },
 });
 

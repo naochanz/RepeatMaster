@@ -14,9 +14,18 @@ const AddSection = () => {
     const updateCurrentQuizBook = useQuizBookStore(state => state.updateCurrentQuizBook)
     const chapterCount = currentQuizBook?.chapterCount || 0;
 
+    //節スキップボタン用（節が一つでも入力されているか）
     const hasSections = currentQuizBook?.chapters?.some(
         chapter => chapter.sections && chapter.sections.length
     ) || false;
+
+    //全ての章に節が入力されているか（次へボタン用）
+    const allChaptersHaveSections =
+    currentQuizBook?.chapters?.length === chapterCount &&  // 章の数が一致
+    currentQuizBook.chapters.every(
+        chapter => chapter.sections && chapter.sections.length > 0
+    );
+
 
     const handleNext = () => {
         router.push('./addQuestions');
@@ -103,6 +112,7 @@ const AddSection = () => {
                             variant="primary"
                             size="lg"
                             fullWidth
+                            disabled={!allChaptersHaveSections}
                         />
                     </View>
                 </ScrollView>

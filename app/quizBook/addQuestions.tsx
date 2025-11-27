@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, View, Text, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { useQuizBookStore } from '@/stores/quizBookStore';
 import Header from '../compornents/Header';
 import QuestionCountInput from './Input/QuestionCountInput';
@@ -11,6 +11,20 @@ import { ListChecks } from 'lucide-react-native';
 const AddQuestions = () => {
     const currentQuizBook = useQuizBookStore(state => state.currentQuizBook);
     const chapters = currentQuizBook?.chapters || [];
+    // 全ての章/節に問題数が入力されているかチェック
+    const allQuestionsSet = chapters.every(chapter => {
+        const hasSections = chapter.sections && chapter.sections.length > 0;
+
+        if (hasSections) {
+            // 節がある場合: 全ての節に問題数が設定されているか
+            return chapter.sections!.every(section =>
+                section.questionCount !== undefined && section.questionCount > 0
+            );
+        } else {
+            // 節がない場合: 章に問題数が設定されているか
+            return chapter.questionCount !== undefined && chapter.questionCount > 0;
+        }
+    });
 
     const handleNext = () => {
         router.push('./ConfirmDisplay');
@@ -19,57 +33,64 @@ const AddQuestions = () => {
     return (
         <View style={styles.wrapper}>
             <Header />
-            <ScrollView
-                style={styles.container}
-                contentContainerStyle={styles.contentContainer}
-                showsVerticalScrollIndicator={false}
+            <KeyboardAvoidingView
+                style={styles.keyboardAvoidingView}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
             >
-                <View style={styles.header}>
-                    <View style={styles.headerIconContainer}>
-                        <ListChecks size={24} color={theme.colors.primary[600]} />
+                <ScrollView
+                    style={styles.container}
+                    contentContainerStyle={styles.contentContainer}
+                    showsVerticalScrollIndicator={false}
+                >
+                    <View style={styles.header}>
+                        <View style={styles.headerIconContainer}>
+                            <ListChecks size={24} color={theme.colors.primary[600]} />
+                        </View>
+                        <Text style={styles.title}>問題数を入力</Text>
+                        <Text style={styles.description}>各章または節ごとの問題数を入力してください</Text>
                     </View>
-                    <Text style={styles.title}>問題数を入力</Text>
-                    <Text style={styles.description}>各章または節ごとの問題数を入力してください</Text>
-                </View>
 
-                {currentQuizBook?.chapterCount === 0 ? (
-                    <Text style={styles.emptyMessage}>章が設定されていません</Text>
-                ) : (
-                    <View style={styles.inputContainer}>
-                        {chapters.flatMap((chapter, chapterIndex) => {
-                            const hasSections = chapter.sections && chapter.sections.length > 0;
+                    {currentQuizBook?.chapterCount === 0 ? (
+                        <Text style={styles.emptyMessage}>章が設定されていません</Text>
+                    ) : (
+                        <View style={styles.inputContainer}>
+                            {chapters.flatMap((chapter, chapterIndex) => {
+                                const hasSections = chapter.sections && chapter.sections.length > 0;
 
-                            return hasSections
-                                ? chapter.sections?.map((section, sectionIndex) => (
-                                    <QuestionCountInput
-                                        key={`${chapterIndex}-${sectionIndex}`}
-                                        title={''}
+                                return hasSections
+                                    ? chapter.sections?.map((section, sectionIndex) => (
+                                        <QuestionCountInput
+                                            key={`${chapterIndex}-${sectionIndex}`}
+                                            title={''}
+                                            chapterNumber={chapter.chapterNumber}
+                                            chapterIndex={chapterIndex}
+                                            sectionNumber={section.sectionNumber}
+                                            sectionIndex={sectionIndex}
+                                        />
+                                    )) || []
+                                    : [<QuestionCountInput
+                                        key={chapterIndex}
+                                        title={`第${chapter.chapterNumber}章問題数`}
                                         chapterNumber={chapter.chapterNumber}
                                         chapterIndex={chapterIndex}
-                                        sectionNumber={section.sectionNumber}
-                                        sectionIndex={sectionIndex}
-                                    />
-                                )) || []
-                                : [<QuestionCountInput
-                                    key={chapterIndex}
-                                    title={`第${chapter.chapterNumber}章問題数`}
-                                    chapterNumber={chapter.chapterNumber}
-                                    chapterIndex={chapterIndex}
-                                />];
-                        })}
+                                    />];
+                            })}
+                        </View>
+                    )}
+
+                    <View style={styles.buttonContainer}>
+                        <Button
+                            title="確認画面へ"
+                            onPress={handleNext}
+                            variant="primary"
+                            size="lg"
+                            fullWidth
+                            disabled={!allQuestionsSet}
+                        />
                     </View>
-                )}
-                
-                <View style={styles.buttonContainer}>
-                    <Button
-                        title="確認画面へ"
-                        onPress={handleNext}
-                        variant="primary"
-                        size="lg"
-                        fullWidth
-                    />
-                </View>
-            </ScrollView>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </View>
     );
 };
@@ -78,6 +99,9 @@ const styles = StyleSheet.create({
     wrapper: {
         flex: 1,
         backgroundColor: theme.colors.neutral[50],
+    },
+    keyboardAvoidingView: {
+        flex: 1,
     },
     container: {
         flex: 1,
