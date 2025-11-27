@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, View, Text, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { useQuizBookStore } from '@/stores/quizBookStore';
 import Header from '../compornents/Header';
 import SectionCountInput from './Input/SectionCountInput';
@@ -44,63 +44,69 @@ const AddSection = () => {
     return (
         <View style={styles.wrapper}>
             <Header />
-            <ScrollView
-                style={styles.container}
-                contentContainerStyle={styles.contentContainer}
-                showsVerticalScrollIndicator={false}
+            <KeyboardAvoidingView
+                style={styles.keyboardAvoidingView}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
             >
-                <View style={styles.header}>
-                    <View style={styles.headerIconContainer}>
-                        <Layers size={24} color={theme.colors.primary[600]} />
-                    </View>
-                    <Text style={styles.title}>各章の節数を設定</Text>
-                    <Text style={styles.description}>
-                        各章に含まれる節の数を入力してください
-                    </Text>
-                </View>
-
-                <View style={styles.skipCard}>
-                    <View style={styles.skipHeader}>
-                        <View style={styles.skipIconWrapper}>
-                            <AlertCircle size={20} color={theme.colors.warning[600]} />
+                <ScrollView
+                    style={styles.container}
+                    contentContainerStyle={styles.contentContainer}
+                    showsVerticalScrollIndicator={false}
+                >
+                    <View style={styles.header}>
+                        <View style={styles.headerIconContainer}>
+                            <Layers size={24} color={theme.colors.primary[600]} />
                         </View>
-                        <View style={styles.skipTextContainer}>
-                            <Text style={styles.skipTitle}>節の設定をスキップ</Text>
-                            <Text style={styles.skipText}>節がない場合はスキップできます</Text>
-                        </View>
+                        <Text style={styles.title}>各章の節数を設定</Text>
+                        <Text style={styles.description}>
+                            各章に含まれる節の数を入力してください
+                        </Text>
                     </View>
-                    <Button
-                        title="節をスキップ"
-                        onPress={handleSkipSections}
-                        variant="outline"
-                        size="md"
-                        fullWidth
-                        disabled={hasSections}
-                    />
-                </View>
 
-                <View style={styles.inputsContainer}>
-                    {Array.from({ length: chapterCount }, (_, index) => {
-                        return (
-                            <SectionCountInput
-                                key={index}
-                                chapterNumber={index + 1}
-                                chapterIndex={index}
-                            />
-                        );
-                    })}
-                </View>
+                    <View style={styles.skipCard}>
+                        <View style={styles.skipHeader}>
+                            <View style={styles.skipIconWrapper}>
+                                <AlertCircle size={20} color={theme.colors.warning[600]} />
+                            </View>
+                            <View style={styles.skipTextContainer}>
+                                <Text style={styles.skipTitle}>節の設定をスキップ</Text>
+                                <Text style={styles.skipText}>節がない場合はスキップできます</Text>
+                            </View>
+                        </View>
+                        <Button
+                            title="節をスキップ"
+                            onPress={handleSkipSections}
+                            variant="outline"
+                            size="md"
+                            fullWidth
+                            disabled={hasSections}
+                        />
+                    </View>
 
-                <View style={styles.buttonContainer}>
-                    <Button
-                        title="問題数入力へ進む"
-                        onPress={handleNext}
-                        variant="primary"
-                        size="lg"
-                        fullWidth
-                    />
-                </View>
-            </ScrollView>
+                    <View style={styles.inputsContainer}>
+                        {Array.from({ length: chapterCount }, (_, index) => {
+                            return (
+                                <SectionCountInput
+                                    key={index}
+                                    chapterNumber={index + 1}
+                                    chapterIndex={index}
+                                />
+                            );
+                        })}
+                    </View>
+
+                    <View style={styles.buttonContainer}>
+                        <Button
+                            title="問題数入力へ進む"
+                            onPress={handleNext}
+                            variant="primary"
+                            size="lg"
+                            fullWidth
+                        />
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </View>
     );
 };
@@ -109,6 +115,9 @@ const styles = StyleSheet.create({
     wrapper: {
         flex: 1,
         backgroundColor: theme.colors.neutral[50],
+    },
+    keyboardAvoidingView: {
+        flex: 1,
     },
     container: {
         flex: 1,
