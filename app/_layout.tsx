@@ -3,7 +3,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { use, useEffect } from 'react';
 import 'react-native-reanimated';
 import {
   ZenKakuGothicNew_400Regular,
@@ -13,6 +13,7 @@ import {
 } from '@expo-google-fonts/zen-kaku-gothic-new';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { useQuizBookStore } from '@/stores/quizBookStore';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -37,10 +38,22 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
+  const fetchQuizBooks = useQuizBookStore(state => state.fetchQuizBooks)
+
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      console.log('🔵 データ読み込み開始');
+      await fetchQuizBooks();
+      const data = useQuizBookStore.getState().quizBooks;
+      console.log('🔵 読み込んだデータ:', data);
+    };
+    loadData();
+  }, []);
 
   useEffect(() => {
     if (loaded) {

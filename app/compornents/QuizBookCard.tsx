@@ -17,7 +17,12 @@ const QuizBookCard = ({ quizBook, onPress }: QuizBookCardProps) => {
         <BookOpen size={32} color={theme.colors.primary[600]} />
       </View>
       <View style={styles.cardContent}>
-        <Text style={styles.title} numberOfLines={2}>{quizBook.title}</Text>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}
+            numberOfLines={2}>
+            {quizBook.title}
+          </Text>
+        </View>
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
             <TrendingUp size={14} color={theme.colors.secondary[600]} />
@@ -26,8 +31,8 @@ const QuizBookCard = ({ quizBook, onPress }: QuizBookCardProps) => {
               color: correctRate >= 80
                 ? theme.colors.success[600]
                 : correctRate >= 60
-                ? theme.colors.warning[600]
-                : theme.colors.error[600]
+                  ? theme.colors.warning[600]
+                  : theme.colors.error[600]
             }]}>{quizBook.correctRate}%</Text>
           </View>
           <View style={styles.divider} />
@@ -55,18 +60,22 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     alignItems: 'center',
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing.sm,
   },
   cardContent: {
     flex: 1,
     justifyContent: 'space-between',
   },
+  titleContainer: {
+    height: 40, 
+    justifyContent: 'center',
+    marginBottom: theme.spacing.xs,
+  },
   title: {
-    fontSize: theme.typography.fontSizes.lg,
+    fontSize: theme.typography.fontSizes.base,
     fontWeight: theme.typography.fontWeights.bold,
     color: theme.colors.secondary[900],
     textAlign: 'center',
-    marginBottom: theme.spacing.sm,
     fontFamily: 'ZenKaku-Bold',
   },
   statsContainer: {
@@ -86,7 +95,7 @@ const styles = StyleSheet.create({
     fontFamily: 'ZenKaku-Regular',
   },
   statValue: {
-    fontSize: theme.typography.fontSizes.base,
+    fontSize: theme.typography.fontSizes.sm,
     fontWeight: theme.typography.fontWeights.bold,
     fontFamily: 'ZenKaku-Bold',
   },

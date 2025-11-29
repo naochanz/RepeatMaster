@@ -9,7 +9,7 @@ import { theme } from '@/constants/Theme';
 import { Plus, AlertCircle } from 'lucide-react-native';
 
 export default function HomeScreen() {
-  
+  const quizBooks = useQuizBookStore(state => state.quizBooks);
   const handleAddQuiz = () => {
     router.push('/quizBook/AddQuizBook');
   }
@@ -21,21 +21,14 @@ export default function HomeScreen() {
     });
   };
 
-  const dummyQuizBook = [
-    {
-      id: '1',
-      title: 'FP3級',
-      currentRound: 3,
-      totalRounds: 5,
-      correctRate: 85,
-      lastStudyDate: new Date(),
-    },
+  const displayData = [
+    ...quizBooks,
     {
       id: 'addButton',
       title: '+ 問題集を追加',
       isAddButton: true,
     }
-  ]
+  ];
 
   const renderItem = ({ item }: { item: any }) => (
     <View style={styles.cardWrapper}>
@@ -63,8 +56,16 @@ export default function HomeScreen() {
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>登録済み問題集</Text>
       </View>
+      {quizBooks.length === 0 ? (
+        <View style={styles.emptyState}>
+          <View style={styles.emptyContent}>
+            <AlertCircle size={20} color={theme.colors.warning[600]} />
+            <Text style={styles.emptyText}>まだ問題集が登録されていません</Text>
+          </View>
+        </View>
+      ) : null}
       <FlatList
-        data={dummyQuizBook}
+        data={displayData}
         numColumns={2}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
@@ -104,6 +105,21 @@ const styles = StyleSheet.create({
     width: '48%',
     aspectRatio: 1,
   },
+  emptyState: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: theme.spacing.xl,
+  },
+  emptyContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyText: {
+    marginLeft: theme.spacing.sm,
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.secondary[600],
+  },
   addButton: {
     width: '100%',
     height: '100%',
@@ -120,6 +136,5 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSizes.base,
     color: theme.colors.primary[600],
     fontWeight: theme.typography.fontWeights.bold as any,
-    // fontFamily: 'ZenKaku-Bold', // 一旦コメントアウト
-  },
+  }
 });

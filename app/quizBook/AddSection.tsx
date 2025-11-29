@@ -28,7 +28,7 @@ const AddSection = () => {
 
 
     const handleNext = () => {
-        router.push('./addQuestions');
+        router.push('./AddQuestions');
     };
 
     const handleSkipSections = () => {

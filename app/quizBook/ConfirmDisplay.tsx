@@ -5,18 +5,43 @@ import { useQuizBookStore } from '@/stores/quizBookStore';
 import { theme } from '@/constants/Theme'
 import { CheckCircle2, BookMarked, Layers, FileMinus } from 'lucide-react-native'
 import Button from '@/components/ui/Button';
+import { router } from 'expo-router';
+import AsyncStorage
+ from '@react-native-async-storage/async-storage';
 
+ 
 const ConfirmDisplay = () => {
     //zustandからデータ取得
     const currentQuizBook = useQuizBookStore(state => state.currentQuizBook);
+    const addQuizBook = useQuizBookStore(state => state.addQuizBook);
+    const clearCurrentQuizBook = useQuizBookStore(state => state.clearCurrentQuizBook);
     //データを展開
     const title = currentQuizBook?.title;
-    const chapterCount = currentQuizBook?.chapterCount;
     const chapters = currentQuizBook?.chapters || [];
 
-    const conserveQuizBook = () => {
+    const conserveQuizBook = async () => {
         //ここは後々データベース登録を実装
-        console.log("登録完了")
+        try {
+            if (currentQuizBook) {
+                const quizBookToSave = {
+                    ...currentQuizBook,
+                    id: `quiz-${Date.now()}`,
+                    currentRate: 0,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                };
+                console.log('🟢 保存するデータ:', quizBookToSave);
+
+                await addQuizBook(quizBookToSave as any);
+                clearCurrentQuizBook();
+                const saved = await AsyncStorage.getItem('quizBooks');
+                console.log('🟢 AsyncStorage確認:', saved);
+
+                router.push('/(tabs)');
+            }
+        } catch {
+            console.error('問題集の取得に失敗：', Error);
+        }
     };
 
     return (
@@ -90,11 +115,11 @@ const ConfirmDisplay = () => {
                 </View>
                 <View>
                     <Button
-                    title="登録"
-                    onPress={conserveQuizBook}
-                    variant="primary"
-                    size="lg"
-                    fullWidth
+                        title="登録"
+                        onPress={conserveQuizBook}
+                        variant="primary"
+                        size="lg"
+                        fullWidth
                     >
 
                     </Button>

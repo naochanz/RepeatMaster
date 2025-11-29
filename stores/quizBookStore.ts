@@ -1,6 +1,8 @@
 // stores/quizBookStore.ts
 import { create } from 'zustand';
-import { mockQuizBooks } from '@/mockData/mockQuizBooks'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { mockQuizBooks } from '@/mockData/mockQuizBooks';
+
 interface QuizBook {
   id: string;
   title: string;
@@ -36,18 +38,47 @@ interface QuizBookStore {
   // アクション
   setCurrentQuizBook: (quizBook: Partial<QuizBook>) => void;
   updateCurrentQuizBook: (updates: Partial<QuizBook>) => void;
-  addQuizBook: (quizBook: QuizBook) => void;
+  addQuizBook: (quizBook: QuizBook) => Promise<void>;
   clearCurrentQuizBook: () => void;
   addChapter: (chapter: Chapter) => void;
   updateChapter: (chapterIndex: number, updates: Partial<Chapter>) => void;
   addSection: (chapterIndex: number, section: Section) => void;
   updateSection: (chapterIndex: number, sectionIndex: number, updates: Partial<Section>) => void;
   setQuestionCount: (chapterIndex: number, sectionIndex: number, count: number) => void;
-  fetchQuizBooks: () => void;
+  fetchQuizBooks: () => Promise<void>;
   getQuizBookById: (id: string) => QuizBook | undefined;
   getChapterById: (chapterId: string) => { book: QuizBook; chapter: Chapter } | undefined;
   getSectionById: (sectionId: string) => { book: QuizBook; chapter: Chapter; section: Section; } | undefined;
 }
+
+// AsyncStorageのキー
+const STORAGE_KEY = 'quizBooks';
+
+// AsyncStorageへの保存
+const saveToStorage = async (quizBooks: QuizBook[]) => {
+  try {
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(quizBooks));
+    console.log('💾 AsyncStorageに保存しました');
+  } catch (e) {
+    console.error('💥 保存エラー:', e);
+  }
+};
+
+// AsyncStorageからの読み込み
+const loadFromStorage = async (): Promise<QuizBook[]> => {
+  try {
+    const data = await AsyncStorage.getItem(STORAGE_KEY);
+    if (data) {
+      console.log('📖 AsyncStorageから読み込みました');
+      return JSON.parse(data);
+    }
+    console.log('📭 保存データがないため、モックデータを使用');
+    return mockQuizBooks as QuizBook[];
+  } catch (e) {
+    console.error('💥 読み込みエラー:', e);
+    return mockQuizBooks as QuizBook[];
+  }
+};
 
 export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
   // 初期状態
@@ -64,10 +95,11 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
       : updates
   })),
 
-  addQuizBook: (quizBook) => set((state) => ({
-    quizBooks: [...state.quizBooks, quizBook],
-    currentQuizBook: null
-  })),
+  addQuizBook: async (quizBook) => {
+    const newQuizBooks = [...get().quizBooks, quizBook];
+    set({ quizBooks: newQuizBooks, currentQuizBook: null });
+    await saveToStorage(newQuizBooks);
+  },
 
   clearCurrentQuizBook: () => set({ currentQuizBook: null }),
 
@@ -116,7 +148,7 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
       // 節の問題数設定
       chapters[chapterIndex].sections![sectionIndex].questionCount = count;
     } else {
-      // 章の問題数設定（節なしの場合）
+      // 章の問題数設定(節なしの場合)
       chapters[chapterIndex].questionCount = count;
     }
     return {
@@ -124,13 +156,10 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
     };
   }),
 
-  fetchQuizBooks: () => {
+  fetchQuizBooks: async () => {
     set({ isLoading: true });
-    // Phase 1: mockQuizBooks から読み込み
-    // 将来ここを API に置き換え
-    // const response = await fetch('/api/quiz-books');
-    // const data = await response.json();
-    set({ quizBooks: mockQuizBooks as QuizBook[], isLoading: false });
+    const quizBooks = await loadFromStorage();
+    set({ quizBooks, isLoading: false });
   },
 
   getQuizBookById: (id) => {
