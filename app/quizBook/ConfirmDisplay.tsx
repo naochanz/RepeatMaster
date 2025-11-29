@@ -3,7 +3,8 @@ import React from 'react'
 import Header from '../compornents/Header'
 import { useQuizBookStore } from '@/stores/quizBookStore';
 import { theme } from '@/constants/Theme'
-import { CheckCircle2, BookMarked, Layers, FileQuestion } from 'lucide-react-native'
+import { CheckCircle2, BookMarked, Layers, FileMinus } from 'lucide-react-native'
+import Button from '@/components/ui/Button';
 
 const ConfirmDisplay = () => {
     //zustandからデータ取得
@@ -12,6 +13,11 @@ const ConfirmDisplay = () => {
     const title = currentQuizBook?.title;
     const chapterCount = currentQuizBook?.chapterCount;
     const chapters = currentQuizBook?.chapters || [];
+
+    const conserveQuizBook = () => {
+        //ここは後々データベース登録を実装
+        console.log("登録完了")
+    };
 
     return (
         <View style={styles.wrapper}>
@@ -60,7 +66,7 @@ const ConfirmDisplay = () => {
                                 chapter.sections.map((section, sectionIndex) => (
                                     <View key={sectionIndex} style={styles.sectionRow}>
                                         <View style={styles.sectionInfo}>
-                                            <FileQuestion size={16} color={theme.colors.secondary[500]} />
+                                            <FileMinus size={16} color={theme.colors.secondary[500]} />
                                             <Text style={styles.sectionText}>
                                                 第{section.sectionNumber}節
                                             </Text>
@@ -81,6 +87,17 @@ const ConfirmDisplay = () => {
                             )}
                         </View>
                     ))}
+                </View>
+                <View>
+                    <Button
+                    title="登録"
+                    onPress={conserveQuizBook}
+                    variant="primary"
+                    size="lg"
+                    fullWidth
+                    >
+
+                    </Button>
                 </View>
             </ScrollView>
         </View>
