@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, View, Text, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { useQuizBookStore } from '@/stores/quizBookStore';
-import Header from '../compornents/Header';
+import Header from '../../compornents/Header';
 import QuestionCountInput from './Input/QuestionCountInput';
 import Button from '@/components/ui/Button';
 import { router } from 'expo-router';

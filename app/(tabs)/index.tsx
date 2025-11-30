@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import { useQuizBookStore } from '@/stores/quizBookStore';
 import { theme } from '@/constants/Theme';
 import { Plus, AlertCircle } from 'lucide-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
   const quizBooks = useQuizBookStore(state => state.quizBooks);
@@ -51,32 +52,38 @@ export default function HomeScreen() {
   )
 
   return (
-    <View style={styles.container}>
-      <Header />
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>登録済み問題集</Text>
-      </View>
-      {quizBooks.length === 0 ? (
-        <View style={styles.emptyState}>
-          <View style={styles.emptyContent}>
-            <AlertCircle size={20} color={theme.colors.warning[600]} />
-            <Text style={styles.emptyText}>まだ問題集が登録されていません</Text>
-          </View>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <Header />
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>登録済み問題集</Text>
         </View>
-      ) : null}
-      <FlatList
-        data={displayData}
-        numColumns={2}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.flatListContainer}
-      />
-    </View>
+        {quizBooks.length === 0 ? (
+          <View style={styles.emptyState}>
+            <View style={styles.emptyContent}>
+              <AlertCircle size={20} color={theme.colors.warning[600]} />
+              <Text style={styles.emptyText}>まだ問題集が登録されていません</Text>
+            </View>
+          </View>
+        ) : null}
+        <FlatList
+          data={displayData}
+          numColumns={2}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          columnWrapperStyle={styles.row}
+          contentContainerStyle={styles.flatListContainer}
+        />
+      </View>
+    </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: theme.colors.neutral[50],
+  },
   container: {
     flex: 1,
     backgroundColor: theme.colors.neutral[50],

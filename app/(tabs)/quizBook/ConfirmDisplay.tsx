@@ -1,15 +1,13 @@
 import { ScrollView, Text, StyleSheet, View } from 'react-native'
 import React from 'react'
-import Header from '../compornents/Header'
+import Header from '../../compornents/Header'
 import { useQuizBookStore } from '@/stores/quizBookStore';
 import { theme } from '@/constants/Theme'
 import { CheckCircle2, BookMarked, Layers, FileMinus } from 'lucide-react-native'
 import Button from '@/components/ui/Button';
 import { router } from 'expo-router';
-import AsyncStorage
- from '@react-native-async-storage/async-storage';
 
- 
+
 const ConfirmDisplay = () => {
     //zustandからデータ取得
     const currentQuizBook = useQuizBookStore(state => state.currentQuizBook);
@@ -30,12 +28,9 @@ const ConfirmDisplay = () => {
                     createdAt: new Date(),
                     updatedAt: new Date(),
                 };
-                console.log('🟢 保存するデータ:', quizBookToSave);
 
                 await addQuizBook(quizBookToSave as any);
                 clearCurrentQuizBook();
-                const saved = await AsyncStorage.getItem('quizBooks');
-                console.log('🟢 AsyncStorage確認:', saved);
 
                 router.push('/(tabs)');
             }

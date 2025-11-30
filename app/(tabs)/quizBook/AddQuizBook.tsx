@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'
 import React from 'react'
-import Header from '../compornents/Header'
+import Header from '../../compornents/Header'
 import QuizBookNameInput from './Input/QuizBookNameInput'
 import ChapterSectionInput from './Input/ChapterSectionInput'
 import Button from '@/components/ui/Button'

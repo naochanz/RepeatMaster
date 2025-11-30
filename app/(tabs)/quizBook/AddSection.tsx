@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, View, Text, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { useQuizBookStore } from '@/stores/quizBookStore';
-import Header from '../compornents/Header';
+import Header from '../../compornents/Header';
 import SectionCountInput from './Input/SectionCountInput';
 import Button from '@/components/ui/Button';
 import { router } from 'expo-router';
@@ -21,10 +21,10 @@ const AddSection = () => {
 
     //全ての章に節が入力されているか（次へボタン用）
     const allChaptersHaveSections =
-    currentQuizBook?.chapters?.length === chapterCount &&  // 章の数が一致
-    currentQuizBook.chapters.every(
-        chapter => chapter.sections && chapter.sections.length > 0
-    );
+        currentQuizBook?.chapters?.length === chapterCount &&  // 章の数が一致
+        currentQuizBook.chapters.every(
+            chapter => chapter.sections && chapter.sections.length > 0
+        );
 
 
     const handleNext = () => {
