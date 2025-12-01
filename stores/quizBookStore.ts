@@ -68,6 +68,8 @@ interface QuizBookStore {
   getQuestionAnswers: (chapterId: string, sectionId: string | null, questionNumber: number) => QuestionAnswer | undefined;
   updateLastAnswer: (chapterId: string, sectionId: string | null, questionNumber: number, result: '○' | '×') => Promise<void>;
   deleteLastAnswer: (chapterId: string, sectionId: string | null, questionNumber: number) => Promise<void>;
+  deleteQuizBook: (id: string) => Promise<void>;
+  updateQuizBook: (id: string, updates: Partial<QuizBook>) => Promise<void>;
 }
 
 // AsyncStorageのキー
@@ -415,6 +417,20 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
       })
     }));
 
+    set({ quizBooks: updatedQuizBooks });
+    await saveToStorage(updatedQuizBooks);
+  },
+
+  deleteQuizBook: async(id: string) =>{
+    const updatedQuizBooks = get().quizBooks.filter(book => book.id !== id);
+    set({ quizBooks: updatedQuizBooks });
+    await saveToStorage(updatedQuizBooks);
+  },
+
+  updateQuizBook: async (id: string, updates: Partial<QuizBook>) => {
+    const updatedQuizBooks = get().quizBooks.map(book =>
+      book.id === id ? { ...book, ...updates, updatedAt: new Date() } : book
+    );
     set({ quizBooks: updatedQuizBooks });
     await saveToStorage(updatedQuizBooks);
   },

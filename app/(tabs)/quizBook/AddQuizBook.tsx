@@ -1,13 +1,14 @@
 import { View, Text, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import Header from '../../compornents/Header'
 import QuizBookNameInput from './Input/QuizBookNameInput'
 import ChapterSectionInput from './Input/ChapterSectionInput'
 import Button from '@/components/ui/Button'
-import { router } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import { theme } from '@/constants/Theme'
 import { BookPlus, Layers } from 'lucide-react-native'
 import { useQuizBookStore } from '@/stores/quizBookStore'
+
 
 const goToSectionInput = () => {
     router.push('./AddSection')
@@ -15,6 +16,9 @@ const goToSectionInput = () => {
 
 const AddQuizBook = () => {
     const currentQuizBook = useQuizBookStore(state => state.currentQuizBook);
+    const { editId } = useLocalSearchParams();
+    const setCurrentQuizBook = useQuizBookStore(state => state.setCurrentQuizBook);
+    const getQuizBookById = useQuizBookStore(state => state.getQuizBookById);
 
     //ボタンdisable用（問題集タイトル＆章入力確認）
     const isFormValid =
@@ -22,6 +26,18 @@ const AddQuizBook = () => {
         currentQuizBook?.title.length > 0 &&
         currentQuizBook?.chapterCount &&
         currentQuizBook?.chapterCount > 0;
+
+    useEffect(() => {
+        if (editId) {
+            const quizBook = getQuizBookById(String(editId));
+            if (quizBook) {
+                setCurrentQuizBook(quizBook);
+            }
+        }
+    }, [editId]);
+
+    const isEditMode = !!editId;
+
 
     return (
         <View style={styles.wrapper}>
@@ -41,7 +57,9 @@ const AddQuizBook = () => {
                         <View style={styles.headerIconContainer}>
                             <BookPlus size={24} color={theme.colors.primary[600]} />
                         </View>
-                        <Text style={styles.title}>問題集を作成</Text>
+                        <Text style={styles.title}>
+                            {isEditMode ? '問題集を編集' : '問題集を作成'}
+                        </Text>
                         <Text style={styles.description}>
                             問題集の基本情報を入力してください
                         </Text>

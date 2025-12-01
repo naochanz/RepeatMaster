@@ -1,6 +1,6 @@
 // app/(tabs)/index.tsx
 import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import Header from '../compornents/Header';
 import QuizBookCard from '../compornents/QuizBookCard';
 import { router } from 'expo-router';
@@ -8,9 +8,14 @@ import { useQuizBookStore } from '@/stores/quizBookStore';
 import { theme } from '@/constants/Theme';
 import { Plus, AlertCircle } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ConfirmDialog from '../compornents/ConfirmDialog';
 
 export default function HomeScreen() {
   const quizBooks = useQuizBookStore(state => state.quizBooks);
+  const deleteQuizBook = useQuizBookStore(state => state.deleteQuizBook)
+  const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+
   const handleAddQuiz = () => {
     router.push('/quizBook/AddQuizBook');
   }
@@ -21,6 +26,26 @@ export default function HomeScreen() {
       params: { id: quizBookId },
     });
   };
+
+  const handleEdit = (quizBookId: string) => {
+    router.push({
+      pathname: '/quizBook/AddQuizBook',
+      params: { editId: quizBookId }
+    })
+  }
+
+  const handleDelete = async (quizBookId: string) => {
+    setDeleteTargetId(quizBookId);
+    setDeleteDialogVisible(true);
+  }
+
+  const confirmDelete = async () => {
+    if (deleteTargetId) {
+      await deleteQuizBook(deleteTargetId);
+      setDeleteDialogVisible(false);
+      setDeleteTargetId(null);
+    }
+  }
 
   const displayData = [
     ...quizBooks,
@@ -46,6 +71,8 @@ export default function HomeScreen() {
         <QuizBookCard
           quizBook={item}
           onPress={() => { handleCardPress(item.id) }}
+          onEdit={() => handleEdit(item.id)}
+          onDelete={() => handleDelete(item.id)}
         />
       )}
     </View>
@@ -73,6 +100,13 @@ export default function HomeScreen() {
           keyExtractor={(item) => item.id}
           columnWrapperStyle={styles.row}
           contentContainerStyle={styles.flatListContainer}
+        />
+        <ConfirmDialog
+          visible={deleteDialogVisible}
+          title="問題集を削除"
+          message="この問題集を削除してもよろしいですか？この操作は取り消せません。"
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteDialogVisible(false)}
         />
       </View>
     </SafeAreaView>

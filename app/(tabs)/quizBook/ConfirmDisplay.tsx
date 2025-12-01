@@ -13,6 +13,7 @@ const ConfirmDisplay = () => {
     const currentQuizBook = useQuizBookStore(state => state.currentQuizBook);
     const addQuizBook = useQuizBookStore(state => state.addQuizBook);
     const clearCurrentQuizBook = useQuizBookStore(state => state.clearCurrentQuizBook);
+    const updateQuizBook = useQuizBookStore(state => state.updateQuizBook);
     //データを展開
     const title = currentQuizBook?.title;
     const chapters = currentQuizBook?.chapters || [];
@@ -21,18 +22,23 @@ const ConfirmDisplay = () => {
         //ここは後々データベース登録を実装
         try {
             if (currentQuizBook) {
-                const quizBookToSave = {
-                    ...currentQuizBook,
-                    id: `quiz-${Date.now()}`,
-                    currentRate: 0,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                };
+                if (currentQuizBook.id) {
+                    // 編集モード: 更新
+                    await updateQuizBook(currentQuizBook.id, currentQuizBook as any);
+                } else {
+                    const quizBookToSave = {
+                        ...currentQuizBook,
+                        id: `quiz-${Date.now()}`,
+                        currentRate: 0,
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                    };
 
-                await addQuizBook(quizBookToSave as any);
-                clearCurrentQuizBook();
+                    await addQuizBook(quizBookToSave as any);
+                    clearCurrentQuizBook();
 
-                router.push('/(tabs)');
+                    router.push('/(tabs)');
+                }
             }
         } catch {
             console.error('問題集の取得に失敗：', Error);
