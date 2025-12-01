@@ -18,8 +18,9 @@ const AddQuizBook = () => {
     const currentQuizBook = useQuizBookStore(state => state.currentQuizBook);
     const { editId } = useLocalSearchParams();
     const setCurrentQuizBook = useQuizBookStore(state => state.setCurrentQuizBook);
+    const updateCurrentQuizBook = useQuizBookStore(state => state.updateCurrentQuizBook);
     const getQuizBookById = useQuizBookStore(state => state.getQuizBookById);
-
+    const clearCurrentQuizBook = useQuizBookStore(state => state.clearCurrentQuizBook);
     //ボタンdisable用（問題集タイトル＆章入力確認）
     const isFormValid =
         currentQuizBook?.title &&
@@ -27,17 +28,25 @@ const AddQuizBook = () => {
         currentQuizBook?.chapterCount &&
         currentQuizBook?.chapterCount > 0;
 
-    useEffect(() => {
+    React.useLayoutEffect(() => {
         if (editId) {
             const quizBook = getQuizBookById(String(editId));
             if (quizBook) {
                 setCurrentQuizBook(quizBook);
             }
+        } else {
+            clearCurrentQuizBook();
         }
     }, [editId]);
 
-    const isEditMode = !!editId;
+  // アンマウント時のクリーンアップ
+  useEffect(() => {
+    return () => {
+      clearCurrentQuizBook();
+    };
+  }, []);
 
+    const isEditMode = !!editId;
 
     return (
         <View style={styles.wrapper}>
@@ -82,17 +91,41 @@ const AddQuizBook = () => {
                             </View>
                             <Text style={styles.sectionTitle}>章の設定</Text>
                         </View>
-                        <ChapterSectionInput />
+                        <ChapterSectionInput isEditMode={isEditMode} />
                     </View>
                     <View style={styles.buttonContainer}>
-                        <Button
-                            title="次へ：節の設定"
-                            onPress={goToSectionInput}
-                            variant="primary"
-                            size="lg"
-                            fullWidth
-                            disabled={!isFormValid}
-                        />
+                        {isEditMode ? (
+                            // 編集モード: 次へ と 完了
+                            <>
+                                <Button
+                                    title="次へ：節の設定"
+                                    onPress={goToSectionInput}
+                                    variant="secondary"
+                                    size="lg"
+                                    fullWidth
+                                    disabled={!isFormValid}
+                                />
+                                <View style={{ height: theme.spacing.md }} />
+                                <Button
+                                    title="完了"
+                                    onPress={() => router.push('./ConfirmDisplay')}
+                                    variant="primary"
+                                    size="lg"
+                                    fullWidth
+                                    disabled={!isFormValid}
+                                />
+                            </>
+                        ) : (
+                            // 新規作成モード: 次へのみ
+                            <Button
+                                title="次へ：節の設定"
+                                onPress={goToSectionInput}
+                                variant="primary"
+                                size="lg"
+                                fullWidth
+                                disabled={!isFormValid}
+                            />
+                        )}
                     </View>
                 </ScrollView>
 

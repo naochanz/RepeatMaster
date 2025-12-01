@@ -1,12 +1,23 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Input from '@/components/ui/Input'
 import { useQuizBookStore } from '@/stores/quizBookStore';
 import { BookMarked } from 'lucide-react-native'
 import { theme } from '@/constants/Theme'
 
 const QuizBookNameInput = () => {
-  const [value, setValue] = useState('');
+  const currentQuizBook = useQuizBookStore(state => state.currentQuizBook);
   const updateCurrentQuizBook = useQuizBookStore(state => state.updateCurrentQuizBook);
+
+  const [value, setValue] = useState(currentQuizBook?.title || '');
+
+  // 編集モード時、既存データを反映
+  useEffect(() => {
+    if (currentQuizBook?.title) {
+      setValue(currentQuizBook.title);
+    } else {
+      setValue(''); // クリア
+    }
+  }, [currentQuizBook?.title]); 
 
   const handleChangeText = (text: string) => {
     setValue(text);

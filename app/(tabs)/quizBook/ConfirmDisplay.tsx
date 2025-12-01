@@ -25,6 +25,7 @@ const ConfirmDisplay = () => {
                 if (currentQuizBook.id) {
                     // 編集モード: 更新
                     await updateQuizBook(currentQuizBook.id, currentQuizBook as any);
+                    router.push('/(tabs)');
                 } else {
                     const quizBookToSave = {
                         ...currentQuizBook,
