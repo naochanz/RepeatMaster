@@ -4,7 +4,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './login';
 import SignUpScreen from './signup';
 import HomeScreen from '../(tabs)/index';
-import Add from '../quizBook/AddQuizBook';
 
 // ここにタブナビゲーターも追加
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -32,7 +31,6 @@ export default function AuthLayout() {
             <Stack.Screen name='login' component={LoginScreen} />
             <Stack.Screen name='signup' component={SignUpScreen} />
             <Stack.Screen name='app' component={MainTabs} />
-            <Stack.Screen name='Add' component={Add} />
         </Stack.Navigator>
     );
 }
