@@ -1,25 +1,28 @@
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Modal, TextInput, } from 'react-native'
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { useQuizBookStore } from '@/stores/quizBookStore';
-import Header from '../../compornents/Header'
+import Header from '../../../compornents/Header'
 import { useLocalSearchParams } from 'expo-router'
 import MemoModal from './compornent/MemoModal'
 import { theme } from '@/constants/Theme'
-
-type AnswerHistory = {
-    [questionNumber: number]: {
-        answer: {
-            result: '○' | '×',
-            resultConfirmFlg: boolean
-        }[]
-    }
-}
+import { Plus, Trash2 } from 'lucide-react-native'
+import ConfirmDialog from '../../../compornents/ConfirmDialog'
 
 const QuestionList = () => {
     const { id } = useLocalSearchParams();
-    const { quizBooks, fetchQuizBooks, getChapterById, getSectionById, isLoading } = useQuizBookStore();
-    const [answerHistory, setAnswerHistory] = useState<AnswerHistory>({});
+    const { quizBooks, fetchQuizBooks, getChapterById, getSectionById } = useQuizBookStore();
     const lastTap = useRef<number>(0);
+    const saveAnswer = useQuizBookStore(state => state.saveAnswer);
+    const toggleAnswerLock = useQuizBookStore(state => state.toggleAnswerLock);
+    const saveMemo = useQuizBookStore(state => state.saveMemo);
+    const getQuestionAnswers = useQuizBookStore(state => state.getQuestionAnswers);
+    const updateLastAnswer = useQuizBookStore(state => state.updateLastAnswer);
+    const deleteLastAnswer = useQuizBookStore(state => state.deleteLastAnswer);
+    const addQuestionToTarget = useQuizBookStore(state => state.addQuestionToTarget);
+    const deleteQuestionFromTarget = useQuizBookStore(state => state.deleteQuestionFromTarget);
+
+    const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
+    const [deleteTargetNumber, setDeleteTargetNumber] = useState<number | null>(null);
 
     useEffect(() => {
         if (quizBooks.length === 0) {
@@ -29,7 +32,8 @@ const QuestionList = () => {
 
     const chapterData = getChapterById(String(id));
     const sectionData = getSectionById(String(id));
-
+    const chapterId = chapterData?.chapter.id || sectionData?.chapter.id || '';
+    const sectionId = sectionData?.section.id || null;
 
     const displayInfo = chapterData
         ? {
@@ -60,166 +64,70 @@ const QuestionList = () => {
         );
     }
 
-    const addAnswer = (questionNumber: number, answer: '○' | '×') => {
-        setAnswerHistory(prev => {
-            const current = prev[questionNumber];
-
-            return {
-                ...prev,
-                [questionNumber]: {
-                    answer: [
-                        ...(current?.answer || []),
-                        {
-                            result: answer,
-                            resultConfirmFlg: false
-                        }
-                    ]
-                }
-            }
-        });
+    const addAnswer = async (questionNumber: number, answer: '○' | '×') => {
+        await saveAnswer(chapterId, sectionId, questionNumber, answer);
     };
 
-    //最新の回答履歴を取得
-    const getCurrentAnswer = (questionNumber: number) => {
-        const history = answerHistory[questionNumber]?.answer;
-        return history?.[history.length - 1]?.result || null;
-    }
+    const toggleAnswer = async (questionNumber: number) => {
+        const questionData = getQuestionAnswers(chapterId, sectionId, questionNumber);
+        if (!questionData) return;
 
-    //ダブルタップ時の処理
-    const handleDoubleTap = (questionNumber: number) => {
+        const lastAttempt = questionData.attempts[questionData.attempts.length - 1];
+        if (!lastAttempt || lastAttempt.resultConfirmFlg) return;
+
+        if (lastAttempt.result === '○') {
+            // ○→× に変更（新しい×を追加して古い○を削除する形）
+            await updateLastAnswer(chapterId, sectionId, questionNumber, '×');
+        } else {
+            // ×の場合は削除
+            await deleteLastAnswer(chapterId, sectionId, questionNumber);
+        }
+    };
+
+    const handleDoubleTap = async (questionNumber: number) => {
         const now = Date.now();
         const DOUBLE_PRESS_DELAY = 300;
 
         if (now - lastTap.current < DOUBLE_PRESS_DELAY) {
-            const history = answerHistory[questionNumber];
+            const questionData = getQuestionAnswers(chapterId, sectionId, questionNumber);
 
-            // 未回答の場合は○から開始
-            if (!history || history.answer.length === 0) {
-                addAnswer(questionNumber, '○');
-                lastTap.current = now;
-                return;
-            }
-
-            const isLocked = history?.answer?.[history.answer.length - 1]?.resultConfirmFlg;
-
-            if (isLocked) {
-                // ロック済みの場合 → 新しいカードを追加
-                addAnswer(questionNumber, '○');
+            if (!questionData) {
+                // 未回答の場合は○から開始
+                await addAnswer(questionNumber, '○');
             } else {
-                // 未ロック → 通常のトグル処理
-                toggleAnswer(questionNumber);
+                const lastAttempt = questionData.attempts[questionData.attempts.length - 1];
+                const isLocked = lastAttempt?.resultConfirmFlg;
+
+                if (isLocked) {
+                    // ロック済みの場合 → 新しいカードを追加
+                    await addAnswer(questionNumber, '○');
+                } else {
+                    // 未ロック → 通常のトグル処理
+                    await toggleAnswer(questionNumber);
+                }
             }
         }
         lastTap.current = now;
     };
 
-    //長押し時の処理
     const handleLongPress = (questionNumber: number) => {
-        const history = answerHistory[questionNumber];
-        const isLocked = history?.answer?.[history.answer.length - 1]?.resultConfirmFlg;
-
-        if (isLocked) {
-            unlockAnswer(questionNumber);
-        } else {
-            confirmAnswer(questionNumber);
-        }
+        toggleAnswerLock(chapterId, sectionId, questionNumber);
     };
 
-    const confirmAnswer = (questionNumber: number) => {
-        setAnswerHistory(prev => {
-            const current = prev[questionNumber];
-
-            if (!current || current.answer.length === 0) {
-                return prev;
-            }
-
-            const updated = [...current.answer];
-            const lastIndex = updated.length - 1;
-
-            updated[lastIndex] = {
-                ...updated[lastIndex],
-                resultConfirmFlg: true
-            };
-
-            return {
-                ...prev,
-                [questionNumber]: {
-                    answer: updated
-                }
-            }
-        });
+    const handleAddQuestion = async () => {
+        await addQuestionToTarget(chapterId, sectionId);
     };
 
-    //回答のロックを外す処理
-    const unlockAnswer = (questionNumber: number) => {
-        setAnswerHistory(prev => {
-            const current = prev[questionNumber];
-
-            if (!current || current.answer.length === 0) {
-                return prev;
-            }
-
-            const updated = [...current.answer];
-            const lastIndex = updated.length - 1;
-
-            // 最後の回答のロックを解除
-            updated[lastIndex] = {
-                ...updated[lastIndex],
-                resultConfirmFlg: false
-            };
-
-            return {
-                ...prev,
-                [questionNumber]: {
-                    answer: updated
-                }
-            }
-        });
+    const handleDeleteQuestion = (questionNumber: number) => {
+        setDeleteTargetNumber(questionNumber);
+        setDeleteDialogVisible(true);
     };
 
-    //正誤の切り替え処理
-    const toggleAnswer = (questionNumber: number) => {
-        const current = getCurrentAnswer(questionNumber);
-        const history = answerHistory[questionNumber];
-        const isLocked = history?.answer?.[history.answer.length - 1]?.resultConfirmFlg;
-
-        if (isLocked) {
-            return;
-        }
-
-        if (!history || history.answer.length === 0) {
-            addAnswer(questionNumber, '○');
-        } else if (current === '○') {
-            setAnswerHistory(prev => {
-                const updated = [...prev[questionNumber].answer];
-                updated[updated.length - 1] = {
-                    ...updated[updated.length - 1],
-                    result: '×'
-                };
-                return {
-                    ...prev,
-                    [questionNumber]: {
-                        answer: updated
-                    }
-                };
-            });
-        } else if (current === '×') {
-            setAnswerHistory(prev => {
-                const updated = [...prev[questionNumber].answer];
-                updated.pop();
-
-                if (updated.length === 0) {
-                    const { [questionNumber]: _, ...rest } = prev;
-                    return rest;
-                }
-
-                return {
-                    ...prev,
-                    [questionNumber]: {
-                        answer: updated
-                    }
-                };
-            });
+    const confirmDelete = async () => {
+        if (deleteTargetNumber !== null) {
+            await deleteQuestionFromTarget(chapterId, sectionId, deleteTargetNumber);
+            setDeleteDialogVisible(false);
+            setDeleteTargetNumber(null);
         }
     };
 
@@ -230,7 +138,7 @@ const QuestionList = () => {
                 {displayInfo.type === 'chapter' ? (
                     <View style={styles.titleContainer}>
                         <Text style={styles.title}>
-                            第{displayInfo.chapterNumber}章：{displayInfo.title}
+                            第{displayInfo.chapterNumber}章:{displayInfo.title}
                         </Text>
                         <Text style={styles.questionCount}>
                             全{displayInfo.questionCount}問
@@ -239,10 +147,10 @@ const QuestionList = () => {
                 ) : (
                     <View style={styles.titleContainer}>
                         <Text style={styles.breadcrumb}>
-                            第{displayInfo.chapterNumber}章：{displayInfo.chapterTitle}
+                            第{displayInfo.chapterNumber}章:{displayInfo.chapterTitle}
                         </Text>
                         <Text style={styles.title}>
-                            第{displayInfo.sectionNumber}節：{displayInfo.title}
+                            第{displayInfo.sectionNumber}節:{displayInfo.title}
                         </Text>
                         <Text style={styles.questionCount}>
                             全{displayInfo.questionCount}問
@@ -251,21 +159,29 @@ const QuestionList = () => {
                 )}
 
                 <View>
-                    {/*カードの表示*/}
                     {Array.from({ length: displayInfo.questionCount }, (_, i) => i + 1).map((num) => {
-                        const history = answerHistory[num];
-                        const actualCount = history?.answer?.length || 0;
-                        const lastIsLocked = history?.answer?.[history.answer.length - 1]?.resultConfirmFlg;
+                        const questionData = getQuestionAnswers(chapterId, sectionId, num);
+                        const history = questionData?.attempts || [];
+                        const actualCount = history.length;
+                        const lastIsLocked = history[history.length - 1]?.resultConfirmFlg || false;
                         const displayCount = lastIsLocked ? actualCount + 1 : actualCount;
                         const [modalVisible, setModalVisible] = useState(false);
-                        const [selectedQuestion, setSelectedQuestion] = useState<number | null>(null)
+                        const [selectedQuestion, setSelectedQuestion] = useState<number | null>(null);
                         const [memoText, setMemoText] = useState('');
-                        const handleSaveMemo = (text: string) => {
-                            // ここで保存処理を実装（後で）
-                            console.log(`問題${selectedQuestion}のメモ:`, text);
+
+                        const handleSaveMemo = async (text: string) => {
+                            if (selectedQuestion) {
+                                await saveMemo(chapterId, sectionId, selectedQuestion, text);
+                            }
                         };
 
-                        // 周回数に応じた幅を計算
+                        const handleOpenMemo = () => {
+                            setSelectedQuestion(num);
+                            const currentMemo = questionData?.memo || '';
+                            setMemoText(currentMemo);
+                            setModalVisible(true);
+                        }
+
                         const getCardWidth = () => {
                             if (displayCount === 0) return undefined;
                             if (displayCount === 1) return undefined;
@@ -281,19 +197,22 @@ const QuestionList = () => {
                             <View key={num} style={styles.questionGroup}>
                                 <View style={styles.labelContainer}>
                                     <Text style={styles.questionNumberLabel}>問題 {num}</Text>
-                                    {/*メモボタンを押下してメモ編集画面を表示*/}
-                                    <TouchableOpacity
-                                        style={styles.memoButton}
-                                        onPress={() => {
-                                            setSelectedQuestion(num);
-                                            setModalVisible(true);
-                                        }}
-                                    >
-                                        <Text style={styles.memoText}>MEMO</Text>
-                                    </TouchableOpacity>
+                                    <View style={styles.buttonGroup}>
+                                        <TouchableOpacity
+                                            style={styles.memoButton}
+                                            onPress={handleOpenMemo}
+                                        >
+                                            <Text style={styles.memoText}>MEMO</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            style={styles.deleteButton}
+                                            onPress={() => handleDeleteQuestion(num)}
+                                        >
+                                            <Trash2 size={16} color={theme.colors.error[600]} />
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
 
-                                {/* メモモーダル */}
                                 <MemoModal
                                     visible={modalVisible}
                                     questionNumber={selectedQuestion}
@@ -302,114 +221,134 @@ const QuestionList = () => {
                                     onSave={handleSaveMemo}
                                     onChangeText={setMemoText}
                                 />
-                                {needsScroll ? (
-                                    <ScrollView
-                                        horizontal={true}
-                                        showsHorizontalScrollIndicator={false}
-                                        contentContainerStyle={styles.cardRow}
-                                    >
-                                        {history?.answer.map((attempt, attemptIndex) => {
-                                            const isLocked = attempt.resultConfirmFlg;
-                                            const isLastAttempt = attemptIndex === history.answer.length - 1;
 
-                                            return (
-                                                <TouchableOpacity
-                                                    key={`${num}-${attemptIndex}`}
-                                                    style={[
-                                                        styles.questionCard,
-                                                        { width: 110 },
-                                                        attempt.result === '○' && styles.correctCard,
-                                                        attempt.result === '×' && styles.incorrectCard,
-                                                        isLocked && styles.lockedCard,
-                                                    ]}
-                                                    onPress={isLastAttempt ? () => handleDoubleTap(num) : undefined}
-                                                    onLongPress={isLastAttempt ? () => handleLongPress(num) : undefined}
-                                                    delayLongPress={500}
-                                                    disabled={!isLastAttempt}
-                                                >
-                                                    {isLocked && <Text style={styles.lockIcon}>🔒</Text>}
-                                                    <Text style={styles.attemptNumber}>{attemptIndex + 1}周目</Text>
-                                                    <Text style={[
-                                                        styles.answerMark,
-                                                        attempt.result === '○' ? styles.correctMark : styles.incorrectMark
-                                                    ]}>
-                                                        {attempt.result}
-                                                    </Text>
-                                                </TouchableOpacity>
-                                            );
-                                        })}
-                                        {lastIsLocked && (
-                                            <TouchableOpacity
-                                                style={[styles.questionCard, styles.unattemptedCard, { width: 110 }]}
-                                                onPress={() => handleDoubleTap(num)}
-                                            >
-                                                <Text style={styles.attemptNumber}>{actualCount + 1}周目</Text>
-                                            </TouchableOpacity>
-                                        )}
-                                    </ScrollView>
-                                ) : (
-                                    <View style={styles.cardRowNonScroll}>
-                                        {history && history.answer && history.answer.length > 0 ? (
-                                            <>
-                                                {history.answer.map((attempt, attemptIndex) => {
-                                                    const isLocked = attempt.resultConfirmFlg;
-                                                    const isLastAttempt = attemptIndex === history.answer.length - 1;
+                                {
+                                    needsScroll ? (
+                                        <ScrollView
+                                            horizontal={true}
+                                            showsHorizontalScrollIndicator={false}
+                                            contentContainerStyle={styles.cardRow}
+                                        >
+                                            {history.map((attempt, attemptIndex) => {
+                                                const isLocked = attempt.resultConfirmFlg;
+                                                const isLastAttempt = attemptIndex === history.length - 1;
 
-                                                    return (
-                                                        <TouchableOpacity
-                                                            key={`${num}-${attemptIndex}`}
-                                                            style={[
-                                                                styles.questionCard,
-                                                                cardWidth ? { width: cardWidth } : { flex: 1 },
-                                                                attempt.result === '○' && styles.correctCard,
-                                                                attempt.result === '×' && styles.incorrectCard,
-                                                                isLocked && styles.lockedCard,
-                                                            ]}
-                                                            onPress={isLastAttempt ? () => handleDoubleTap(num) : undefined}
-                                                            onLongPress={isLastAttempt ? () => handleLongPress(num) : undefined}
-                                                            delayLongPress={500}
-                                                            disabled={!isLastAttempt}
-                                                        >
-                                                            {isLocked && <Text style={styles.lockIcon}>🔒</Text>}
-                                                            <Text style={styles.attemptNumber}>{attemptIndex + 1}周目</Text>
-                                                            <Text style={[
-                                                                styles.answerMark,
-                                                                attempt.result === '○' ? styles.correctMark : styles.incorrectMark
-                                                            ]}>
-                                                                {attempt.result}
-                                                            </Text>
-                                                        </TouchableOpacity>
-                                                    );
-                                                })}
-
-                                                {lastIsLocked && (
+                                                return (
                                                     <TouchableOpacity
+                                                        key={`${num}-${attemptIndex}`}
                                                         style={[
                                                             styles.questionCard,
-                                                            styles.unattemptedCard,
-                                                            cardWidth ? { width: cardWidth } : { flex: 1 }
+                                                            { width: 110 },
+                                                            attempt.result === '○' && styles.correctCard,
+                                                            attempt.result === '×' && styles.incorrectCard,
+                                                            isLocked && styles.lockedCard,
                                                         ]}
-                                                        onPress={() => handleDoubleTap(num)}
+                                                        onPress={isLastAttempt ? () => handleDoubleTap(num) : undefined}
+                                                        onLongPress={isLastAttempt ? () => handleLongPress(num) : undefined}
+                                                        delayLongPress={500}
+                                                        disabled={!isLastAttempt}
                                                     >
-                                                        <Text style={styles.attemptNumber}>{actualCount + 1}周目</Text>
+                                                        {isLocked && <Text style={styles.lockIcon}>🔒</Text>}
+                                                        <Text style={styles.attemptNumber}>{attemptIndex + 1}周目</Text>
+                                                        <Text style={[
+                                                            styles.answerMark,
+                                                            attempt.result === '○' ? styles.correctMark : styles.incorrectMark
+                                                        ]}>
+                                                            {attempt.result}
+                                                        </Text>
                                                     </TouchableOpacity>
-                                                )}
-                                            </>
-                                        ) : (
-                                            <TouchableOpacity
-                                                style={[styles.questionCard, styles.unattemptedCard, { flex: 1 }]}
-                                                onPress={() => handleDoubleTap(num)}
-                                            >
-                                                <Text style={styles.questionNumber}>{num}</Text>
-                                            </TouchableOpacity>
-                                        )}
-                                    </View>
-                                )}
+                                                );
+                                            })}
+                                            {lastIsLocked && (
+                                                <TouchableOpacity
+                                                    style={[styles.questionCard, styles.unattemptedCard, { width: 110 }]}
+                                                    onPress={() => handleDoubleTap(num)}
+                                                >
+                                                    <Text style={styles.attemptNumber}>{actualCount + 1}周目</Text>
+                                                </TouchableOpacity>
+                                            )}
+                                        </ScrollView>
+                                    ) : (
+                                        <View style={styles.cardRowNonScroll}>
+                                            {history.length > 0 ? (
+                                                <>
+                                                    {history.map((attempt, attemptIndex) => {
+                                                        const isLocked = attempt.resultConfirmFlg;
+                                                        const isLastAttempt = attemptIndex === history.length - 1;
+
+                                                        return (
+                                                            <TouchableOpacity
+                                                                key={`${num}-${attemptIndex}`}
+                                                                style={[
+                                                                    styles.questionCard,
+                                                                    cardWidth ? { width: cardWidth } : { flex: 1 },
+                                                                    attempt.result === '○' && styles.correctCard,
+                                                                    attempt.result === '×' && styles.incorrectCard,
+                                                                    isLocked && styles.lockedCard,
+                                                                ]}
+                                                                onPress={isLastAttempt ? () => handleDoubleTap(num) : undefined}
+                                                                onLongPress={isLastAttempt ? () => handleLongPress(num) : undefined}
+                                                                delayLongPress={500}
+                                                                disabled={!isLastAttempt}
+                                                            >
+                                                                {isLocked && <Text style={styles.lockIcon}>🔒</Text>}
+                                                                <Text style={styles.attemptNumber}>{attemptIndex + 1}周目</Text>
+                                                                <Text style={[
+                                                                    styles.answerMark,
+                                                                    attempt.result === '○' ? styles.correctMark : styles.incorrectMark
+                                                                ]}>
+                                                                    {attempt.result}
+                                                                </Text>
+                                                            </TouchableOpacity>
+                                                        );
+                                                    })}
+
+                                                    {lastIsLocked && (
+                                                        <TouchableOpacity
+                                                            style={[
+                                                                styles.questionCard,
+                                                                styles.unattemptedCard,
+                                                                cardWidth ? { width: cardWidth } : { flex: 1 }
+                                                            ]}
+                                                            onPress={() => handleDoubleTap(num)}
+                                                        >
+                                                            <Text style={styles.attemptNumber}>{actualCount + 1}周目</Text>
+                                                        </TouchableOpacity>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <TouchableOpacity
+                                                    style={[styles.questionCard, styles.unattemptedCard, { flex: 1 }]}
+                                                    onPress={() => handleDoubleTap(num)}
+                                                >
+                                                    <Text style={styles.questionNumber}>{num}</Text>
+                                                </TouchableOpacity>
+                                            )}
+                                        </View>
+                                    )
+                                }
                             </View>
                         );
                     })}
+
+                    <TouchableOpacity
+                        style={styles.addQuestionButton}
+                        onPress={handleAddQuestion}
+                        activeOpacity={0.7}
+                    >
+                        <Plus size={24} color={theme.colors.primary[600]} strokeWidth={2.5} />
+                        <Text style={styles.addQuestionButtonText}>問題を追加</Text>
+                    </TouchableOpacity>
                 </View>
-            </ScrollView>
+
+                <ConfirmDialog
+                    visible={deleteDialogVisible}
+                    title="問題を削除"
+                    message="この問題を削除してもよろしいですか？この操作は取り消せません。"
+                    onConfirm={confirmDelete}
+                    onCancel={() => setDeleteDialogVisible(false)}
+                />
+            </ScrollView >
         </>
     )
 }
@@ -537,6 +476,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: theme.spacing.md,
         marginBottom: theme.spacing.sm,
     },
+    buttonGroup: {
+        flexDirection: 'row',
+        gap: theme.spacing.sm,
+        alignItems: 'center',
+    },
     memoButton: {
         backgroundColor: theme.colors.neutral.white,
         borderColor: theme.colors.primary[600],
@@ -550,6 +494,34 @@ const styles = StyleSheet.create({
         fontSize: theme.typography.fontSizes.xs,
         fontWeight: theme.typography.fontWeights.semibold,
         color: theme.colors.primary[600],
+        fontFamily: theme.typography.fontFamilies.bold,
+    },
+    deleteButton: {
+        backgroundColor: theme.colors.neutral.white,
+        borderColor: theme.colors.error[600],
+        borderWidth: 1.5,
+        borderRadius: theme.borderRadius.sm,
+        padding: theme.spacing.xs,
+        ...theme.shadows.sm,
+    },
+    addQuestionButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: theme.spacing.lg,
+        marginHorizontal: theme.spacing.md,
+        marginVertical: theme.spacing.lg,
+        backgroundColor: theme.colors.neutral.white,
+        borderRadius: theme.borderRadius.lg,
+        borderWidth: 2,
+        borderColor: theme.colors.primary[300],
+        borderStyle: 'dashed',
+        gap: theme.spacing.sm,
+    },
+    addQuestionButtonText: {
+        fontSize: theme.typography.fontSizes.base,
+        color: theme.colors.primary[600],
+        fontWeight: theme.typography.fontWeights.bold as any,
         fontFamily: theme.typography.fontFamilies.bold,
     },
     // モーダル関連のスタイル
