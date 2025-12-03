@@ -1,12 +1,12 @@
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { useQuizBookStore } from '@/stores/quizBookStore';
-import Header from '../../../compornents/Header'
+import Header from '@/app/compornents/Header'
 import { useLocalSearchParams } from 'expo-router'
 import MemoModal from './compornent/MemoModal'
 import { theme } from '@/constants/Theme'
 import { Plus, Trash2 } from 'lucide-react-native'
-import ConfirmDialog from '../../../compornents/ConfirmDialog'
+import ConfirmDialog from '@/app/compornents/ConfirmDialog';
 
 const QuestionList = () => {
     const { id } = useLocalSearchParams();

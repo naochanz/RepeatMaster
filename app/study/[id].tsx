@@ -6,7 +6,7 @@ import { useQuizBookStore } from '@/stores/quizBookStore';
 import { theme } from '@/constants/Theme';
 import Card from '@/components/ui/Card';
 import { Plus, MoreVertical, Edit, Trash2, AlertCircle } from 'lucide-react-native';
-import ConfirmDialog from '../../compornents/ConfirmDialog';
+import ConfirmDialog from '@/app/compornents/ConfirmDialog';
 
 const StudyHome = () => {
     const { id } = useLocalSearchParams();
