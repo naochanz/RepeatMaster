@@ -1,7 +1,6 @@
 import { Text, View, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useLocalSearchParams, router } from 'expo-router'
-import Header from '../compornents/Header'
 import { useQuizBookStore } from '@/stores/quizBookStore';
 import { theme } from '@/constants/Theme';
 import Card from '@/components/ui/Card';
@@ -38,12 +37,9 @@ const StudyHome = () => {
 
     if (!quizBook) {
         return (
-            <>
-                <Header />
-                <ScrollView style={styles.container}>
-                    <Text>問題集が存在しません</Text>
-                </ScrollView>
-            </>
+            <ScrollView style={styles.container}>
+                <Text>問題集が存在しません</Text>
+            </ScrollView>
         )
     }
 
@@ -80,10 +76,6 @@ const StudyHome = () => {
     };
 
     const handleAddChapter = async () => {
-        if (newChapterTitle.trim() === '' && quizBook.chapters.length === 0) {
-            Alert.alert('エラー', '章名を入力してください');
-            return;
-        }
         await addChapterToQuizBook(quizBook.id, newChapterTitle);
         setNewChapterTitle('');
         setShowAddModal(false);
@@ -129,7 +121,6 @@ const StudyHome = () => {
 
     return (
         <View style={styles.wrapper}>
-            <Header />
             <View style={styles.titleContainer}>
                 <Text style={styles.title}>{quizBook.title}</Text>
                 <Text style={styles.subtitle}>

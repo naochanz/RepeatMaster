@@ -1,7 +1,6 @@
 // app/(tabs)/index.tsx
 import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
 import React, { useState } from 'react';
-import Header from '../compornents/Header';
 import QuizBookCard from '../compornents/QuizBookCard';
 import { router } from 'expo-router';
 import { useQuizBookStore } from '@/stores/quizBookStore';
@@ -81,9 +80,7 @@ export default function HomeScreen() {
   )
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Header />
+    <View style={styles.safeArea}>
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>登録済み問題集</Text>
         </View>
@@ -110,17 +107,12 @@ export default function HomeScreen() {
           onConfirm={confirmDelete}
           onCancel={() => setDeleteDialogVisible(false)}
         />
-      </View>
-    </SafeAreaView>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
   safeArea: {
-    flex: 1,
-    backgroundColor: theme.colors.neutral[50],
-  },
-  container: {
     flex: 1,
     backgroundColor: theme.colors.neutral[50],
   },

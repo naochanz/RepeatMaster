@@ -453,7 +453,7 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
       const newChapterNumber = book.chapters.length + 1;
       const newChapter: Chapter = {
         id: `chapter-${Date.now()}`,
-        title: chapterTitle || `第${newChapterNumber}章`,
+        title: chapterTitle || ``,
         chapterNumber: newChapterNumber,
         chapterRate: 0,
         questionCount: 0,

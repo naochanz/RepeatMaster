@@ -1,7 +1,6 @@
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { useQuizBookStore } from '@/stores/quizBookStore';
-import Header from '@/app/compornents/Header'
 import { useLocalSearchParams } from 'expo-router'
 import MemoModal from './compornent/MemoModal'
 import { theme } from '@/constants/Theme'
@@ -58,12 +57,9 @@ const QuestionList = () => {
 
     if (!displayInfo) {
         return (
-            <>
-                <Header />
                 <View style={styles.container}>
                     <Text>データが見つかりません</Text>
                 </View>
-            </>
         );
     }
 
@@ -150,7 +146,6 @@ const QuestionList = () => {
 
     return (
         <>
-            <Header />
             <ScrollView style={styles.container}>
                 {displayInfo.type === 'chapter' ? (
                     <View style={styles.titleContainer}>

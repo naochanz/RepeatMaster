@@ -2,7 +2,6 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal,
 import React, { useEffect, useState } from 'react'
 import { useQuizBookStore } from '@/stores/quizBookStore';
 import { useLocalSearchParams, router } from 'expo-router'
-import Header from '@/app/compornents/Header'
 import { theme } from '@/constants/Theme'
 import Card from '@/components/ui/Card'
 import { Plus, MoreVertical, Edit, Trash2, AlertCircle } from 'lucide-react-native';
@@ -38,12 +37,9 @@ const SectionList = () => {
 
   if (!chapterData) {
     return (
-      <>
-        <Header />
         <View style={styles.container}>
           <Text>章が見つかりません</Text>
         </View>
-      </>
     );
   }
 
@@ -126,7 +122,6 @@ const SectionList = () => {
   if (book.useSections === undefined) {
     return (
       <View style={styles.wrapper}>
-        <Header />
         <View style={styles.titleContainer}>
           <Text style={styles.title}>第{chapter.chapterNumber}章 {chapter.title}</Text>
         </View>
@@ -158,7 +153,6 @@ const SectionList = () => {
   // 節を使用する場合
   return (
     <View style={styles.wrapper}>
-      <Header />
       <View style={styles.titleContainer}>
         <Text style={styles.title}>第{chapter.chapterNumber}章 {chapter.title}</Text>
         <Text style={styles.subtitle}>
