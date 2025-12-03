@@ -1,5 +1,3 @@
-import QuestionCountInput from "../quizBook/Input/QuestionCountInput";
-
 export const mockQuizBooks = [
     {
         id: '1',
