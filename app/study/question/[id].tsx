@@ -23,6 +23,9 @@ const QuestionList = () => {
 
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
     const [deleteTargetNumber, setDeleteTargetNumber] = useState<number | null>(null);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedQuestion, setSelectedQuestion] = useState<number | null>(null);
+    const [memoText, setMemoText] = useState('');
 
     useEffect(() => {
         if (quizBooks.length === 0) {
@@ -131,6 +134,20 @@ const QuestionList = () => {
         }
     };
 
+    const handleSaveMemo = async (text: string) => {
+        if (selectedQuestion !== null) {
+            await saveMemo(chapterId, sectionId, selectedQuestion, text);
+        }
+    };
+
+    const handleOpenMemo = (questionNumber: number) => {
+        setSelectedQuestion(questionNumber);
+        const questionData = getQuestionAnswers(chapterId, sectionId, questionNumber);
+        const currentMemo = questionData?.memo || '';
+        setMemoText(currentMemo);
+        setModalVisible(true);
+    };
+
     return (
         <>
             <Header />
@@ -165,22 +182,6 @@ const QuestionList = () => {
                         const actualCount = history.length;
                         const lastIsLocked = history[history.length - 1]?.resultConfirmFlg || false;
                         const displayCount = lastIsLocked ? actualCount + 1 : actualCount;
-                        const [modalVisible, setModalVisible] = useState(false);
-                        const [selectedQuestion, setSelectedQuestion] = useState<number | null>(null);
-                        const [memoText, setMemoText] = useState('');
-
-                        const handleSaveMemo = async (text: string) => {
-                            if (selectedQuestion) {
-                                await saveMemo(chapterId, sectionId, selectedQuestion, text);
-                            }
-                        };
-
-                        const handleOpenMemo = () => {
-                            setSelectedQuestion(num);
-                            const currentMemo = questionData?.memo || '';
-                            setMemoText(currentMemo);
-                            setModalVisible(true);
-                        }
 
                         const getCardWidth = () => {
                             if (displayCount === 0) return undefined;
@@ -200,7 +201,7 @@ const QuestionList = () => {
                                     <View style={styles.buttonGroup}>
                                         <TouchableOpacity
                                             style={styles.memoButton}
-                                            onPress={handleOpenMemo}
+                                            onPress={() => handleOpenMemo(num)}
                                         >
                                             <Text style={styles.memoText}>MEMO</Text>
                                         </TouchableOpacity>
@@ -212,15 +213,6 @@ const QuestionList = () => {
                                         </TouchableOpacity>
                                     </View>
                                 </View>
-
-                                <MemoModal
-                                    visible={modalVisible}
-                                    questionNumber={selectedQuestion}
-                                    memoText={memoText}
-                                    onClose={() => setModalVisible(false)}
-                                    onSave={handleSaveMemo}
-                                    onChangeText={setMemoText}
-                                />
 
                                 {
                                     needsScroll ? (
@@ -340,6 +332,15 @@ const QuestionList = () => {
                         <Text style={styles.addQuestionButtonText}>問題を追加</Text>
                     </TouchableOpacity>
                 </View>
+
+                <MemoModal
+                    visible={modalVisible}
+                    questionNumber={selectedQuestion}
+                    memoText={memoText}
+                    onClose={() => setModalVisible(false)}
+                    onSave={handleSaveMemo}
+                    onChangeText={setMemoText}
+                />
 
                 <ConfirmDialog
                     visible={deleteDialogVisible}
