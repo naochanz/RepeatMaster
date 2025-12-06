@@ -1,52 +1,15 @@
 import { create } from 'zustand';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { mockQuizBooks } from '@/mockData/mockQuizBooks';
+import { quizBookRepository } from '@/app/repositories/QuizBookRepository';
+import { QuizBook, Chapter, Section, QuestionAnswer } from '@/types/QuizBook';
 
-interface QuizBook {
-  id: string;
-  title: string;
-  chapterCount: number;
-  chapters: Chapter[];
-  currentRate: number;
-  useSections?: boolean; // 節を使用するかどうか（undefined: 初回未選択、true: 使用、false: 不使用）
-  createdAt: Date;
-  updatedAt: Date;
-}
 
-interface Chapter {
-  id: string;
-  title: string;
-  chapterNumber: number;
-  chapterRate: number;
-  sections?: Section[];
-  questionCount?: number;
-  questionAnswers?: QuestionAnswer[];
-}
-
-interface Section {
-  id: string;
-  title: string;
-  sectionNumber: number;
-  questionCount: number;
-  questionAnswers?: QuestionAnswer[];
-}
-
-interface QuestionAnswer {
-  questionNumber: number;
-  memo?: string;
-  attempts: {
-    round: number;
-    result: '○' | '×';
-    resultConfirmFlg: boolean;
-    answeredAt: Date;
-  }[];
-}
 
 interface QuizBookStore {
   // 状態
   currentQuizBook: Partial<QuizBook> | null;
   quizBooks: QuizBook[];
   isLoading: boolean;
+  isLoaded: boolean;
 
   // アクション
   setCurrentQuizBook: (quizBook: Partial<QuizBook>) => void;
@@ -82,42 +45,14 @@ interface QuizBookStore {
   deleteQuestionFromTarget: (chapterId: string, sectionId: string | null, questionNumber: number) => Promise<void>;
 }
 
-// AsyncStorageのキー
-const STORAGE_KEY = 'quizBooks';
-
-// AsyncStorageへの保存
-const saveToStorage = async (quizBooks: QuizBook[]) => {
-  try {
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(quizBooks));
-    console.log('💾 AsyncStorageに保存しました');
-  } catch (e) {
-    console.error('💥 保存エラー:', e);
-  }
-};
-
-// AsyncStorageからの読み込み
-const loadFromStorage = async (): Promise<QuizBook[]> => {
-  try {
-    const data = await AsyncStorage.getItem(STORAGE_KEY);
-    if (data) {
-      console.log('📖 AsyncStorageから読み込みました');
-      return JSON.parse(data);
-    }
-    console.log('📭 保存データがないため、モックデータを使用');
-    return mockQuizBooks as QuizBook[];
-  } catch (e) {
-    console.error('💥 読み込みエラー:', e);
-    return mockQuizBooks as QuizBook[];
-  }
-};
-
 export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
-  // 初期状態
+  // ========== 初期状態 ==========
   currentQuizBook: null,
   quizBooks: [],
   isLoading: false,
+  isLoaded: false,
 
-  // アクション
+  // ========== 基本アクション ==========
   setCurrentQuizBook: (quizBook) => set({ currentQuizBook: quizBook }),
 
   updateCurrentQuizBook: (updates) => set((state) => ({
@@ -126,14 +61,95 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
       : updates
   })),
 
-  addQuizBook: async (quizBook) => {
-    const newQuizBooks = [...get().quizBooks, quizBook];
-    set({ quizBooks: newQuizBooks, currentQuizBook: null });
-    await saveToStorage(newQuizBooks);
-  },
-
   clearCurrentQuizBook: () => set({ currentQuizBook: null }),
 
+  // ========== データ読み込み ==========
+  fetchQuizBooks: async () => {
+    set({ isLoading: true });
+    try {
+      const quizBooks = await quizBookRepository.getAll();
+      set({ quizBooks, isLoading: false, isLoaded: true });
+    } catch (error) {
+      console.error('Failed to fetch quiz books:', error);
+      set({ isLoading: false, isLoaded: true });
+    }
+  },
+
+  // ========== CRUD操作（Repository経由）==========
+  addQuizBook: async (quizBook) => {
+    set({ isLoading: true });
+    try {
+      await quizBookRepository.create(quizBook);
+      set((state) => ({
+        quizBooks: [...state.quizBooks, quizBook],
+        currentQuizBook: null,
+        isLoading: false
+      }));
+    } catch (error) {
+      console.error('Failed to add quiz book:', error);
+      set({ isLoading: false });
+    }
+  },
+
+  deleteQuizBook: async (id: string) => {
+    set({ isLoading: true });
+    try {
+      await quizBookRepository.delete(id);
+      set((state) => ({
+        quizBooks: state.quizBooks.filter(book => book.id !== id),
+        isLoading: false
+      }));
+    } catch (error) {
+      console.error('Failed to delete quiz book:', error);
+      set({ isLoading: false });
+    }
+  },
+
+  updateQuizBook: async (id: string, updates: Partial<QuizBook>) => {
+    set({ isLoading: true });
+    try {
+      const updated = await quizBookRepository.update(id, { ...updates, updatedAt: new Date() });
+      if (updated) {
+        set((state) => ({
+          quizBooks: state.quizBooks.map(book => book.id === id ? updated : book),
+          isLoading: false
+        }));
+      } else {
+        set({ isLoading: false });
+      }
+    } catch (error) {
+      console.error('Failed to update quiz book:', error);
+      set({ isLoading: false });
+    }
+  },
+  // ========== 検索系メソッド ==========
+  getQuizBookById: (id) => {
+    return get().quizBooks.find(book => book.id === id);
+  },
+
+  getChapterById: (chapterId) => {
+    for (const book of get().quizBooks) {
+      const chapter = book.chapters.find(ch => ch.id === chapterId);
+      if (chapter) {
+        return { book, chapter };
+      }
+    }
+    return undefined;
+  },
+
+  getSectionById: (sectionId) => {
+    for (const book of get().quizBooks) {
+      for (const chapter of book.chapters) {
+        const section = chapter.sections?.find(sec => sec.id === sectionId);
+        if (section) {
+          return { book, chapter, section };
+        }
+      }
+    }
+    return undefined;
+  },
+
+  // ========== currentQuizBook用の操作 ==========
   addChapter: (chapter) => set((state) => ({
     currentQuizBook: state.currentQuizBook
       ? {
@@ -176,10 +192,8 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
   setQuestionCount: (chapterIndex, sectionIndex, count) => set((state) => {
     const chapters = [...(state.currentQuizBook?.chapters || [])];
     if (sectionIndex >= 0) {
-      // 節の問題数設定
       chapters[chapterIndex].sections![sectionIndex].questionCount = count;
     } else {
-      // 章の問題数設定(節なしの場合)
       chapters[chapterIndex].questionCount = count;
     }
     return {
@@ -187,49 +201,16 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
     };
   }),
 
-  fetchQuizBooks: async () => {
-    set({ isLoading: true });
-    const quizBooks = await loadFromStorage();
-    set({ quizBooks, isLoading: false });
-  },
-
-  getQuizBookById: (id) => {
-    return get().quizBooks.find(book => book.id === id);
-  },
-
-  getChapterById: (chapterId) => {
-    for (const book of get().quizBooks) {
-      const chapter = book.chapters.find(ch => ch.id === chapterId);
-      if (chapter) {
-        return { book, chapter };
-      }
-    }
-    return undefined;
-  },
-
-  getSectionById: (sectionId) => {
-    for (const book of get().quizBooks) {
-      for (const chapter of book.chapters) {
-        const section = chapter.sections?.find(sec => sec.id === sectionId);
-        if (section) {
-          return { book, chapter, section };
-        }
-      }
-    }
-    return undefined;
-  },
+  // ========== 問題集操作（Repository経由で保存）==========
 
   saveAnswer: async (chapterId, sectionId, questionNumber, result) => {
     const updatedQuizBooks = get().quizBooks.map(book => {
       const updatedChapters = book.chapters.map(chapter => {
         if (chapter.id !== chapterId) return chapter;
 
-        // ヘルパー関数: 問題回答を更新
         const updateQuestionAnswer = (answers: QuestionAnswer[] = []) => {
           const existing = answers.find(qa => qa.questionNumber === questionNumber);
-
           if (existing) {
-            // 既存問題に新しい周回追加
             return answers.map(qa =>
               qa.questionNumber === questionNumber
                 ? {
@@ -242,7 +223,6 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
                 : qa
             );
           } else {
-            // 新しい問題追加
             return [
               ...answers,
               {
@@ -253,7 +233,6 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
           }
         };
 
-        // 節がある場合
         if (sectionId && chapter.sections) {
           return {
             ...chapter,
@@ -265,19 +244,24 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
           };
         }
 
-        // 章に直接保存
         return { ...chapter, questionAnswers: updateQuestionAnswer(chapter.questionAnswers) };
       });
 
-      return { ...book, chapters: updatedChapters };
+      return { ...book, chapters: updatedChapters, updatedAt: new Date() };
     });
 
     set({ quizBooks: updatedQuizBooks });
-    await saveToStorage(updatedQuizBooks);
+
+    // Repository経由で保存
+    const targetBook = updatedQuizBooks.find(book =>
+      book.chapters.some(ch => ch.id === chapterId)
+    );
+    if (targetBook) {
+      await quizBookRepository.update(targetBook.id, targetBook);
+    }
   },
 
-  // 回答をロック/アンロック
-  toggleAnswerLock: (chapterId, sectionId, questionNumber) => {
+  toggleAnswerLock: async (chapterId, sectionId, questionNumber) => {
     const updatedQuizBooks = get().quizBooks.map(book => ({
       ...book,
       chapters: book.chapters.map(chapter => {
@@ -309,13 +293,20 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
         }
 
         return { ...chapter, questionAnswers: toggleLock(chapter.questionAnswers) };
-      })
+      }),
+      updatedAt: new Date()
     }));
 
     set({ quizBooks: updatedQuizBooks });
+
+    const targetBook = updatedQuizBooks.find(book =>
+      book.chapters.some(ch => ch.id === chapterId)
+    );
+    if (targetBook) {
+      await quizBookRepository.update(targetBook.id, targetBook);
+    }
   },
 
-  // メモを保存
   saveMemo: async (chapterId, sectionId, questionNumber, memo) => {
     const updatedQuizBooks = get().quizBooks.map(book => ({
       ...book,
@@ -339,14 +330,20 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
         }
 
         return { ...chapter, questionAnswers: updateMemo(chapter.questionAnswers) };
-      })
+      }),
+      updatedAt: new Date()
     }));
 
     set({ quizBooks: updatedQuizBooks });
-    await saveToStorage(updatedQuizBooks);
+
+    const targetBook = updatedQuizBooks.find(book =>
+      book.chapters.some(ch => ch.id === chapterId)
+    );
+    if (targetBook) {
+      await quizBookRepository.update(targetBook.id, targetBook);
+    }
   },
 
-  // 特定問題の回答履歴を取得
   getQuestionAnswers: (chapterId, sectionId, questionNumber) => {
     const data = sectionId
       ? get().getSectionById(sectionId)
@@ -391,11 +388,18 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
         }
 
         return { ...chapter, questionAnswers: updateResult(chapter.questionAnswers) };
-      })
+      }),
+      updatedAt: new Date()
     }));
 
     set({ quizBooks: updatedQuizBooks });
-    await saveToStorage(updatedQuizBooks);
+
+    const targetBook = updatedQuizBooks.find(book =>
+      book.chapters.some(ch => ch.id === chapterId)
+    );
+    if (targetBook) {
+      await quizBookRepository.update(targetBook.id, targetBook);
+    }
   },
 
   deleteLastAnswer: async (chapterId: string, sectionId: string | null, questionNumber: number) => {
@@ -407,7 +411,6 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
         const deleteResult = (answers: QuestionAnswer[] = []) =>
           answers.map(qa => {
             if (qa.questionNumber !== questionNumber) return qa;
-
             const newAttempts = qa.attempts.slice(0, -1);
             return { ...qa, attempts: newAttempts };
           }).filter(qa => qa.attempts.length > 0);
@@ -424,28 +427,20 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
         }
 
         return { ...chapter, questionAnswers: deleteResult(chapter.questionAnswers) };
-      })
+      }),
+      updatedAt: new Date()
     }));
 
     set({ quizBooks: updatedQuizBooks });
-    await saveToStorage(updatedQuizBooks);
-  },
 
-  deleteQuizBook: async(id: string) =>{
-    const updatedQuizBooks = get().quizBooks.filter(book => book.id !== id);
-    set({ quizBooks: updatedQuizBooks });
-    await saveToStorage(updatedQuizBooks);
-  },
-
-  updateQuizBook: async (id: string, updates: Partial<QuizBook>) => {
-    const updatedQuizBooks = get().quizBooks.map(book =>
-      book.id === id ? { ...book, ...updates, updatedAt: new Date() } : book
+    const targetBook = updatedQuizBooks.find(book =>
+      book.chapters.some(ch => ch.id === chapterId)
     );
-    set({ quizBooks: updatedQuizBooks });
-    await saveToStorage(updatedQuizBooks);
+    if (targetBook) {
+      await quizBookRepository.update(targetBook.id, targetBook);
+    }
   },
 
-  // 新規追加のアクション実装
   addChapterToQuizBook: async (quizBookId: string, chapterTitle: string) => {
     const updatedQuizBooks = get().quizBooks.map(book => {
       if (book.id !== quizBookId) return book;
@@ -469,7 +464,11 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
     });
 
     set({ quizBooks: updatedQuizBooks });
-    await saveToStorage(updatedQuizBooks);
+
+    const targetBook = updatedQuizBooks.find(b => b.id === quizBookId);
+    if (targetBook) {
+      await quizBookRepository.update(quizBookId, targetBook);
+    }
   },
 
   deleteChapterFromQuizBook: async (quizBookId: string, chapterId: string) => {
@@ -477,7 +476,6 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
       if (book.id !== quizBookId) return book;
 
       const filteredChapters = book.chapters.filter(ch => ch.id !== chapterId);
-      // 章番号を再割り当て
       const reorderedChapters = filteredChapters.map((ch, index) => ({
         ...ch,
         chapterNumber: index + 1
@@ -492,7 +490,11 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
     });
 
     set({ quizBooks: updatedQuizBooks });
-    await saveToStorage(updatedQuizBooks);
+
+    const targetBook = updatedQuizBooks.find(b => b.id === quizBookId);
+    if (targetBook) {
+      await quizBookRepository.update(quizBookId, targetBook);
+    }
   },
 
   updateChapterInQuizBook: async (quizBookId: string, chapterId: string, updates: Partial<Chapter>) => {
@@ -509,7 +511,11 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
     });
 
     set({ quizBooks: updatedQuizBooks });
-    await saveToStorage(updatedQuizBooks);
+
+    const targetBook = updatedQuizBooks.find(b => b.id === quizBookId);
+    if (targetBook) {
+      await quizBookRepository.update(quizBookId, targetBook);
+    }
   },
 
   addSectionToChapter: async (quizBookId: string, chapterId: string, sectionTitle: string) => {
@@ -541,7 +547,11 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
     });
 
     set({ quizBooks: updatedQuizBooks });
-    await saveToStorage(updatedQuizBooks);
+
+    const targetBook = updatedQuizBooks.find(b => b.id === quizBookId);
+    if (targetBook) {
+      await quizBookRepository.update(quizBookId, targetBook);
+    }
   },
 
   deleteSectionFromChapter: async (quizBookId: string, chapterId: string, sectionId: string) => {
@@ -554,7 +564,6 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
           if (ch.id !== chapterId) return ch;
 
           const filteredSections = (ch.sections || []).filter(sec => sec.id !== sectionId);
-          // 節番号を再割り当て
           const reorderedSections = filteredSections.map((sec, index) => ({
             ...sec,
             sectionNumber: index + 1
@@ -570,7 +579,11 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
     });
 
     set({ quizBooks: updatedQuizBooks });
-    await saveToStorage(updatedQuizBooks);
+
+    const targetBook = updatedQuizBooks.find(b => b.id === quizBookId);
+    if (targetBook) {
+      await quizBookRepository.update(quizBookId, targetBook);
+    }
   },
 
   updateSectionInChapter: async (quizBookId: string, chapterId: string, sectionId: string, updates: Partial<Section>) => {
@@ -594,7 +607,11 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
     });
 
     set({ quizBooks: updatedQuizBooks });
-    await saveToStorage(updatedQuizBooks);
+
+    const targetBook = updatedQuizBooks.find(b => b.id === quizBookId);
+    if (targetBook) {
+      await quizBookRepository.update(quizBookId, targetBook);
+    }
   },
 
   addQuestionToTarget: async (chapterId: string, sectionId: string | null) => {
@@ -605,7 +622,6 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
           if (chapter.id !== chapterId) return chapter;
 
           if (sectionId) {
-            // 節に問題を追加
             return {
               ...chapter,
               sections: (chapter.sections || []).map(section => {
@@ -617,7 +633,6 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
               })
             };
           } else {
-            // 章に問題を追加
             return {
               ...chapter,
               questionCount: (chapter.questionCount || 0) + 1
@@ -629,7 +644,13 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
     });
 
     set({ quizBooks: updatedQuizBooks });
-    await saveToStorage(updatedQuizBooks);
+
+    const targetBook = updatedQuizBooks.find(book =>
+      book.chapters.some(ch => ch.id === chapterId)
+    );
+    if (targetBook) {
+      await quizBookRepository.update(targetBook.id, targetBook);
+    }
   },
 
   deleteQuestionFromTarget: async (chapterId: string, sectionId: string | null, questionNumber: number) => {
@@ -640,13 +661,11 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
           if (chapter.id !== chapterId) return chapter;
 
           if (sectionId) {
-            // 節から問題を削除
             return {
               ...chapter,
               sections: (chapter.sections || []).map(section => {
                 if (section.id !== sectionId) return section;
 
-                // questionAnswersから該当する問題を削除し、番号を再割り当て
                 const updatedAnswers = (section.questionAnswers || [])
                   .filter(qa => qa.questionNumber !== questionNumber)
                   .map((qa, index) => ({
@@ -662,7 +681,6 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
               })
             };
           } else {
-            // 章から問題を削除
             const updatedAnswers = (chapter.questionAnswers || [])
               .filter(qa => qa.questionNumber !== questionNumber)
               .map((qa, index) => ({
@@ -682,7 +700,12 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
     });
 
     set({ quizBooks: updatedQuizBooks });
-    await saveToStorage(updatedQuizBooks);
-  },
 
+    const targetBook = updatedQuizBooks.find(book =>
+      book.chapters.some(ch => ch.id === chapterId)
+    );
+    if (targetBook) {
+      await quizBookRepository.update(targetBook.id, targetBook);
+    }
+  },
 }));
