@@ -7,6 +7,7 @@ export interface QuizBook {
   currentRate: number;
   createdAt: Date;
   updatedAt: Date;
+  useSections: boolean;
 }
 
 export interface Chapter {

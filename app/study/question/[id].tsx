@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { useQuizBookStore } from '@/stores/quizBookStore';
-import { useLocalSearchParams } from 'expo-router'
+import { useLocalSearchParams, Stack } from 'expo-router'
 import MemoModal from './compornent/MemoModal'
 import { theme } from '@/constants/Theme'
 import { Plus, Trash2 } from 'lucide-react-native'
@@ -57,9 +57,9 @@ const QuestionList = () => {
 
     if (!displayInfo) {
         return (
-                <View style={styles.container}>
-                    <Text>データが見つかりません</Text>
-                </View>
+            <View style={styles.container}>
+                <Text>データが見つかりません</Text>
+            </View>
         );
     }
 
@@ -146,30 +146,16 @@ const QuestionList = () => {
 
     return (
         <>
+            <Stack.Screen
+                options={{
+                    headerTitle: () => (
+                        <Text style={styles.questionCount}>
+                            全{displayInfo.questionCount}問
+                        </Text>
+                    ),
+                }}
+            />
             <ScrollView style={styles.container}>
-                {displayInfo.type === 'chapter' ? (
-                    <View style={styles.titleContainer}>
-                        <Text style={styles.title}>
-                            第{displayInfo.chapterNumber}章:{displayInfo.title}
-                        </Text>
-                        <Text style={styles.questionCount}>
-                            全{displayInfo.questionCount}問
-                        </Text>
-                    </View>
-                ) : (
-                    <View style={styles.titleContainer}>
-                        <Text style={styles.breadcrumb}>
-                            第{displayInfo.chapterNumber}章:{displayInfo.chapterTitle}
-                        </Text>
-                        <Text style={styles.title}>
-                            第{displayInfo.sectionNumber}節:{displayInfo.title}
-                        </Text>
-                        <Text style={styles.questionCount}>
-                            全{displayInfo.questionCount}問
-                        </Text>
-                    </View>
-                )}
-
                 <View>
                     {Array.from({ length: displayInfo.questionCount }, (_, i) => i + 1).map((num) => {
                         const questionData = getQuestionAnswers(chapterId, sectionId, num);
@@ -374,8 +360,9 @@ const styles = StyleSheet.create({
         fontFamily: theme.typography.fontFamilies.bold,
     },
     questionCount: {
-        fontSize: theme.typography.fontSizes.sm,
+        fontSize: theme.typography.fontSizes.lg,
         color: theme.colors.secondary[600],
+        fontWeight: 'bold',
         fontFamily: theme.typography.fontFamilies.regular,
     },
     correctCard: {
@@ -429,7 +416,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     questionGroup: {
-        marginBottom: theme.spacing.lg,
+        marginTop: theme.spacing.lg,
     },
     questionNumberLabel: {
         fontSize: theme.typography.fontSizes.base,

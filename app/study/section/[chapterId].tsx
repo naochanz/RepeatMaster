@@ -1,7 +1,7 @@
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, Alert } from 'react-native'
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useQuizBookStore } from '@/stores/quizBookStore';
-import { useLocalSearchParams, router } from 'expo-router'
+import { useLocalSearchParams, router, Stack } from 'expo-router'
 import { theme } from '@/constants/Theme'
 import Card from '@/components/ui/Card'
 import { Plus, MoreVertical, Edit, Trash2, AlertCircle } from 'lucide-react-native';
@@ -18,12 +18,11 @@ const SectionList = () => {
     deleteSectionFromChapter,
     updateSectionInChapter
   } = useQuizBookStore();
-  const chapterData = getChapterById(String(chapterId));
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [newSectionTitle, setNewSectionTitle] = useState('');
-  const [editingSection, setEditingSection] = useState<any>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [editingSection, setEditingSection] = useState<any>(null);
   const [editedSectionTitle, setEditedSectionTitle] = useState('');
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
@@ -35,11 +34,13 @@ const SectionList = () => {
     }
   }, []);
 
+  const chapterData = getChapterById(String(chapterId));
+
   if (!chapterData) {
     return (
-        <View style={styles.container}>
-          <Text>章が見つかりません</Text>
-        </View>
+      <View style={styles.container}>
+        <Text>章が見つかりません</Text>
+      </View>
     );
   }
 
@@ -75,7 +76,7 @@ const SectionList = () => {
   };
 
   const handleAddSection = async () => {
-    await addSectionToChapter(book.id, chapter.id, newSectionTitle);
+    await addSectionToChapter(book.id, chapter.id, newSectionTitle.trim());
     setNewSectionTitle('');
     setShowAddModal(false);
   };
@@ -89,9 +90,9 @@ const SectionList = () => {
   };
 
   const handleSaveEdit = async () => {
-    if (editingSection && editedSectionTitle.trim() !== '') {
+    if (editingSection) {
       await updateSectionInChapter(book.id, chapter.id, editingSection.id, {
-        title: editedSectionTitle
+        title: editedSectionTitle.trim()
       });
       setShowEditModal(false);
       setEditingSection(null);
@@ -121,216 +122,252 @@ const SectionList = () => {
   // 初回選択画面
   if (book.useSections === undefined) {
     return (
-      <View style={styles.wrapper}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>第{chapter.chapterNumber}章 {chapter.title}</Text>
-        </View>
-        <View style={styles.selectionContainer}>
-          <Text style={styles.selectionTitle}>節を使用しますか？</Text>
-          <Text style={styles.selectionDescription}>
-            この問題集で節を使用するかどうかを選択してください。{'\n'}
-            後から設定で変更することもできます。
-          </Text>
-          <View style={styles.selectionButtons}>
-            <TouchableOpacity
-              style={[styles.selectionButton, styles.yesButton]}
-              onPress={() => handleSelectUseSections(true)}
-            >
-              <Text style={styles.yesButtonText}>はい</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.selectionButton, styles.noButton]}
-              onPress={() => handleSelectUseSections(false)}
-            >
-              <Text style={styles.noButtonText}>いいえ</Text>
-            </TouchableOpacity>
+      <>
+        <Stack.Screen
+          options={{
+            headerTitle: () => (
+              <View style={{ maxWidth: 280 }}>
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ fontSize: 16, fontWeight: "bold", textAlign: 'center' }}
+                >
+                  {book.title}
+                </Text>
+
+                <Text style={{ fontSize: 14, textAlign: 'center' }}>
+                  {`第${chapter.chapterNumber}章 ${chapter.title}`}
+                </Text>
+              </View>
+            ),
+          }}
+        />
+        <View style={styles.wrapper}>
+          <View style={styles.selectionContainer}>
+            <Text style={styles.selectionTitle}>節を使用しますか？</Text>
+            <Text style={styles.selectionDescription}>
+              この問題集で節を使用するかどうかを選択してください。{'\n'}
+              後から設定で変更することもできます。
+            </Text>
+            <View style={styles.selectionButtons}>
+              <TouchableOpacity
+                style={[styles.selectionButton, styles.yesButton]}
+                onPress={() => handleSelectUseSections(true)}
+              >
+                <Text style={styles.yesButtonText}>はい</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.selectionButton, styles.noButton]}
+                onPress={() => handleSelectUseSections(false)}
+              >
+                <Text style={styles.noButtonText}>いいえ</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
+      </>
     );
   }
 
   // 節を使用する場合
   return (
-    <View style={styles.wrapper}>
-      <View style={styles.titleContainer}>
-        <Text style={styles.title}>第{chapter.chapterNumber}章 {chapter.title}</Text>
-        <Text style={styles.subtitle}>
-          {sections.length}個の節
-        </Text>
-      </View>
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {sections.length === 0 ? (
-          <View style={styles.emptyState}>
-            <View style={styles.emptyContent}>
-              <AlertCircle size={20} color={theme.colors.warning[600]} />
-              <Text style={styles.emptyText}>節を追加してください</Text>
-            </View>
-            <TouchableOpacity
-              style={styles.startButton}
-              onPress={handleChapterPress}
-            >
-              <Text style={styles.startButtonText}>
-                節なしで問題を開始
+    <>
+      <Stack.Screen
+        options={{
+          headerTitle: () => (
+            <View style={{ maxWidth: 280 }}>
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                style={{ fontSize: 16, fontWeight: "bold", textAlign: 'center' }}
+              >
+                {book.title}
               </Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          sections.map((section) => (
-            <View key={section.id} style={styles.cardWrapper}>
-              <TouchableOpacity
-                onPress={() => handleSectionPress(section.id)}
-                activeOpacity={0.7}
-              >
-                <Card style={styles.sectionCard}>
-                  <TouchableOpacity
-                    style={styles.menuButton}
-                    onPress={(e) => toggleMenu(section.id, e)}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  >
-                    <MoreVertical size={20} color={theme.colors.secondary[600]} />
-                  </TouchableOpacity>
 
-                  <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionNumber}>
-                      第{section.sectionNumber}節
-                    </Text>
-                    <Text style={styles.sectionTitle}>
-                      {section.title}
-                    </Text>
-                  </View>
-                  <View style={styles.sectionStats}>
-                    <Text style={styles.questionCount}>
-                      {section.questionCount}問
-                    </Text>
-                  </View>
-                </Card>
-              </TouchableOpacity>
-
-              {activeMenu === section.id && (
-                <View style={styles.menu}>
-                  <TouchableOpacity
-                    style={styles.menuItem}
-                    onPress={(e) => handleEditSection(section, e)}
-                  >
-                    <Edit size={16} color={theme.colors.primary[600]} />
-                    <Text style={styles.menuText}>編集</Text>
-                  </TouchableOpacity>
-                  <View style={styles.menuDivider} />
-                  <TouchableOpacity
-                    style={styles.menuItem}
-                    onPress={(e) => handleDeleteSection(section.id, e)}
-                  >
-                    <Trash2 size={16} color={theme.colors.error[600]} />
-                    <Text style={[styles.menuText, { color: theme.colors.error[600] }]}>削除</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
+              <Text style={{ fontSize: 14, textAlign: 'center' }}>
+                {`第${chapter.chapterNumber}章 ${chapter.title}`}
+              </Text>
             </View>
-          ))
-        )}
-
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => setShowAddModal(true)}
-          activeOpacity={0.7}
-        >
-          <Plus size={24} color={theme.colors.primary[600]} strokeWidth={2.5} />
-          <Text style={styles.addButtonText}>節を追加</Text>
-        </TouchableOpacity>
-      </ScrollView>
-
-      {/* 節追加モーダル */}
-      <Modal
-        visible={showAddModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowAddModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>節を追加</Text>
-            <TextInput
-              style={styles.input}
-              value={newSectionTitle}
-              onChangeText={setNewSectionTitle}
-              placeholder="節名を入力（任意）"
-              placeholderTextColor={theme.colors.secondary[400]}
-              autoFocus
-            />
-            <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => {
-                  setShowAddModal(false);
-                  setNewSectionTitle('');
-                }}
-              >
-                <Text style={styles.cancelButtonText}>キャンセル</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.confirmButton]}
-                onPress={handleAddSection}
-              >
-                <Text style={styles.confirmButtonText}>追加</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* 節編集モーダル */}
-      <Modal
-        visible={showEditModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowEditModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>節を編集</Text>
-            <TextInput
-              style={styles.input}
-              value={editedSectionTitle}
-              onChangeText={setEditedSectionTitle}
-              placeholder="節名を入力"
-              placeholderTextColor={theme.colors.secondary[400]}
-              autoFocus
-            />
-            <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => {
-                  setShowEditModal(false);
-                  setEditingSection(null);
-                }}
-              >
-                <Text style={styles.cancelButtonText}>キャンセル</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.confirmButton]}
-                onPress={handleSaveEdit}
-              >
-                <Text style={styles.confirmButtonText}>保存</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* 削除確認ダイアログ */}
-      <ConfirmDialog
-        visible={deleteDialogVisible}
-        title="節を削除"
-        message="この節を削除してもよろしいですか？この操作は取り消せません。"
-        onConfirm={confirmDelete}
-        onCancel={() => setDeleteDialogVisible(false)}
+          ),
+        }}
       />
-    </View>
+
+
+
+      <View style={styles.wrapper}>
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {sections.length === 0 ? (
+            <View style={styles.emptyState}>
+              <View style={styles.emptyContent}>
+                <AlertCircle size={20} color={theme.colors.warning[600]} />
+                <Text style={styles.emptyText}>節を追加してください</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.startButton}
+                onPress={handleChapterPress}
+              >
+                <Text style={styles.startButtonText}>
+                  節なしで問題を開始
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            sections.map((section) => (
+              <View key={section.id} style={styles.cardWrapper}>
+                <TouchableOpacity
+                  onPress={() => handleSectionPress(section.id)}
+                  activeOpacity={0.7}
+                >
+                  <Card style={styles.sectionCard}>
+                    <TouchableOpacity
+                      style={styles.menuButton}
+                      onPress={(e) => toggleMenu(section.id, e)}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <MoreVertical size={20} color={theme.colors.secondary[600]} />
+                    </TouchableOpacity>
+
+                    <View style={styles.sectionHeader}>
+                      <Text style={styles.sectionNumber}>
+                        第{section.sectionNumber}節
+                      </Text>
+                      {section.title && (
+                        <Text style={styles.sectionTitle}>
+                          {section.title}
+                        </Text>
+                      )}
+                    </View>
+                    <View style={styles.sectionStats}>
+                      <Text style={styles.questionCount}>
+                        {section.questionCount}問
+                      </Text>
+                    </View>
+                  </Card>
+                </TouchableOpacity>
+
+                {activeMenu === section.id && (
+                  <View style={styles.menu}>
+                    <TouchableOpacity
+                      style={styles.menuItem}
+                      onPress={(e) => handleEditSection(section, e)}
+                    >
+                      <Edit size={16} color={theme.colors.primary[600]} />
+                      <Text style={styles.menuText}>編集</Text>
+                    </TouchableOpacity>
+                    <View style={styles.menuDivider} />
+                    <TouchableOpacity
+                      style={styles.menuItem}
+                      onPress={(e) => handleDeleteSection(section.id, e)}
+                    >
+                      <Trash2 size={16} color={theme.colors.error[600]} />
+                      <Text style={[styles.menuText, { color: theme.colors.error[600] }]}>削除</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+            ))
+          )}
+
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => setShowAddModal(true)}
+            activeOpacity={0.7}
+          >
+            <Plus size={24} color={theme.colors.primary[600]} strokeWidth={2.5} />
+            <Text style={styles.addButtonText}>節を追加</Text>
+          </TouchableOpacity>
+        </ScrollView>
+
+        {/* モーダル等は同じ */}
+        <Modal
+          visible={showAddModal}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowAddModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>節を追加</Text>
+              <TextInput
+                style={styles.input}
+                value={newSectionTitle}
+                onChangeText={setNewSectionTitle}
+                placeholder="節名を入力（任意）"
+                placeholderTextColor={theme.colors.secondary[400]}
+                autoFocus
+              />
+              <View style={styles.modalActions}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.cancelButton]}
+                  onPress={() => {
+                    setShowAddModal(false);
+                    setNewSectionTitle('');
+                  }}
+                >
+                  <Text style={styles.cancelButtonText}>キャンセル</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.confirmButton]}
+                  onPress={handleAddSection}
+                >
+                  <Text style={styles.confirmButtonText}>追加</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        <Modal
+          visible={showEditModal}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowEditModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>節を編集</Text>
+              <TextInput
+                style={styles.input}
+                value={editedSectionTitle}
+                onChangeText={setEditedSectionTitle}
+                placeholder="節名を入力（任意）"
+                placeholderTextColor={theme.colors.secondary[400]}
+                autoFocus
+              />
+              <View style={styles.modalActions}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.cancelButton]}
+                  onPress={() => {
+                    setShowEditModal(false);
+                    setEditingSection(null);
+                  }}
+                >
+                  <Text style={styles.cancelButtonText}>キャンセル</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.confirmButton]}
+                  onPress={handleSaveEdit}
+                >
+                  <Text style={styles.confirmButtonText}>保存</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        <ConfirmDialog
+          visible={deleteDialogVisible}
+          title="節を削除"
+          message="この節を削除してもよろしいですか？この操作は取り消せません。"
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteDialogVisible(false)}
+        />
+      </View>
+    </>
   );
 };
 
@@ -342,23 +379,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  titleContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: theme.colors.neutral.white,
+  // ★ titleContainer を削除
+  // titleContainer: { ... },
+  // title: { ... },
+  // subtitle: { ... },
+
+  // ★ 節数表示用のスタイル追加（オプション）
+  sectionCountContainer: {
     paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    backgroundColor: theme.colors.neutral[100],
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.secondary[200],
   },
-  title: {
-    fontSize: theme.typography.fontSizes.xl,
-    fontWeight: theme.typography.fontWeights.bold as any,
-    color: theme.colors.secondary[900],
-    fontFamily: 'ZenKaku-Bold',
-  },
-  subtitle: {
+  sectionCountText: {
     fontSize: theme.typography.fontSizes.sm,
     color: theme.colors.secondary[600],
     fontFamily: 'ZenKaku-Regular',

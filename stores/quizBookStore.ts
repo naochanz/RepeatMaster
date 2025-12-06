@@ -531,7 +531,7 @@ export const useQuizBookStore = create<QuizBookStore>((set, get) => ({
           const newSectionNumber = sections.length + 1;
           const newSection: Section = {
             id: `section-${Date.now()}`,
-            title: sectionTitle || `第${newSectionNumber}節`,
+            title: sectionTitle,
             sectionNumber: newSectionNumber,
             questionCount: 0,
             questionAnswers: []

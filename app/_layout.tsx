@@ -13,6 +13,7 @@ import {
 } from '@expo-google-fonts/zen-kaku-gothic-new';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { useQuizBookStore } from '@/stores/quizBookStore';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -37,6 +38,8 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
+  const fetchQuizBooks = useQuizBookStore(state => state.fetchQuizBooks);
+
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
@@ -45,6 +48,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
+      fetchQuizBooks();
     }
   }, [loaded]);
 
@@ -59,7 +63,12 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   const stack = (
-    <Stack>
+    <Stack
+      screenOptions={{
+        headerBackTitle: '',
+        headerBackButtonDisplayMode: 'minimal',
+      }}
+    >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
     </Stack>

@@ -1,6 +1,6 @@
 import { Text, View, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { useLocalSearchParams, router } from 'expo-router'
+import { useLocalSearchParams, router, Stack } from 'expo-router'
 import { useQuizBookStore } from '@/stores/quizBookStore';
 import { theme } from '@/constants/Theme';
 import Card from '@/components/ui/Card';
@@ -120,190 +120,202 @@ const StudyHome = () => {
     };
 
     return (
-        <View style={styles.wrapper}>
-            <View style={styles.titleContainer}>
-                <Text style={styles.title}>{quizBook.title}</Text>
-                <Text style={styles.subtitle}>
-                    {quizBook.chapters.length}個の章
-                </Text>
-            </View>
-            <ScrollView
-                style={styles.container}
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-            >
-                {quizBook.chapters.length === 0 ? (
-                    <View style={styles.emptyState}>
-                        <View style={styles.emptyContent}>
-                            <AlertCircle size={20} color={theme.colors.warning[600]} />
-                            <Text style={styles.emptyText}>章を追加してください</Text>
+        <>
+            <Stack.Screen
+                options={{
+                    headerTitle: () => (
+                        <View style={{ maxWidth: 280 }}>
+                            <Text
+                                numberOfLines={1}
+                                ellipsizeMode="tail"
+                                style={{ fontSize: 16, fontWeight: "bold", textAlign: 'center' }}
+                            >
+                                {quizBook.title}
+                            </Text>
                         </View>
-                    </View>
-                ) : (
-                    quizBook.chapters.map((chapter) => (
-                        <View key={chapter.id} style={styles.cardWrapper}>
-                            <TouchableOpacity
-                                onPress={() => handleChapterPress(chapter)}
-                                activeOpacity={0.7}
-                            >
-                                <Card style={styles.chapterCard}>
-                                    <TouchableOpacity
-                                        style={styles.menuButton}
-                                        onPress={(e) => toggleMenu(chapter.id, e)}
-                                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                                    >
-                                        <MoreVertical size={20} color={theme.colors.secondary[600]} />
-                                    </TouchableOpacity>
-
-                                    <View style={styles.chapterHeader}>
-                                        <Text style={styles.chapterTitle}>
-                                            第{chapter.chapterNumber}章 {chapter.title}
-                                        </Text>
-                                    </View>
-                                    <View style={styles.chapterStats}>
-                                        <View style={styles.statItem}>
-                                            <Text style={styles.statLabel}>正答率</Text>
-                                            <Text style={[styles.statValue, {
-                                                color: chapter.chapterRate >= 80
-                                                    ? theme.colors.success[600]
-                                                    : chapter.chapterRate >= 60
-                                                        ? theme.colors.warning[600]
-                                                        : theme.colors.error[600]
-                                            }]}>
-                                                {chapter.chapterRate}%
-                                            </Text>
-                                        </View>
-                                        <View style={styles.divider} />
-                                        <View style={styles.statItem}>
-                                            <Text style={styles.statLabel}>問題数</Text>
-                                            <Text style={styles.statValue}>
-                                                {getChapterTotalQuestions(chapter)}問
-                                            </Text>
-                                        </View>
-                                    </View>
-                                </Card>
-                            </TouchableOpacity>
-
-                            {activeMenu === chapter.id && (
-                                <View style={styles.menu}>
-                                    <TouchableOpacity
-                                        style={styles.menuItem}
-                                        onPress={(e) => handleEditChapter(chapter, e)}
-                                    >
-                                        <Edit size={16} color={theme.colors.primary[600]} />
-                                        <Text style={styles.menuText}>編集</Text>
-                                    </TouchableOpacity>
-                                    <View style={styles.menuDivider} />
-                                    <TouchableOpacity
-                                        style={styles.menuItem}
-                                        onPress={(e) => handleDeleteChapter(chapter.id, e)}
-                                    >
-                                        <Trash2 size={16} color={theme.colors.error[600]} />
-                                        <Text style={[styles.menuText, { color: theme.colors.error[600] }]}>削除</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            )}
-                        </View>
-                    ))
-                )}
-
-                <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={() => setShowAddModal(true)}
-                    activeOpacity={0.7}
-                >
-                    <Plus size={24} color={theme.colors.primary[600]} strokeWidth={2.5} />
-                    <Text style={styles.addButtonText}>章を追加</Text>
-                </TouchableOpacity>
-            </ScrollView>
-
-            {/* 章追加モーダル */}
-            <Modal
-                visible={showAddModal}
-                transparent
-                animationType="fade"
-                onRequestClose={() => setShowAddModal(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>章を追加</Text>
-                        <TextInput
-                            style={styles.input}
-                            value={newChapterTitle}
-                            onChangeText={setNewChapterTitle}
-                            placeholder="章名を入力（任意）"
-                            placeholderTextColor={theme.colors.secondary[400]}
-                            autoFocus
-                        />
-                        <View style={styles.modalActions}>
-                            <TouchableOpacity
-                                style={[styles.modalButton, styles.cancelButton]}
-                                onPress={() => {
-                                    setShowAddModal(false);
-                                    setNewChapterTitle('');
-                                }}
-                            >
-                                <Text style={styles.cancelButtonText}>キャンセル</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.modalButton, styles.confirmButton]}
-                                onPress={handleAddChapter}
-                            >
-                                <Text style={styles.confirmButtonText}>追加</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-
-            {/* 章編集モーダル */}
-            <Modal
-                visible={showEditModal}
-                transparent
-                animationType="fade"
-                onRequestClose={() => setShowEditModal(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>章を編集</Text>
-                        <TextInput
-                            style={styles.input}
-                            value={editedChapterTitle}
-                            onChangeText={setEditedChapterTitle}
-                            placeholder="章名を入力"
-                            placeholderTextColor={theme.colors.secondary[400]}
-                            autoFocus
-                        />
-                        <View style={styles.modalActions}>
-                            <TouchableOpacity
-                                style={[styles.modalButton, styles.cancelButton]}
-                                onPress={() => {
-                                    setShowEditModal(false);
-                                    setEditingChapter(null);
-                                }}
-                            >
-                                <Text style={styles.cancelButtonText}>キャンセル</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.modalButton, styles.confirmButton]}
-                                onPress={handleSaveEdit}
-                            >
-                                <Text style={styles.confirmButtonText}>保存</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-
-            {/* 削除確認ダイアログ */}
-            <ConfirmDialog
-                visible={deleteDialogVisible}
-                title="章を削除"
-                message="この章を削除してもよろしいですか？この操作は取り消せません。"
-                onConfirm={confirmDelete}
-                onCancel={() => setDeleteDialogVisible(false)}
+                    ),
+                }}
             />
-        </View>
+
+            <View style={styles.wrapper}>
+                <ScrollView
+                    style={styles.container}
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {quizBook.chapters.length === 0 ? (
+                        <View style={styles.emptyState}>
+                            <View style={styles.emptyContent}>
+                                <AlertCircle size={20} color={theme.colors.warning[600]} />
+                                <Text style={styles.emptyText}>章を追加してください</Text>
+                            </View>
+                        </View>
+                    ) : (
+                        quizBook.chapters.map((chapter) => (
+                            <View key={chapter.id} style={styles.cardWrapper}>
+                                <TouchableOpacity
+                                    onPress={() => handleChapterPress(chapter)}
+                                    activeOpacity={0.7}
+                                >
+                                    <Card style={styles.chapterCard}>
+                                        <TouchableOpacity
+                                            style={styles.menuButton}
+                                            onPress={(e) => toggleMenu(chapter.id, e)}
+                                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                                        >
+                                            <MoreVertical size={20} color={theme.colors.secondary[600]} />
+                                        </TouchableOpacity>
+
+                                        <View style={styles.chapterHeader}>
+                                            <Text style={styles.chapterTitle}>
+                                                第{chapter.chapterNumber}章 {chapter.title}
+                                            </Text>
+                                        </View>
+                                        <View style={styles.chapterStats}>
+                                            <View style={styles.statItem}>
+                                                <Text style={styles.statLabel}>正答率</Text>
+                                                <Text style={[styles.statValue, {
+                                                    color: chapter.chapterRate >= 80
+                                                        ? theme.colors.success[600]
+                                                        : chapter.chapterRate >= 60
+                                                            ? theme.colors.warning[600]
+                                                            : theme.colors.error[600]
+                                                }]}>
+                                                    {chapter.chapterRate}%
+                                                </Text>
+                                            </View>
+                                            <View style={styles.divider} />
+                                            <View style={styles.statItem}>
+                                                <Text style={styles.statLabel}>問題数</Text>
+                                                <Text style={styles.statValue}>
+                                                    {getChapterTotalQuestions(chapter)}問
+                                                </Text>
+                                            </View>
+                                        </View>
+                                    </Card>
+                                </TouchableOpacity>
+
+                                {activeMenu === chapter.id && (
+                                    <View style={styles.menu}>
+                                        <TouchableOpacity
+                                            style={styles.menuItem}
+                                            onPress={(e) => handleEditChapter(chapter, e)}
+                                        >
+                                            <Edit size={16} color={theme.colors.primary[600]} />
+                                            <Text style={styles.menuText}>編集</Text>
+                                        </TouchableOpacity>
+                                        <View style={styles.menuDivider} />
+                                        <TouchableOpacity
+                                            style={styles.menuItem}
+                                            onPress={(e) => handleDeleteChapter(chapter.id, e)}
+                                        >
+                                            <Trash2 size={16} color={theme.colors.error[600]} />
+                                            <Text style={[styles.menuText, { color: theme.colors.error[600] }]}>削除</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                )}
+                            </View>
+                        ))
+                    )}
+
+                    <TouchableOpacity
+                        style={styles.addButton}
+                        onPress={() => setShowAddModal(true)}
+                        activeOpacity={0.7}
+                    >
+                        <Plus size={24} color={theme.colors.primary[600]} strokeWidth={2.5} />
+                        <Text style={styles.addButtonText}>章を追加</Text>
+                    </TouchableOpacity>
+                </ScrollView>
+
+                {/* 章追加モーダル */}
+                <Modal
+                    visible={showAddModal}
+                    transparent
+                    animationType="fade"
+                    onRequestClose={() => setShowAddModal(false)}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>章を追加</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={newChapterTitle}
+                                onChangeText={setNewChapterTitle}
+                                placeholder="章名を入力（任意）"
+                                placeholderTextColor={theme.colors.secondary[400]}
+                                autoFocus
+                            />
+                            <View style={styles.modalActions}>
+                                <TouchableOpacity
+                                    style={[styles.modalButton, styles.cancelButton]}
+                                    onPress={() => {
+                                        setShowAddModal(false);
+                                        setNewChapterTitle('');
+                                    }}
+                                >
+                                    <Text style={styles.cancelButtonText}>キャンセル</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.modalButton, styles.confirmButton]}
+                                    onPress={handleAddChapter}
+                                >
+                                    <Text style={styles.confirmButtonText}>追加</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+
+                {/* 章編集モーダル */}
+                <Modal
+                    visible={showEditModal}
+                    transparent
+                    animationType="fade"
+                    onRequestClose={() => setShowEditModal(false)}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>章を編集</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={editedChapterTitle}
+                                onChangeText={setEditedChapterTitle}
+                                placeholder="章名を入力"
+                                placeholderTextColor={theme.colors.secondary[400]}
+                                autoFocus
+                            />
+                            <View style={styles.modalActions}>
+                                <TouchableOpacity
+                                    style={[styles.modalButton, styles.cancelButton]}
+                                    onPress={() => {
+                                        setShowEditModal(false);
+                                        setEditingChapter(null);
+                                    }}
+                                >
+                                    <Text style={styles.cancelButtonText}>キャンセル</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.modalButton, styles.confirmButton]}
+                                    onPress={handleSaveEdit}
+                                >
+                                    <Text style={styles.confirmButtonText}>保存</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+
+                {/* 削除確認ダイアログ */}
+                <ConfirmDialog
+                    visible={deleteDialogVisible}
+                    title="章を削除"
+                    message="この章を削除してもよろしいですか？この操作は取り消せません。"
+                    onConfirm={confirmDelete}
+                    onCancel={() => setDeleteDialogVisible(false)}
+                />
+            </View>
+        </>
     )
 }
 
