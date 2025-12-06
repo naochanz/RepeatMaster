@@ -1,13 +1,14 @@
 import { View, Text, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'
-import React from 'react'
-import Header from '../compornents/Header'
+import React, { useEffect } from 'react'
+import Header from '../../compornents/Header'
 import QuizBookNameInput from './Input/QuizBookNameInput'
 import ChapterSectionInput from './Input/ChapterSectionInput'
 import Button from '@/components/ui/Button'
-import { router } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import { theme } from '@/constants/Theme'
 import { BookPlus, Layers } from 'lucide-react-native'
 import { useQuizBookStore } from '@/stores/quizBookStore'
+
 
 const goToSectionInput = () => {
     router.push('./AddSection')
@@ -15,12 +16,37 @@ const goToSectionInput = () => {
 
 const AddQuizBook = () => {
     const currentQuizBook = useQuizBookStore(state => state.currentQuizBook);
-
+    const { editId } = useLocalSearchParams();
+    const setCurrentQuizBook = useQuizBookStore(state => state.setCurrentQuizBook);
+    const updateCurrentQuizBook = useQuizBookStore(state => state.updateCurrentQuizBook);
+    const getQuizBookById = useQuizBookStore(state => state.getQuizBookById);
+    const clearCurrentQuizBook = useQuizBookStore(state => state.clearCurrentQuizBook);
+    //ボタンdisable用（問題集タイトル＆章入力確認）
     const isFormValid =
         currentQuizBook?.title &&
         currentQuizBook?.title.length > 0 &&
         currentQuizBook?.chapterCount &&
         currentQuizBook?.chapterCount > 0;
+
+    React.useLayoutEffect(() => {
+        if (editId) {
+            const quizBook = getQuizBookById(String(editId));
+            if (quizBook) {
+                setCurrentQuizBook(quizBook);
+            }
+        } else {
+            clearCurrentQuizBook();
+        }
+    }, [editId]);
+
+  // アンマウント時のクリーンアップ
+  useEffect(() => {
+    return () => {
+      clearCurrentQuizBook();
+    };
+  }, []);
+
+    const isEditMode = !!editId;
 
     return (
         <View style={styles.wrapper}>
@@ -40,7 +66,9 @@ const AddQuizBook = () => {
                         <View style={styles.headerIconContainer}>
                             <BookPlus size={24} color={theme.colors.primary[600]} />
                         </View>
-                        <Text style={styles.title}>問題集を作成</Text>
+                        <Text style={styles.title}>
+                            {isEditMode ? '問題集を編集' : '問題集を作成'}
+                        </Text>
                         <Text style={styles.description}>
                             問題集の基本情報を入力してください
                         </Text>
@@ -63,19 +91,44 @@ const AddQuizBook = () => {
                             </View>
                             <Text style={styles.sectionTitle}>章の設定</Text>
                         </View>
-                        <ChapterSectionInput />
+                        <ChapterSectionInput isEditMode={isEditMode} />
+                    </View>
+                    <View style={styles.buttonContainer}>
+                        {isEditMode ? (
+                            // 編集モード: 次へ と 完了
+                            <>
+                                <Button
+                                    title="次へ：節の設定"
+                                    onPress={goToSectionInput}
+                                    variant="secondary"
+                                    size="lg"
+                                    fullWidth
+                                    disabled={!isFormValid}
+                                />
+                                <View style={{ height: theme.spacing.md }} />
+                                <Button
+                                    title="完了"
+                                    onPress={() => router.push('./ConfirmDisplay')}
+                                    variant="primary"
+                                    size="lg"
+                                    fullWidth
+                                    disabled={!isFormValid}
+                                />
+                            </>
+                        ) : (
+                            // 新規作成モード: 次へのみ
+                            <Button
+                                title="次へ：節の設定"
+                                onPress={goToSectionInput}
+                                variant="primary"
+                                size="lg"
+                                fullWidth
+                                disabled={!isFormValid}
+                            />
+                        )}
                     </View>
                 </ScrollView>
-                <View style={styles.fixedButtonContainer}>
-                    <Button
-                        title="次へ：節の設定"
-                        onPress={goToSectionInput}
-                        variant="primary"
-                        size="lg"
-                        fullWidth
-                        disabled={!isFormValid}
-                    />
-                </View>
+
             </KeyboardAvoidingView>
 
         </View>
@@ -149,13 +202,8 @@ const styles = StyleSheet.create({
         fontWeight: theme.typography.fontWeights.bold as any,
         color: theme.colors.secondary[900],
     },
-    fixedButtonContainer: {
-        padding: theme.spacing.lg,
-        paddingBottom: theme.spacing.xl,
-        backgroundColor: theme.colors.neutral.white,
-        borderTopWidth: 1,
-        borderTopColor: theme.colors.secondary[200],
-        ...theme.shadows.md,
+    buttonContainer: {
+        marginBottom: theme.spacing.xxl,
     },
 });
 

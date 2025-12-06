@@ -1,17 +1,50 @@
 import { ScrollView, Text, StyleSheet, View } from 'react-native'
 import React from 'react'
-import Header from '../compornents/Header'
+import Header from '../../compornents/Header'
 import { useQuizBookStore } from '@/stores/quizBookStore';
 import { theme } from '@/constants/Theme'
-import { CheckCircle2, BookMarked, Layers, FileQuestion } from 'lucide-react-native'
+import { CheckCircle2, BookMarked, Layers, FileMinus } from 'lucide-react-native'
+import Button from '@/components/ui/Button';
+import { router } from 'expo-router';
+
 
 const ConfirmDisplay = () => {
     //zustandからデータ取得
     const currentQuizBook = useQuizBookStore(state => state.currentQuizBook);
+    const addQuizBook = useQuizBookStore(state => state.addQuizBook);
+    const clearCurrentQuizBook = useQuizBookStore(state => state.clearCurrentQuizBook);
+    const updateQuizBook = useQuizBookStore(state => state.updateQuizBook);
     //データを展開
     const title = currentQuizBook?.title;
-    const chapterCount = currentQuizBook?.chapterCount;
     const chapters = currentQuizBook?.chapters || [];
+
+    const conserveQuizBook = async () => {
+        //ここは後々データベース登録を実装
+        try {
+            if (currentQuizBook) {
+                if (currentQuizBook.id) {
+                    // 編集モード: 更新
+                    await updateQuizBook(currentQuizBook.id, currentQuizBook as any);
+                    router.push('/(tabs)');
+                } else {
+                    const quizBookToSave = {
+                        ...currentQuizBook,
+                        id: `quiz-${Date.now()}`,
+                        currentRate: 0,
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                    };
+
+                    await addQuizBook(quizBookToSave as any);
+                    clearCurrentQuizBook();
+
+                    router.push('/(tabs)');
+                }
+            }
+        } catch {
+            console.error('問題集の取得に失敗：', Error);
+        }
+    };
 
     return (
         <View style={styles.wrapper}>
@@ -60,7 +93,7 @@ const ConfirmDisplay = () => {
                                 chapter.sections.map((section, sectionIndex) => (
                                     <View key={sectionIndex} style={styles.sectionRow}>
                                         <View style={styles.sectionInfo}>
-                                            <FileQuestion size={16} color={theme.colors.secondary[500]} />
+                                            <FileMinus size={16} color={theme.colors.secondary[500]} />
                                             <Text style={styles.sectionText}>
                                                 第{section.sectionNumber}節
                                             </Text>
@@ -81,6 +114,17 @@ const ConfirmDisplay = () => {
                             )}
                         </View>
                     ))}
+                </View>
+                <View>
+                    <Button
+                        title="登録"
+                        onPress={conserveQuizBook}
+                        variant="primary"
+                        size="lg"
+                        fullWidth
+                    >
+
+                    </Button>
                 </View>
             </ScrollView>
         </View>

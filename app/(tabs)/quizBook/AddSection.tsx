@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, View, Text, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { useQuizBookStore } from '@/stores/quizBookStore';
-import Header from '../compornents/Header';
+import Header from '../../compornents/Header';
 import SectionCountInput from './Input/SectionCountInput';
 import Button from '@/components/ui/Button';
 import { router } from 'expo-router';
@@ -14,12 +14,21 @@ const AddSection = () => {
     const updateCurrentQuizBook = useQuizBookStore(state => state.updateCurrentQuizBook)
     const chapterCount = currentQuizBook?.chapterCount || 0;
 
+    //節スキップボタン用（節が一つでも入力されているか）
     const hasSections = currentQuizBook?.chapters?.some(
         chapter => chapter.sections && chapter.sections.length
     ) || false;
 
+    //全ての章に節が入力されているか（次へボタン用）
+    const allChaptersHaveSections =
+        currentQuizBook?.chapters?.length === chapterCount &&  // 章の数が一致
+        currentQuizBook.chapters.every(
+            chapter => chapter.sections && chapter.sections.length > 0
+        );
+
+
     const handleNext = () => {
-        router.push('./addQuestions');
+        router.push('./AddQuestions');
     };
 
     const handleSkipSections = () => {
@@ -103,6 +112,7 @@ const AddSection = () => {
                             variant="primary"
                             size="lg"
                             fullWidth
+                            disabled={!allChaptersHaveSections}
                         />
                     </View>
                 </ScrollView>

@@ -1,7 +1,7 @@
 import { Text, View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native'
 import React, { useEffect } from 'react'
 import { useLocalSearchParams, router } from 'expo-router'
-import Header from '../compornents/Header'
+import Header from '../../compornents/Header'
 import { useQuizBookStore } from '@/stores/quizBookStore';
 import { theme } from '@/constants/Theme';
 import Card from '@/components/ui/Card';

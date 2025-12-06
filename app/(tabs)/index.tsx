@@ -1,15 +1,21 @@
 // app/(tabs)/index.tsx
 import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import Header from '../compornents/Header';
 import QuizBookCard from '../compornents/QuizBookCard';
 import { router } from 'expo-router';
 import { useQuizBookStore } from '@/stores/quizBookStore';
 import { theme } from '@/constants/Theme';
 import { Plus, AlertCircle } from 'lucide-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import ConfirmDialog from '../compornents/ConfirmDialog';
 
 export default function HomeScreen() {
-  
+  const quizBooks = useQuizBookStore(state => state.quizBooks);
+  const deleteQuizBook = useQuizBookStore(state => state.deleteQuizBook)
+  const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+
   const handleAddQuiz = () => {
     router.push('/quizBook/AddQuizBook');
   }
@@ -21,21 +27,34 @@ export default function HomeScreen() {
     });
   };
 
-  const dummyQuizBook = [
-    {
-      id: '1',
-      title: 'FP3級',
-      currentRound: 3,
-      totalRounds: 5,
-      correctRate: 85,
-      lastStudyDate: new Date(),
-    },
+  const handleEdit = (quizBookId: string) => {
+    router.push({
+      pathname: '/quizBook/AddQuizBook',
+      params: { editId: quizBookId }
+    })
+  }
+
+  const handleDelete = async (quizBookId: string) => {
+    setDeleteTargetId(quizBookId);
+    setDeleteDialogVisible(true);
+  }
+
+  const confirmDelete = async () => {
+    if (deleteTargetId) {
+      await deleteQuizBook(deleteTargetId);
+      setDeleteDialogVisible(false);
+      setDeleteTargetId(null);
+    }
+  }
+
+  const displayData = [
+    ...quizBooks,
     {
       id: 'addButton',
       title: '+ 問題集を追加',
       isAddButton: true,
     }
-  ]
+  ];
 
   const renderItem = ({ item }: { item: any }) => (
     <View style={styles.cardWrapper}>
@@ -52,30 +71,53 @@ export default function HomeScreen() {
         <QuizBookCard
           quizBook={item}
           onPress={() => { handleCardPress(item.id) }}
+          onEdit={() => handleEdit(item.id)}
+          onDelete={() => handleDelete(item.id)}
         />
       )}
     </View>
   )
 
   return (
-    <View style={styles.container}>
-      <Header />
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>登録済み問題集</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <Header />
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>登録済み問題集</Text>
+        </View>
+        {quizBooks.length === 0 ? (
+          <View style={styles.emptyState}>
+            <View style={styles.emptyContent}>
+              <AlertCircle size={20} color={theme.colors.warning[600]} />
+              <Text style={styles.emptyText}>まだ問題集が登録されていません</Text>
+            </View>
+          </View>
+        ) : null}
+        <FlatList
+          data={displayData}
+          numColumns={2}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          columnWrapperStyle={styles.row}
+          contentContainerStyle={styles.flatListContainer}
+        />
+        <ConfirmDialog
+          visible={deleteDialogVisible}
+          title="問題集を削除"
+          message="この問題集を削除してもよろしいですか？この操作は取り消せません。"
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteDialogVisible(false)}
+        />
       </View>
-      <FlatList
-        data={dummyQuizBook}
-        numColumns={2}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.flatListContainer}
-      />
-    </View>
+    </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: theme.colors.neutral[50],
+  },
   container: {
     flex: 1,
     backgroundColor: theme.colors.neutral[50],
@@ -104,6 +146,21 @@ const styles = StyleSheet.create({
     width: '48%',
     aspectRatio: 1,
   },
+  emptyState: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: theme.spacing.xl,
+  },
+  emptyContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyText: {
+    marginLeft: theme.spacing.sm,
+    fontSize: theme.typography.fontSizes.base,
+    color: theme.colors.secondary[600],
+  },
   addButton: {
     width: '100%',
     height: '100%',
@@ -120,6 +177,5 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSizes.base,
     color: theme.colors.primary[600],
     fontWeight: theme.typography.fontWeights.bold as any,
-    // fontFamily: 'ZenKaku-Bold', // 一旦コメントアウト
-  },
+  }
 });
