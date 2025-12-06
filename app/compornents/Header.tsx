@@ -1,25 +1,24 @@
-import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native'
 import React from 'react'
 import { theme } from '@/constants/Theme'
 import { Settings } from 'lucide-react-native'
 
 const Header = () => {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
         <Text style={styles.appTitle}>RepeatMaster</Text>
         <TouchableOpacity style={styles.settingsButton}>
           <Settings size={24} color={theme.colors.secondary[700]} />
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   )
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     backgroundColor: theme.colors.neutral.white,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   header: {
     flexDirection: 'row',
@@ -34,7 +33,7 @@ const styles = StyleSheet.create({
   },
   appTitle: {
     fontSize: theme.typography.fontSizes.xl,
-    fontWeight: theme.typography.fontWeights.bold,
+    fontWeight: theme.typography.fontWeights.bold as any,
     color: theme.colors.secondary[900],
     fontFamily: 'ZenKaku-Bold',
     letterSpacing: 0.5,

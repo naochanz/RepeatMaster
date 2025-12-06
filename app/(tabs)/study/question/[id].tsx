@@ -205,7 +205,7 @@ const QuestionList = () => {
                                             {history.map((attempt, attemptIndex) => {
                                                 const isLocked = attempt.resultConfirmFlg;
                                                 const isLastAttempt = attemptIndex === history.length - 1;
-
+:app/(tabs)/study/question/[id].tsx
                                                 return (
                                                     <TouchableOpacity
                                                         key={`${num}-${attemptIndex}`}

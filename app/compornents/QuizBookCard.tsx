@@ -1,31 +1,18 @@
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, Switch } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import React, { useState } from 'react'
+import { QuizBook } from '@/types/QuizBook'
 import { theme } from '@/constants/Theme'
-import { BookOpen, TrendingUp, RotateCw, MoreVertical, Edit, Trash2, Check, X } from 'lucide-react-native'
-import { useQuizBookStore } from '@/stores/quizBookStore'
-
-interface QuizBook {
-  id: string;
-  title: string;
-  chapterCount: number;
-  currentRate: number;
-  useSections?: boolean;
-  correctRate?: number;
-  currentRound?: number;
-}
+import { BookOpen, TrendingUp, RotateCw, MoreVertical, Edit, Trash2 } from 'lucide-react-native'
 
 interface QuizBookCardProps {
   quizBook: QuizBook;
   onPress: () => void;
+  onEdit: () => void;
   onDelete: () => void;
 }
 
-const QuizBookCard = ({ quizBook, onPress, onDelete }: QuizBookCardProps) => {
-  const updateQuizBook = useQuizBookStore(state => state.updateQuizBook);
+const QuizBookCard = ({ quizBook, onPress, onEdit, onDelete }: QuizBookCardProps) => {
   const [showMenu, setShowMenu] = useState(false);
-  const [isEditing, setIsEditing] = useState(quizBook.title === '');
-  const [editedTitle, setEditedTitle] = useState(quizBook.title);
-  const [useSections, setUseSections] = useState(quizBook.useSections ?? undefined);
   const correctRate = quizBook.correctRate || 0;
 
   const handleMenuPress = (e: any) => {
@@ -36,97 +23,35 @@ const QuizBookCard = ({ quizBook, onPress, onDelete }: QuizBookCardProps) => {
   const handleEdit = (e: any) => {
     e.stopPropagation();
     setShowMenu(false);
-    setIsEditing(true);
-  };
-
-  const handleSaveTitle = async (e?: any) => {
-    if (e) e.stopPropagation();
-    if (editedTitle.trim() === '') {
-      return;
-    }
-    await updateQuizBook(quizBook.id, { title: editedTitle });
-    setIsEditing(false);
-  };
-
-  const handleCancelEdit = (e: any) => {
-    e.stopPropagation();
-    setEditedTitle(quizBook.title);
-    setIsEditing(false);
+    onEdit();
   };
 
   const handleDelete = (e: any) => {
     e.stopPropagation();
     setShowMenu(false);
     onDelete();
-  };
-
-  const handleToggleSections = async (value: boolean) => {
-    setUseSections(value);
-    await updateQuizBook(quizBook.id, { useSections: value });
-  };
-
-  const handleCardPress = () => {
-    if (!isEditing) {
-      onPress();
-    }
-  };
-
+  }
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.card}
-        onPress={handleCardPress}
-        activeOpacity={isEditing ? 1 : 0.7}
-        disabled={isEditing}
-      >
-        {!isEditing && (
-          <TouchableOpacity
-            style={styles.menuButton}
-            onPress={handleMenuPress}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <MoreVertical size={20} color={theme.colors.secondary[600]} />
-          </TouchableOpacity>
-        )}
-
-        {isEditing && (
-          <View style={styles.editActions}>
-            <TouchableOpacity onPress={handleSaveTitle} style={styles.actionButton}>
-              <Check size={20} color={theme.colors.success[600]} />
-            </TouchableOpacity>
-            {quizBook.title !== '' && (
-              <TouchableOpacity onPress={handleCancelEdit} style={styles.actionButton}>
-                <X size={20} color={theme.colors.error[600]} />
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
+      <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
+        {/* メニューボタン */}
+        <TouchableOpacity
+          style={styles.menuButton}
+          onPress={handleMenuPress}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <MoreVertical size={20} color={theme.colors.secondary[600]} />
+        </TouchableOpacity>
 
         <View style={styles.iconContainer}>
           <BookOpen size={32} color={theme.colors.primary[600]} />
         </View>
-
         <View style={styles.cardContent}>
           <View style={styles.titleContainer}>
-            {isEditing ? (
-              <TextInput
-                style={styles.titleInput}
-                value={editedTitle}
-                onChangeText={setEditedTitle}
-                placeholder="問題集名を入力"
-                placeholderTextColor={theme.colors.secondary[400]}
-                multiline
-                numberOfLines={2}
-                autoFocus
-                onSubmitEditing={handleSaveTitle}
-              />
-            ) : (
-              <Text style={styles.title} numberOfLines={2}>
-                {quizBook.title || '未設定'}
-              </Text>
-            )}
+            <Text style={styles.title} numberOfLines={2}>
+              {quizBook.title}
+            </Text>
           </View>
-
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
               <TrendingUp size={14} color={theme.colors.secondary[600]} />
@@ -135,9 +60,9 @@ const QuizBookCard = ({ quizBook, onPress, onDelete }: QuizBookCardProps) => {
                 color: correctRate >= 80
                   ? theme.colors.success[600]
                   : correctRate >= 60
-                    ? theme.colors.warning[600]
-                    : theme.colors.error[600]
-              }]}>{correctRate}%</Text>
+                  ? theme.colors.warning[600]
+                  : theme.colors.error[600]
+              }]}>{quizBook.correctRate}%</Text>
             </View>
             <View style={styles.divider} />
             <View style={styles.statItem}>
@@ -149,25 +74,13 @@ const QuizBookCard = ({ quizBook, onPress, onDelete }: QuizBookCardProps) => {
         </View>
       </TouchableOpacity>
 
+      {/* メニュー展開 */}
       {showMenu && (
         <View style={styles.menu}>
           <TouchableOpacity style={styles.menuItem} onPress={handleEdit}>
             <Edit size={16} color={theme.colors.primary[600]} />
             <Text style={styles.menuText}>編集</Text>
           </TouchableOpacity>
-          <View style={styles.menuDivider} />
-          <View style={styles.menuItem}>
-            <Text style={styles.menuText}>節を使用</Text>
-            <Switch
-              value={useSections ?? false}
-              onValueChange={handleToggleSections}
-              trackColor={{
-                false: theme.colors.secondary[300],
-                true: theme.colors.primary[400]
-              }}
-              thumbColor={useSections ? theme.colors.primary[600] : theme.colors.neutral.white}
-            />
-          </View>
           <View style={styles.menuDivider} />
           <TouchableOpacity style={styles.menuItem} onPress={handleDelete}>
             <Trash2 size={16} color={theme.colors.error[600]} />
@@ -200,17 +113,6 @@ const styles = StyleSheet.create({
     top: theme.spacing.sm,
     right: theme.spacing.sm,
     zIndex: 10,
-    padding: 4,
-  },
-  editActions: {
-    position: 'absolute',
-    top: theme.spacing.sm,
-    right: theme.spacing.sm,
-    zIndex: 10,
-    flexDirection: 'row',
-    gap: theme.spacing.xs,
-  },
-  actionButton: {
     padding: 4,
   },
   iconContainer: {
@@ -269,8 +171,8 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.secondary[200],
   },
   menu: {
-    position: 'absolute',
-    top: '100%',
+    position: 'absolute', 
+    top: '100%', 
     left: 0,
     right: 0,
     marginTop: theme.spacing.xs,
@@ -280,12 +182,11 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.secondary[200],
     ...theme.shadows.lg,
     overflow: 'hidden',
-    zIndex: 100,
+    zIndex: 100, 
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     padding: theme.spacing.md,
     gap: theme.spacing.sm,
   },

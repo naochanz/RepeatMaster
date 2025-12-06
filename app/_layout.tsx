@@ -3,7 +3,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { use, useEffect } from 'react';
 import 'react-native-reanimated';
 import {
   ZenKakuGothicNew_400Regular,
@@ -38,12 +38,22 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
-  const fetchQuizBooks = useQuizBookStore(state => state.fetchQuizBooks);
+  const fetchQuizBooks = useQuizBookStore(state => state.fetchQuizBooks)
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      console.log('🔵 データ読み込み開始');
+      await fetchQuizBooks();
+      const data = useQuizBookStore.getState().quizBooks;
+      console.log('🔵 読み込んだデータ:', data);
+    };
+    loadData();
+  }, []);
 
   useEffect(() => {
     if (loaded) {
@@ -63,14 +73,10 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   const stack = (
-    <Stack
-      screenOptions={{
-        headerBackTitle: '',
-        headerBackButtonDisplayMode: 'minimal',
-      }}
-    >
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="(stack)" />
+      <Stack.Screen name="modal" />
     </Stack>
   );
 

@@ -1,6 +1,7 @@
 // app/(tabs)/index.tsx
 import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
 import React, { useState } from 'react';
+import Header from '../compornents/Header';
 import QuizBookCard from '../compornents/QuizBookCard';
 import { router } from 'expo-router';
 import { useQuizBookStore } from '@/stores/quizBookStore';
@@ -11,23 +12,13 @@ import ConfirmDialog from '../compornents/ConfirmDialog';
 
 export default function HomeScreen() {
   const quizBooks = useQuizBookStore(state => state.quizBooks);
-  const addQuizBook = useQuizBookStore(state => state.addQuizBook);
-  const deleteQuizBook = useQuizBookStore(state => state.deleteQuizBook);
+  const deleteQuizBook = useQuizBookStore(state => state.deleteQuizBook)
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
-  const handleAddQuiz = async () => {
-    const newQuizBook = {
-      id: `quiz-${Date.now()}`,
-      title: '',
-      chapterCount: 0,
-      chapters: [],
-      currentRate: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    await addQuizBook(newQuizBook);
-  };
+  const handleAddQuiz = () => {
+    router.push('/quizBook/AddQuizBook');
+  }
 
   const handleCardPress = (quizBookId: string) => {
     router.push({
@@ -36,10 +27,17 @@ export default function HomeScreen() {
     });
   };
 
+  const handleEdit = (quizBookId: string) => {
+    router.push({
+      pathname: '/quizBook/AddQuizBook',
+      params: { editId: quizBookId }
+    })
+  }
+
   const handleDelete = async (quizBookId: string) => {
     setDeleteTargetId(quizBookId);
     setDeleteDialogVisible(true);
-  };
+  }
 
   const confirmDelete = async () => {
     if (deleteTargetId) {
@@ -47,7 +45,7 @@ export default function HomeScreen() {
       setDeleteDialogVisible(false);
       setDeleteTargetId(null);
     }
-  };
+  }
 
   const displayData = [
     ...quizBooks,
@@ -73,6 +71,7 @@ export default function HomeScreen() {
         <QuizBookCard
           quizBook={item}
           onPress={() => { handleCardPress(item.id) }}
+          onEdit={() => handleEdit(item.id)}
           onDelete={() => handleDelete(item.id)}
         />
       )}
@@ -80,7 +79,9 @@ export default function HomeScreen() {
   )
 
   return (
-    <View style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <Header />
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>登録済み問題集</Text>
         </View>
@@ -107,12 +108,17 @@ export default function HomeScreen() {
           onConfirm={confirmDelete}
           onCancel={() => setDeleteDialogVisible(false)}
         />
-    </View>
+      </View>
+    </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
   safeArea: {
+    flex: 1,
+    backgroundColor: theme.colors.neutral[50],
+  },
+  container: {
     flex: 1,
     backgroundColor: theme.colors.neutral[50],
   },
